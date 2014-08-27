@@ -1,0 +1,286 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\waio_fsync.c" />
+    <ClCompile Include="src\waio_listio.c" />
+    <ClCompile Include="src\waio_read_write.c" />
+    <ClCompile Include="src\waio_cancel.c" />
+    <ClCompile Include="src\waio_error.c" />
+    <ClCompile Include="src\waio_fcntl.c" />
+    <ClCompile Include="src\waio_alloc.c" />
+    <ClCompile Include="src\waio_free.c" />
+    <ClCompile Include="src\waio_ioctl.c" />
+    <ClCompile Include="src\waio_return.c" />
+    <ClCompile Include="src\waio_suspend.c" />
+    <ClCompile Include="src\ntapi\ntapi_tt_create_event.c" />
+    <ClCompile Include="src\ntapi\ntapi_tt_hex_utf8_to_uintptr.c" />
+    <ClCompile Include="src\ntapi\ntapi_tt_uintptr_to_hex_utf8.c" />
+    <ClCompile Include="src\llapi\waio_io.c" />
+    <ClCompile Include="src\llapi\waio_init.c" />
+    <ClCompile Include="src\llapi\waio_loop.c" />
+    <ClCompile Include="src\llapi\waio_thread_shutdown.c" />
+    <ClCompile Include="src\llapi\waio_thread_shutdown_fallback.c" />
+    <ClCompile Include="src\internal\waio_xvtbls.c" />
+    <ClCompile Include="test\waio_test.c" />
+    <ClCompile Include="test\waio_test_hooks.c" />
+    <ClCompile Include="test\waio_test_output.c" />
+    <ClCompile Include="test\waio_test_wine.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\waio\waio__compiler.h" />
+    <ClInclude Include="include\waio\waio__llapi.h" />
+    <ClInclude Include="include\waio\waio__os.h" />
+    <ClInclude Include="src\internal\headers\ntapi\bits\i386\nt_thread_i386.h" />
+    <ClInclude Include="src\internal\headers\ntapi\bits\x86_64\nt_thread_x86_64.h" />
+    <ClInclude Include="src\internal\headers\ntapi\ntapi.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_file.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_memory.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_object.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_process.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_status.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_string.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_sync.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_thread.h" />
+    <ClInclude Include="src\internal\headers\ntcon\ntcon.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\arch\nt32\ntalltypes.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\arch\nt32\ntneedall.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\arch\nt64\ntalltypes.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\arch\nt64\ntneedall.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\compiler\__nt_compiler_gcc.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\compiler\__nt_compiler_msvc.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\compiler\__psx_compiler_gcc.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\psxtypes.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\__nttypes.h" />
+    <ClInclude Include="src\internal\headers\psxtypes\__psxtypes.h" />
+    <ClInclude Include="src\internal\headers\winapi\winapi.h" />
+    <ClInclude Include="src\internal\waio_impl.h" />
+    <ClInclude Include="src\internal\waio_xvtbls.h" />
+    <ClInclude Include="test\waio_test.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{276599fd-dc1c-4557-9fe2-183bfe5c2fdf}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>src\internal;src\internal\headers;include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>src\internal;src\internal\headers;include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>src\internal;src\internal\headers;include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>src\internal;src\internal\headers;include</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>__WAIO_INTERNAL;__NT32;UNICODE;__WCHAR_T_SIZE_IN_BITS__=32;__DEBUG;</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <UndefinePreprocessorDefinitions>WIN32; _WIN32;</UndefinePreprocessorDefinitions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsC</CompileAs>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>kernel32.lib;</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <EntryPointSymbol>waio_tu_entry_point</EntryPointSymbol>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <LinkErrorReporting>PromptImmediately</LinkErrorReporting>
+      <PreventDllBinding>
+      </PreventDllBinding>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <BaseAddress>0x400000</BaseAddress>
+      <MinimumRequiredVersion>
+      </MinimumRequiredVersion>
+      <MinimumRequiredVersion>5.10</MinimumRequiredVersion>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>__WAIO_INTERNAL;__NT64;UNICODE;__WCHAR_T_SIZE_IN_BITS__=32;__DEBUG;</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <UndefinePreprocessorDefinitions>WIN32; _WIN32;WIN64; _WIN64;</UndefinePreprocessorDefinitions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsC</CompileAs>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>kernel32.lib;</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <EntryPointSymbol>waio_tu_entry_point</EntryPointSymbol>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <MinimumRequiredVersion>
+      </MinimumRequiredVersion>
+      <MinimumRequiredVersion>5.10</MinimumRequiredVersion>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>__WAIO_INTERNAL;__NT32;UNICODE;__WCHAR_T_SIZE_IN_BITS__=32;</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <UndefinePreprocessorDefinitions>WIN32; _WIN32;</UndefinePreprocessorDefinitions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsC</CompileAs>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>kernel32.lib;</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <EntryPointSymbol>waio_tu_entry_point</EntryPointSymbol>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <MinimumRequiredVersion>
+      </MinimumRequiredVersion>
+      <MinimumRequiredVersion>5.10</MinimumRequiredVersion>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>__WAIO_INTERNAL;__NT64;UNICODE;__WCHAR_T_SIZE_IN_BITS__=32;</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <UndefinePreprocessorDefinitions>WIN32; _WIN32;WIN64; _WIN64;</UndefinePreprocessorDefinitions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsC</CompileAs>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>kernel32.lib;</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <EntryPointSymbol>waio_tu_entry_point</EntryPointSymbol>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <MinimumRequiredVersion>
+      </MinimumRequiredVersion>
+      <MinimumRequiredVersion>5.10</MinimumRequiredVersion>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>

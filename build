@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# there are four possibilities, and hence four pre-defined config files;
+# $1 should provide the name of that file.
+
+# validation
+if [ "$1"x = 'x' ]; then
+		echo
+		echo "usage:"
+		echo "   build config-msys-nt32  [ARGS]"
+		echo "   build config-msys-nt64  [ARGS]"
+		echo "   build config-cross-nt32 [ARGS]"
+		echo "   build config-cross-nt64 [ARGS]"
+		echo
+		exit 2
+fi
+
+echo
+make -f $1.mak -f Makefile $2 $3 $4 $5 $6 $7 $8 $9

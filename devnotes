@@ -1,0 +1,21 @@
+/** fancy feature: when data size is small,
+ *  but processing time is long, then it
+ *  is worth copying the packet to a local
+ *  buffer, submit the next read request,
+ *  and only then continue with processing
+ *  the packet; this is also the reason for
+ *  having the initial data request submitted
+ *  separately.  if you are not interested in
+ *  this feature, then simply replace the local
+ *  packet buffer with a normal counter variable.
+**/
+
+/** checking for abort requests
+ *  zw_query_event is one of the fastest system calls
+ *  on NT, yet the following call could be avoided altogether,
+ *  for instance by using a global variable. such a variable,
+ *  however, would not only introduce unnecessary complexity,
+ *  but also make the function dependent on an element that
+ *  lies outside of its msg structure. my ultimate
+ *  recommendation: keep the call, and keep it simple.
+**/

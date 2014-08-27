@@ -1,0 +1,13 @@
+trash/
+obj/
+bin32/
+bin64/
+Debug/
+Release/
+x64/
+*.vcxproj.user
+*.suo
+*.layout
+*.sdf
+*.opensdf
+

@@ -1,0 +1,4 @@
+ntcon: this folder contains a subset of the midipix ntapi headers.
+these headers are included here for the application's self-containment.
+if building the application for the midipix system,
+this folder may be removed, but may also happily remain intact.

@@ -1,0 +1,1 @@
+/* a wrapper around the llapi init function (was: pipe_open_handle) */
