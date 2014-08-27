@@ -1,25 +1,12 @@
 #ifndef _WAIO__LLAPI_H_
 #define _WAIO__LLAPI_H_
 
+/* clerical duties */
+#include "waio__common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* compiler specific */
-#include "waio__compiler.h"
-
-/* os specific */
-#include "waio__os.h"
-
-/* the necessary ... */
-#if   defined (__WAIO_BUILD__)
-#define	waio_api	__attr_export__
-#elif defined (__WAIO_SHARED__)
-#define	waio_api	__attr_import__
-#else
-#define	waio_api
-#endif
-/* ... evil */
 
 /* forward declarations */
 typedef struct waio_interface		waio;

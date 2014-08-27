@@ -1,1 +1,0 @@
--Lc:/mingw/bin/../lib/gcc/x86_64-w64-mingw32/4.8.2/../../../../lib

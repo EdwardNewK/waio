@@ -1,1 +1,0 @@
--lkernel32 --subsystem=windows
