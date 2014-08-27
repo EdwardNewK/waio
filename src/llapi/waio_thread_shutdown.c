@@ -92,15 +92,15 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 				&paio->packet.iosb,
 				&paio->cancel_io.iosb);
 		} while (status);
+	} else {
+		/* the thread was blocking: now wait for it to terminate */
+		paio->status_loop = __ntapi->zw_wait_for_single_object(
+			paio->hthread_io,
+			NT_SYNC_NON_ALERTABLE,
+			(nt_timeout *)0);
 	}
 
-	/* wait for the thread to terminate */
-	paio->status_loop = __ntapi->zw_wait_for_single_object(
-		paio->hthread_io,
-		NT_SYNC_NON_ALERTABLE,
-		(nt_timeout *)0);
-
-	/* terminate thread cleanly */
+	/* terminate this thread cleanly */
 	__ntapi->zw_terminate_thread(
 		NT_CURRENT_THREAD_HANDLE,
 		NT_STATUS_REQUEST_ABORTED);
