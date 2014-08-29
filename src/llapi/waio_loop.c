@@ -36,7 +36,7 @@ int32_t __stdcall waio_loop(waio * paio)
 	void *				hwait[3];
 
 	/* get initial counter */
-	counter = paio->packet.counter;
+	counter = paio->packet->counter;
 
 	/* notify the init routine that the loop is ready */
 	paio->status_loop = __ntapi->zw_set_event(
@@ -91,7 +91,7 @@ int32_t __stdcall waio_loop(waio * paio)
 		if ((paio->status_loop) || (event_info.signal_state == NT_EVENT_SIGNALED))
 			waio_thread_shutdown_request(paio);
 
-		if (paio->packet.counter == counter)
+		if (paio->packet->counter == counter)
 			/* that must have been the thread crashing */
 			return NT_STATUS_THREAD_NOT_IN_PROCESS;
 
@@ -99,7 +99,7 @@ int32_t __stdcall waio_loop(waio * paio)
 		paio->hooks[WAIO_HOOK_AFTER_DATA_RECEIVED](paio,WAIO_HOOK_AFTER_DATA_RECEIVED,0);
 
 		/* update the local counter */
-		counter = paio->packet.counter;
+		counter = paio->packet->counter;
 
 		/* hook: before data processed */
 		paio->hooks[WAIO_HOOK_BEFORE_DATA_PROCESSED](paio,WAIO_HOOK_BEFORE_DATA_PROCESSED,0);

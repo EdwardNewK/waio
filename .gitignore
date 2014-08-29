@@ -10,5 +10,6 @@ x64/
 *.layout
 *.sdf
 *.opensdf
+*.gch
 ldflags.mak
 ldpath.mak

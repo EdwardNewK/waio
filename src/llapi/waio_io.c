@@ -113,12 +113,12 @@ int32_t __stdcall waio_io(waio * paio)
 		/* io: read */
 		paio->status_io = __ntapi->zw_read_file(
 			paio->hread,
-			(void *)0, /* since the pipe is blocking */
 			(void *)0,
 			(void *)0,
-			&paio->packet.iosb,
-			paio->packet.data,
-			sizeof(paio->packet.data),
+			(void *)0,
+			&paio->packet->iosb,
+			paio->packet->data,
+			(uint32_t)paio->packet->buffer_size,
 			(nt_large_integer *)0,
 			(uint32_t *)0);
 
@@ -141,7 +141,7 @@ int32_t __stdcall waio_io(waio * paio)
 			waio_thread_shutdown_response(paio);
 
 		/* successful read; advance the counter and notify the parent */
-		paio->packet.counter++;
+		paio->packet->counter++;
 
 		paio->status_io = __ntapi->zw_reset_event(
 			paio->hevent_data_request,

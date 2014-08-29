@@ -45,9 +45,11 @@
     <ClCompile Include="test\waio_test_wine.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\waio\waio__common.h" />
     <ClInclude Include="include\waio\waio__compiler.h" />
     <ClInclude Include="include\waio\waio__llapi.h" />
     <ClInclude Include="include\waio\waio__os.h" />
+    <ClInclude Include="include\waio\waio__stddef.h" />
     <ClInclude Include="src\internal\headers\ntapi\bits\i386\nt_thread_i386.h" />
     <ClInclude Include="src\internal\headers\ntapi\bits\x86_64\nt_thread_x86_64.h" />
     <ClInclude Include="src\internal\headers\ntapi\ntapi.h" />

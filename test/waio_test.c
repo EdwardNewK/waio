@@ -88,17 +88,22 @@ int __cdecl waio_test_pipe(waio * paio)
 	int		i;
 	waio_hook **	hook;
 	int32_t		status;
-	size_t		buffer_size = WAIO_READ_BUFFER_SIZE;
 
 	/* init the message structure */
 	__ntapi->memset(paio,0,sizeof(*paio));
 
+	/* use the internal packet and cancel_io structures */
+	paio->packet    = &paio->lpacket;
+	paio->cancel_io = &paio->lcancel_io;
+
 	/* allocate buffer */
+	paio->packet->buffer_size = WAIO_READ_BUFFER_SIZE;
+
 	status = __ntapi->zw_allocate_virtual_memory(
 		NT_CURRENT_PROCESS_HANDLE,
-		(void **)&paio->packet.data,
+		(void **)&paio->packet->data,
 		0,
-		&buffer_size,
+		&paio->packet->buffer_size,
 		NT_MEM_COMMIT,
 		NT_PAGE_READWRITE);
 

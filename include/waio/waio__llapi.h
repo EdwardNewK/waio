@@ -35,6 +35,7 @@ typedef struct waio_packet_interface {
 	os_signed_ptr		counter;
 	os_iosb			iosb;
 	os_unsigned_ptr *	data;
+	os_unsigned_ptr		buffer_size;
 } waio_packet;
 
 /* hooks */
@@ -99,8 +100,10 @@ typedef struct waio_interface {
 	void *		context_init;		/* future use or app-defined */
 	void *		context_loop;		/* future use or app-defined */
 	void *		context_io;		/* future use or app-defined */
-	waio_packet	packet;			/* aio single request        */
-	waio_packet	cancel_io;		/* aio cencellation status   */
+	waio_packet	lpacket;		/* internal request info        */
+	waio_packet	lcancel_io;		/* internal cencellation status */
+	waio_packet *	packet;			/* aio single request        */
+	waio_packet *	cancel_io;		/* aio cencellation status   */
 	waio_request **	queue;			/* request serialization */
 	waio_slot **	slots;			/* request serialization */
 	signed int	cpu_count;		/* serialization helper  */

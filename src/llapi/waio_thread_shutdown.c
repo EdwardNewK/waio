@@ -73,8 +73,8 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 	/* cancel io request */
 	status = pfn_zw_cancel_io_file_ex(
 		paio->hread,
-		&paio->packet.iosb,
-		&paio->cancel_io.iosb);
+		&paio->packet->iosb,
+		&paio->cancel_io->iosb);
 
 	/* NOT_FOUND means the io thread was not blocking, slight chance of race */
 	if (status == NT_STATUS_NOT_FOUND) {
@@ -89,8 +89,8 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 			/* cancel io request */
 			pfn_zw_cancel_io_file_ex(
 				paio->hread,
-				&paio->packet.iosb,
-				&paio->cancel_io.iosb);
+				&paio->packet->iosb,
+				&paio->cancel_io->iosb);
 		} while (status);
 	} else {
 		/* the thread was blocking: now wait for it to terminate */
