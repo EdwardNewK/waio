@@ -1,6 +1,16 @@
 #ifndef _WAIO__LLAPI_H_
 #define _WAIO__LLAPI_H_
 
+/* low-level interfaces */
+#if !defined(__WAIO_INTERNAL) \
+	&& !defined(__MIDIPIX_INTERNAL) \
+	&& !defined(MIDIPIX_STANDALONE) \
+	&& !defined(MIDIPIX_WIN32) \
+	&& !defined(MIDIPIX_WIN64)
+	/* framework mismatch */
+	#error __^@^__: incorrect framework for <waio/waio__llapi.h>: please include <waio/waio.h> instead.
+#endif
+
 /* clerical duties */
 #include "waio__common.h"
 
@@ -11,6 +21,8 @@ extern "C" {
 /* forward declarations */
 typedef struct waio_interface		waio;
 typedef struct waio_vtbl_interface	waio_vtbl;
+typedef struct waio_slot_interface	waio_slot;
+typedef struct waio_request_interface	waio_request;
 
 /* pipe type */
 typedef enum {
@@ -59,7 +71,7 @@ typedef signed int __waio_call_conv__hook waio_hook(
 	signed int		status);
 
 
-/* coordination: use norification events also for data request/received */
+/* coordination: use notification events also for data request/received */
 /* notification: that is, not synchronization, following OS semantics   */
 typedef struct waio_interface {
 	waio_vtbl *	vtbl;
@@ -87,8 +99,12 @@ typedef struct waio_interface {
 	void *		context_init;		/* future use or app-defined */
 	void *		context_loop;		/* future use or app-defined */
 	void *		context_io;		/* future use or app-defined */
-	waio_packet	packet;
-	waio_packet	cancel_io;
+	waio_packet	packet;			/* aio single request        */
+	waio_packet	cancel_io;		/* aio cencellation status   */
+	waio_request **	queue;			/* request serialization */
+	waio_slot **	slots;			/* request serialization */
+	signed int	cpu_count;		/* serialization helper  */
+	signed int	favorite_slot_index;	/* serialization helper  */
 } waio;
 
 /* waio default function signature */
