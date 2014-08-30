@@ -58,6 +58,7 @@
     <ClInclude Include="src\internal\headers\ntapi\nt_memory.h" />
     <ClInclude Include="src\internal\headers\ntapi\nt_object.h" />
     <ClInclude Include="src\internal\headers\ntapi\nt_process.h" />
+    <ClInclude Include="src\internal\headers\ntapi\nt_socket.h" />
     <ClInclude Include="src\internal\headers\ntapi\nt_status.h" />
     <ClInclude Include="src\internal\headers\ntapi\nt_string.h" />
     <ClInclude Include="src\internal\headers\ntapi\nt_sync.h" />
@@ -74,6 +75,7 @@
     <ClInclude Include="src\internal\headers\psxtypes\__nttypes.h" />
     <ClInclude Include="src\internal\headers\psxtypes\__psxtypes.h" />
     <ClInclude Include="src\internal\headers\winapi\winapi.h" />
+    <ClInclude Include="src\internal\waio_errno.h" />
     <ClInclude Include="src\internal\waio_impl.h" />
     <ClInclude Include="src\internal\waio_xvtbls.h" />
     <ClInclude Include="test\waio_test.h" />

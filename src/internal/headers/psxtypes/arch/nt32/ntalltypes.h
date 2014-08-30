@@ -40,6 +40,11 @@ typedef signed   long		ptrdiff_t;
 #define __DEFINED_ptrdiff_t
 #endif
 
+#if defined(__NEED_off_t) && !defined(__DEFINED_off_t)
+typedef signed long long		off_t;
+#define __DEFINED_off_t
+#endif
+
 #if defined(__NEED_int8_t) && !defined(__DEFINED_int8_t)
 typedef signed char		int8_t;
 #define __DEFINED_int8_t
