@@ -86,7 +86,7 @@ struct waio_aiocb {
 };
 
 /* opaque context handle */
-typedef void *	waio_cx;
+typedef struct waio_cx_interface * waio_cx;
 
 /* context poll request */
 struct waio_poll_cx {
