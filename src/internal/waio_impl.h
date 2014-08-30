@@ -36,7 +36,7 @@ typedef struct _winapi_vtbl	winapi_vtbl;
 
 
 /* accessors */
-typedef struct _WAIO_xvtbls {
+typedef struct _waio_xvtbls {
 	void *			hntdll;
 	void *			hkernel32;
 	ntapi_vtbl *		ntapi;
@@ -45,18 +45,18 @@ typedef struct _WAIO_xvtbls {
 } waio_xvtbls;
 
 /* internal accessors to external function */
-extern waio_xvtbls *		__WAIO_xvtbls;
+extern waio_xvtbls *		__waio_xvtbls;
 
 /* shortcuts to accessor pointers */
-#define	__hntdll	__WAIO_xvtbls->hntdll
-#define	__hkernel32	__WAIO_xvtbls->hkernel32
+#define	__hntdll	__waio_xvtbls->hntdll
+#define	__hkernel32	__waio_xvtbls->hkernel32
 
-#define __ntapi		__WAIO_xvtbls->ntapi
-#define __ntcon		__WAIO_xvtbls->ntcon
-#define __winapi	__WAIO_xvtbls->winapi
+#define __ntapi		__waio_xvtbls->ntapi
+#define __ntcon		__waio_xvtbls->ntcon
+#define __winapi	__waio_xvtbls->winapi
 
 /* library */
-/* TODO: waio_lib_entry_point(void); */
+int __stdcall waio_lib_entry_point(void *, uint32_t, void *);
 
 /* init */
 waio_internal_api int32_t __stdcall waio_xvtbls_init(waio_xvtbls *);

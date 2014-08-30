@@ -31,14 +31,14 @@
 static ntapi_vtbl	_ntapi;
 static ntcon_vtbl	_ntcon;
 static winapi_vtbl	_winapi;
-static waio_xvtbls	_WAIO_xvtbls;
+static waio_xvtbls	_waio_xvtbls;
 
 static ntapi_vtbl *	ntapi;
 static ntcon_vtbl *	ntcon;
 static winapi_vtbl *	winapi;
 
 /* .rdata */
-waio_xvtbls *		__WAIO_xvtbls = (waio_xvtbls *)0;
+waio_xvtbls *		__waio_xvtbls = (waio_xvtbls *)0;
 
 
 waio_internal_api
@@ -148,7 +148,7 @@ waio_internal_api
 int32_t __stdcall waio_xvtbls_init(waio_xvtbls * pxvtbls)
 {
 	/* simple transition between test unit and library */
-	__WAIO_xvtbls	= pxvtbls;
+	__waio_xvtbls	= pxvtbls;
 
 	/* internal pointer to accessor tables */
 	pxvtbls->ntapi	= &_ntapi;
@@ -176,9 +176,16 @@ int32_t __stdcall waio_xvtbls_init(waio_xvtbls * pxvtbls)
 waio_internal_api
 int STUB_REFERENCE_ALL_VARS(void)
 {
-	__WAIO_xvtbls=&_WAIO_xvtbls;
+	__waio_xvtbls=&_waio_xvtbls;
 	ntapi=&_ntapi;
 	ntcon=&_ntcon;
 	winapi=&_winapi;
+	return 1;
+}
+
+
+waio_internal_api
+int __stdcall waio_lib_entry_point(void * hinstance, uint32_t reason, void * reserved)
+{
 	return 1;
 }

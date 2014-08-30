@@ -69,7 +69,7 @@ typedef enum {
 typedef signed int __waio_call_conv__hook waio_hook(
 	waio *		paio,
 	waio_hook_type	type,
-	signed int		status);
+	signed int	status);
 
 
 /* coordination: use notification events also for data request/received */
@@ -111,20 +111,20 @@ typedef struct waio_interface {
 } waio;
 
 /* waio default function signature */
-typedef waio_api signed int __waio_call_conv__api waio_fn(waio *);
+typedef signed int __waio_call_conv__api waio_fn(waio *);
 
 /* library */
-waio_fn waio_init;
+waio_api waio_fn waio_init;
 
 /* parent */
-waio_fn waio_create;
-waio_fn waio_loop;
-waio_fn waio_thread_shutdown_request;
-waio_fn waio_thread_shutdown_fallback;
+waio_fn waio_api waio_create;
+waio_fn waio_api waio_loop;
+waio_fn waio_api waio_thread_shutdown_request;
+waio_fn waio_api waio_thread_shutdown_fallback;
 
 /* child */
-waio_fn waio_io;
-waio_fn waio_thread_shutdown_response;
+waio_fn waio_api waio_io;
+waio_fn waio_api waio_thread_shutdown_response;
 
 /* hooks */
 waio_hook waio_hook_default;

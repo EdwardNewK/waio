@@ -2,6 +2,8 @@ trash/
 obj/
 bin32/
 bin64/
+lib32/
+lib64/
 Debug/
 Release/
 x64/
