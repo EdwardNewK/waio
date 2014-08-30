@@ -16,8 +16,8 @@ typedef uintptr_t	os_unsigned_ptr;
 
 #else
 
-typedef	__waio_intptr		os_iosb_info;
-typedef __waio_intptr		os_signed_ptr;
+typedef	__waio_intptr	os_iosb_info;
+typedef __waio_intptr	os_signed_ptr;
 typedef __waio_uintptr	os_unsigned_ptr;
 
 typedef union _os_timeout {

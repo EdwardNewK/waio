@@ -4,7 +4,7 @@
 /* gcc */
 #ifdef	__GNUC__
 #define	__waio_call_conv__thread_entry_point	__attribute__((__stdcall__))
-#define	__waio_call_conv__hook		__attribute__((__stdcall__))
+#define	__waio_call_conv__hook			__attribute__((__stdcall__))
 #define	__waio_call_conv__api			__attribute__((__stdcall__))
 #define __attr_export__				__attribute__((dllexport))
 #define __attr_import__				__attribute__((dllimport))

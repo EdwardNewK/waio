@@ -45,6 +45,7 @@
     <ClCompile Include="test\waio_test_wine.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\waio\waio.h" />
     <ClInclude Include="include\waio\waio__common.h" />
     <ClInclude Include="include\waio\waio__compiler.h" />
     <ClInclude Include="include\waio\waio__llapi.h" />
