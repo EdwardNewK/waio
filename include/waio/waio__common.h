@@ -15,6 +15,8 @@
 #define	waio_api	__attr_export__
 #elif defined (__WAIO_SHARED__)
 #define	waio_api	__attr_import__
+#elif defined (__WAIO_STATIC__)
+#define	waio_api
 #else
 #define	waio_api
 #endif
