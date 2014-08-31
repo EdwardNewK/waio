@@ -112,7 +112,7 @@ int32_t __stdcall waio_io(waio * paio)
 
 		/* io: read */
 		paio->status_io = __ntapi->zw_read_file(
-			paio->hread,
+			paio->hfile,
 			(void *)0,
 			(void *)0,
 			(void *)0,

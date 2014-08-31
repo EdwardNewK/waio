@@ -29,6 +29,7 @@
 #include "waio_impl.h"
 
 #define WAIO_CX_BLOCK_SIZE	4096
+#define	WAIO_CX_SLOT_COUNT_TODO	8
 
 typedef struct waio_slot_interface	waio_slot;
 typedef struct waio_request_interface	waio_request;

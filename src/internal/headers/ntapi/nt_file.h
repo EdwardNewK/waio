@@ -123,6 +123,16 @@ typedef enum _nt_file_pipe_flags {
 					| NT_SEC_STANDARD_RIGHTS_ALL
 
 
+/* structures included in nt_file_all_information */
+typedef struct _nt_file_basic_information {
+	nt_large_integer	creation_time;
+	nt_large_integer	last_access_time;
+	nt_large_integer	last_write_time;
+	nt_large_integer	change_time;
+	uint32_t		file_attr;
+} nt_file_basic_information, nt_fbi;
+
+
 /* structures related to nt_fs_info_class */
 typedef struct _nt_file_pipe_information {
 	uint32_t	read_mode;

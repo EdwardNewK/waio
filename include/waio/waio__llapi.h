@@ -82,14 +82,14 @@ typedef struct waio_interface {
 	waio_io_type	type;			/* read/write */
 	unsigned int	flags;			/* todo: doc  */
 	void *		options;		/* future use or app-defined */
-	void *		hread;			/* os handle to reading end  */
-	void *		hwrite;			/* os handle to writing end  */
+	void *		hfile;			/* os handle    */
 	void *		hevent_loop_ready;	/* notification */
 	void *		hevent_io_ready;	/* notification */
 	void *		hevent_data_request;	/* notification */
-	void *		hevent_data_received;	/* notification		[ZwWaitFor] */
-	void *		hevent_abort_request;	/* notification		[Multiple]  */
-	void *		hthread_io;		/* the blocking thread	[Objects]   */
+	void *		hevent_data_received;	/* notification */
+	void *		hevent_queue_request;	/* notification */
+	void *		hevent_abort_request;	/* notification */
+	void *		hthread_io;		/* the blocking thread */
 	void *		hthread_loop;		/* (app) */
 	void *		hevent_info;		/* (app, optional) */
 	signed int	info_type;		/* (app, optional) */

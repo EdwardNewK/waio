@@ -72,7 +72,7 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 
 	/* cancel io request */
 	status = pfn_zw_cancel_io_file_ex(
-		paio->hread,
+		paio->hfile,
 		&paio->packet->iosb,
 		&paio->cancel_io->iosb);
 
@@ -88,7 +88,7 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 
 			/* cancel io request */
 			pfn_zw_cancel_io_file_ex(
-				paio->hread,
+				paio->hfile,
 				&paio->packet->iosb,
 				&paio->cancel_io->iosb);
 		} while (status);

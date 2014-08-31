@@ -88,6 +88,7 @@ int __cdecl waio_test_pipe(waio * paio)
 {
 	int		i;
 	waio_hook **	hook;
+	void *		hwrite;
 	int32_t		status;
 
 	/* init the message structure */
@@ -112,12 +113,12 @@ int __cdecl waio_test_pipe(waio * paio)
 
 	/* kernel32: create pipe: will always be a blocking one... */
 	status = __winapi->create_pipe(
-		&paio->hread,
-		&paio->hwrite,
+		&paio->hfile,
+		&hwrite,
 		(nt_sa *)0,
 		0x1000);
 
-	if ((!paio->hread) || (!paio->hwrite))
+	if ((!paio->hfile) || (!hwrite))
 		return NT_STATUS_PIPE_NOT_AVAILABLE;
 
 	/* pass options to pipe */
