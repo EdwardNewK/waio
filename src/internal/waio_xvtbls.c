@@ -33,12 +33,10 @@ static ntcon_vtbl	_ntcon;
 static winapi_vtbl	_winapi;
 static waio_xvtbls	_waio_xvtbls;
 
-static ntapi_vtbl *	ntapi;
-static ntcon_vtbl *	ntcon;
-static winapi_vtbl *	winapi;
-
 /* .rdata */
-waio_xvtbls *		__waio_xvtbls = (waio_xvtbls *)0;
+waio_xvtbls *		__waio_xvtbls	      = (waio_xvtbls *)0;
+static intptr_t		__waio_init_started   = 0;
+static intptr_t		__waio_init_completed = 0;
 
 
 waio_internal_api
@@ -52,7 +50,7 @@ int32_t __stdcall winapi_init(winapi_vtbl * pvtbl)
 	__attr_import__ winapi_get_module_handle_utf16	GetModuleHandleW;
 	__attr_import__ winapi_get_proc_address		GetProcAddress;
 
-	wchar16_t ntdll_module_name[] = {'n','t','d','l','l','.','d','l','l',0};
+	wchar16_t ntdll_module_name[]    = {'n','t','d','l','l','.','d','l','l',0};
 	wchar16_t kernel32_module_name[] = {'k','e','r','n','e','l','3','2','.','d','l','l',0};
 
 	/* hntdll, hkernel32 */
@@ -112,6 +110,8 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 	__get_proc_address(pvtbl,zw_query_information_file,"ZwQueryInformationFile");
 	__get_proc_address(pvtbl,zw_write_file,"ZwWriteFile");
 	__get_proc_address(pvtbl,zw_read_file,"ZwReadFile");
+	/* time */
+	__get_proc_address(pvtbl,zw_yield_execution,"ZwYieldExecution");
 	/* string */
 	__get_proc_address(pvtbl,memset,"memset");
 	__get_proc_address(pvtbl,sprintf,"sprintf");
@@ -149,9 +149,6 @@ int32_t __stdcall ntcon_init(ntcon_vtbl * pvtbl)
 waio_internal_api
 int32_t __stdcall waio_xvtbls_init(waio_xvtbls * pxvtbls)
 {
-	/* simple transition between test unit and library */
-	__waio_xvtbls	= pxvtbls;
-
 	/* internal pointer to accessor tables */
 	pxvtbls->ntapi	= &_ntapi;
 	pxvtbls->ntcon	= &_ntcon;
@@ -176,13 +173,79 @@ int32_t __stdcall waio_xvtbls_init(waio_xvtbls * pxvtbls)
 
 
 waio_internal_api
-int STUB_REFERENCE_ALL_VARS(void)
+int32_t __stdcall waio_xvtbls_init_once(void)
 {
-	__waio_xvtbls=&_waio_xvtbls;
-	ntapi=&_ntapi;
-	ntcon=&_ntcon;
-	winapi=&_winapi;
-	return 1;
+	void *					hntdll;
+	intptr_t				init_started;
+	void *					hevent;
+	ntapi_zw_create_event *			pfn_create_event;
+	ntapi_zw_wait_for_single_object *	pfn_wait_for_single_object;
+	ntapi_zw_close *			pfn_close;
+	os_timeout				timeout;
+	uintptr_t				tries;
+	int32_t					status;
+
+	__attr_import__ winapi_get_module_handle_utf16	GetModuleHandleW;
+	__attr_import__ winapi_get_proc_address		GetProcAddress;
+
+	wchar16_t ntdll_module_name[]    = {'n','t','d','l','l','.','d','l','l',0};
+
+	/* init once completed? */
+	if (__waio_init_completed)
+		return NT_STATUS_SUCCESS;
+
+	/* init once started? */
+	init_started = at_locked_cas(&__waio_init_started,0,1);
+
+	if (init_started) {
+		/* private pointers */
+		hntdll			   = GetModuleHandleW(ntdll_module_name);
+		pfn_create_event	   = (ntapi_zw_create_event *)GetProcAddress(hntdll,"ZwCreateEvent");
+		pfn_wait_for_single_object = (ntapi_zw_wait_for_single_object *)GetProcAddress(hntdll,"ZwWaitForSingleObject");
+		pfn_close		   = (ntapi_zw_close *)GetProcAddress(hntdll,"ZwClose");
+
+		if ((!hntdll) || (!pfn_create_event) || (!pfn_wait_for_single_object) || (!pfn_close))
+			return NT_STATUS_DLL_INIT_FAILED;
+
+		/* save two system calls if possible */
+		if (__waio_init_completed)
+			return NT_STATUS_SUCCESS;
+
+		status = pfn_create_event(
+			&hevent,
+			NT_EVENT_ALL_ACCESS,
+			(nt_oa *)0,
+			NT_NOTIFICATION_EVENT,
+			NT_EVENT_NOT_SIGNALED);
+
+		if (status) return status;
+
+		/* wait for init to complete (~1 minute) using 100usec intervals */
+		timeout.quad = (-1) * 1000;
+		tries = 0;
+
+		while ((__waio_init_completed == 0) && (tries < 0x2000)) {
+			pfn_wait_for_single_object(hevent,NT_SYNC_NON_ALERTABLE,&timeout);
+			tries++;
+		}
+
+		/* clean-up */
+		pfn_close(hevent);
+
+		/* verify & return */
+		return __waio_init_completed
+			? NT_STATUS_SUCCESS
+			: NT_STATUS_DLL_INIT_FAILED;
+	}
+
+	/* init once should be performed by this thread */
+	__waio_xvtbls = &_waio_xvtbls;
+	status = waio_xvtbls_init(&_waio_xvtbls);
+
+	if (status == NT_STATUS_SUCCESS)
+		__waio_init_completed = 1;
+
+	return status;
 }
 
 

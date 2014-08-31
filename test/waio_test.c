@@ -25,6 +25,7 @@
 #include <ntcon/ntcon.h>
 #include <winapi/winapi.h>
 #include <waio/waio__llapi.h>
+#include <waio/waio.h>
 #include "waio_impl.h"
 #include "waio_test.h"
 
@@ -32,7 +33,7 @@
 
 /* .rdata */
 static waio_xvtbls	xvtbls = {0};
-static waio	pipe_pool[waio_POOL_SIZE] = {{0}};
+static waio		pipe_pool[waio_POOL_SIZE] = {{0}};
 static void *		hevent_abort_request;
 static void *		hstdout;
 
@@ -217,7 +218,12 @@ int __cdecl waio_main_utf8(int argc, char ** argv, char ** envp)
 /* _start */
 int waio_tu_entry_point(void)
 {
-	/* xvtbl init */
+	int32_t status;
+
+	/* xvtbl init (library) */
+	waio_alloc((void *)0,0,(void *)0,&status);
+
+	/* xvtbl init (test unit) */
 	if (waio_xvtbls_init(&xvtbls) != NT_STATUS_SUCCESS)
 		return NT_STATUS_DLL_INIT_FAILED;
 

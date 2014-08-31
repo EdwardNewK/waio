@@ -65,6 +65,8 @@ typedef struct _ntapi_vtbl {
 	ntapi_zw_query_information_file *	zw_query_information_file;
 	ntapi_zw_write_file *			zw_write_file;
 	ntapi_zw_read_file *			zw_read_file;
+	/* time */
+	ntapi_zw_yield_execution *		zw_yield_execution;
 	/* string */
 	ntapi_memset *				memset;
 	ntapi_sprintf *				sprintf;

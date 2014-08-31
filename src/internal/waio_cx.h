@@ -20,55 +20,47 @@
 /*****************************************************************************/
 
 
-#ifndef _WAIO_IMPL_H_
-#define _WAIO_IMPL_H_
+#ifndef _WAIO_CX_H_
+#define _WAIO_CX_H_
 
+#include <psxtypes/psxtypes.h>
+#include <ntapi/ntapi.h>
 #include <waio/waio__llapi.h>
-#include "waio_xvtbls.h"
+#include "waio_impl.h"
 
-/* annotation */
-#define waio_internal_api
+#define WAIO_CX_BLOCK_SIZE	4096
 
-/* forward declarations */
-typedef struct _ntapi_vtbl	ntapi_vtbl;
-typedef struct _ntcon_vtbl	ntcon_vtbl;
-typedef struct _winapi_vtbl	winapi_vtbl;
+typedef struct waio_slot_interface	waio_slot;
+typedef struct waio_request_interface	waio_request;
+
+typedef struct waio_slot_interface {
+	uint32_t		pid;
+	uint32_t		tid;
+	int			aio_lio_opcode;
+	int			aio_reqprio;
+	void *			aio_hevent;
+	volatile void *		aio_buf;
+	size_t			aio_nbytes;
+	off_t           	aio_offset;
+} waio_slot;
 
 
-/* accessors */
-typedef struct _waio_xvtbls {
-	void *			hntdll;
-	void *			hkernel32;
-	ntapi_vtbl *		ntapi;
-	ntcon_vtbl *		ntcon;
-	winapi_vtbl *		winapi;
-} waio_xvtbls;
+typedef struct waio_request_interface {
+	waio_slot		slot;
+	os_iosb			iosb;
+	os_iosb			cancel_io;
+	waio_packet		rpacket;
+	waio_packet		rcancel_io;
+	waio_request *		next;
+} waio_request;
 
-/* internal accessors to external function */
-extern waio_xvtbls *	__waio_xvtbls;
 
-/* shortcuts to accessor pointers */
-#define	__hntdll	__waio_xvtbls->hntdll
-#define	__hkernel32	__waio_xvtbls->hkernel32
+typedef struct waio_cx_interface {
+	struct waio_cx_interface *	self;
+	struct waio_interface *		paio;
+	waio_request *			free_nodes;
+	size_t				cx_size;
+} waio_opaque_cx;
 
-#define __ntapi		__waio_xvtbls->ntapi
-#define __ntcon		__waio_xvtbls->ntcon
-#define __winapi	__waio_xvtbls->winapi
 
-/* library */
-int __stdcall waio_lib_entry_point(void *, uint32_t, void *);
-
-/* init */
-waio_internal_api int32_t __stdcall waio_xvtbls_init_once(void);
-waio_internal_api int32_t __stdcall waio_xvtbls_init(waio_xvtbls *);
-waio_internal_api int32_t __stdcall ntapi_init(ntapi_vtbl *);
-waio_internal_api int32_t __stdcall ntcon_init(ntcon_vtbl *);
-waio_internal_api int32_t __stdcall winapi_init(winapi_vtbl *);
-
-/* loop */
-waio_internal_api int32_t __stdcall waio_loop_entry_point(waio *);
-
-/* io */
-waio_internal_api int32_t __stdcall waio_io_entry_point(waio *);
-
-#endif /* _WAIO_IMPL_H_ */
+#endif /* _WAIO_CX_H_ */

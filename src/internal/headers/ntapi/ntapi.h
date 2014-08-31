@@ -3,12 +3,14 @@
 
 #include <psxtypes/psxtypes.h>
 #include "nt_status.h"
+#include "nt_atomic.h"
 #include "nt_object.h"
 #include "nt_memory.h"
 #include "nt_thread.h"
 #include "nt_process.h"
 #include "nt_sync.h"
 #include "nt_file.h"
+#include "nt_time.h"
 #include "nt_string.h"
 
 /* extensions */

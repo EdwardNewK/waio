@@ -110,9 +110,10 @@ typedef union waio_timeout_union {
 /* function prototypes: library-specific interfaces */
 /* waio_alloc(): associate a native file handle with an opaque waio context */
 waio_api waio_cx waio_alloc(
-		void * 		handle,	  /* in          */
-		unsigned int	flags,	  /* in, ignored */
-		void * 		options); /* in, ignores */
+		void * 		handle,	  /* in            */
+		unsigned int	flags,	  /* in,  ignored  */
+		void * 		options,  /* in,  ignores  */
+		signed int *	status);  /* out, optional */
 
 
 /* waio_free(): free a waio context after cancelling all pending i/o operations */
