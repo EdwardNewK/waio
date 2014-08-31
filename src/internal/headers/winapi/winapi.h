@@ -1,6 +1,10 @@
 #include <psxtypes/psxtypes.h>
 #include <ntapi/nt_object.h>
 
+typedef uint32_t __stdcall winapi_get_current_thread_id(void);
+
+typedef uint32_t __stdcall winapi_get_current_process_id(void);
+
 typedef void * __stdcall winapi_get_module_handle_ansi(
 	_in_	char *		module_name);
 

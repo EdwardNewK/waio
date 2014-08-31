@@ -31,6 +31,8 @@
 
 /* win32 api accessor table */
 typedef struct _winapi_vtbl {
+	winapi_get_current_thread_id *		get_current_thread_id;
+	winapi_get_current_process_id *		get_current_process_id;
 	winapi_get_module_handle_utf16 *	get_module_handle_utf16;
 	winapi_get_proc_address *		get_proc_address;
 	winapi_create_thread *			create_thread;
