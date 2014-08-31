@@ -24,7 +24,7 @@ typedef struct waio_vtbl_interface	waio_vtbl;
 typedef struct waio_slot_interface	waio_slot;
 typedef struct waio_request_interface	waio_request;
 
-/* pipe type */
+/* i/o type */
 typedef enum {
 	WAIO_IO_READ,
 	WAIO_IO_WRITE,
@@ -118,14 +118,14 @@ typedef signed int __waio_call_conv__api waio_fn(waio *);
 waio_api waio_fn waio_init;
 
 /* parent */
-waio_fn waio_api waio_create;
-waio_fn waio_api waio_loop;
-waio_fn waio_api waio_thread_shutdown_request;
-waio_fn waio_api waio_thread_shutdown_fallback;
+waio_api waio_fn waio_create;
+waio_api waio_fn waio_loop;
+waio_api waio_fn waio_thread_shutdown_request;
+waio_api waio_fn waio_thread_shutdown_fallback;
 
 /* child */
-waio_fn waio_api waio_io;
-waio_fn waio_api waio_thread_shutdown_response;
+waio_api waio_fn waio_io;
+waio_api waio_fn waio_thread_shutdown_response;
 
 /* hooks */
 waio_hook waio_hook_default;
