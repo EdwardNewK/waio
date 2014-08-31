@@ -96,25 +96,42 @@ struct waio_poll_cx {
 };
 
 
-/* function prototypes: library specific */
+/* timeout */
+typedef union waio_timeout_union {
+	struct {
+		unsigned int	ulow;
+		signed int	ihigh;
+	} __u;
+	long long		quad;
+} waio_timeout;
+
+
+
+/* function prototypes: library-specific interfaces */
 /* waio_alloc(): associate a native file handle with an opaque waio context */
-waio_cx	waio_alloc(
-	void * 		handle,	  /* in          */
-	unsigned int	flags,	  /* in, ignored */
-	void * 		options); /* in, ignores */
+waio_api waio_cx waio_alloc(
+		void * 		handle,	  /* in          */
+		unsigned int	flags,	  /* in, ignored */
+		void * 		options); /* in, ignores */
+
 
 /* waio_free(): free a waio context after cancelling all pending i/o operations */
-int	waio_free	(waio_cx);
+waio_api int waio_free (waio_cx);
 
-/* waio_poll(): poll assorted file handles through their associated waio contexts */
+
+/* waio_poll(): poll assorted file handles via their associated waio contexts */
+waio_api int waio_poll(
+		struct waio_poll_cx *	cxs,
+		unsigned long		ncxs,
+		waio_timeout *		timeout);
+
 
 /* function prototypes: aio-like interfaces */
-int	waio_read	(waio_cx, struct waio_aiocb *);
-int	waio_write	(waio_cx, struct waio_aiocb *);
-int	waio_error	(waio_cx, const struct waio_aiocb *);
-int	waio_cancel	(waio_cx, int, struct waio_aiocb *);
-ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
-
+waio_api int		waio_read	(waio_cx, struct waio_aiocb *);
+waio_api int		waio_write	(waio_cx, struct waio_aiocb *);
+waio_api int		waio_error	(waio_cx, const struct waio_aiocb *);
+waio_api int		waio_cancel	(waio_cx, int, struct waio_aiocb *);
+waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
 
 
 #ifdef __cplusplus

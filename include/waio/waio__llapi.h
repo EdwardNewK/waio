@@ -26,8 +26,9 @@ typedef struct waio_request_interface	waio_request;
 
 /* pipe type */
 typedef enum {
-	WAIO_READ,
-	WAIO_WRITE
+	WAIO_IO_READ,
+	WAIO_IO_WRITE,
+	WAIO_IO_NOP
 } waio_io_type;
 
 /* packet */
