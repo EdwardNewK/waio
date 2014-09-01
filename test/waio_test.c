@@ -83,6 +83,7 @@ int __cdecl waio_test_pipe(waio * paio)
 	int		i;
 	waio_hook **	hook;
 	void *		hwrite;
+	nt_fbi		fbi;
 	int32_t		status;
 
 	/* init the message structure */
@@ -114,6 +115,16 @@ int __cdecl waio_test_pipe(waio * paio)
 
 	if ((!paio->hfile) || (!hwrite))
 		return NT_STATUS_PIPE_NOT_AVAILABLE;
+
+	/* test basic file information */
+	status = __ntapi->zw_query_information_file(
+		paio->hfile,
+		&paio->lpacket.iosb,
+		&fbi,
+		sizeof(fbi),
+		NT_FILE_BASIC_INFORMATION);
+
+	if (status) return status;
 
 	/* pass options to pipe */
 	paio->hevent_abort_request = hevent_abort_request;
