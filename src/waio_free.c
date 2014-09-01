@@ -49,7 +49,7 @@ waio_api int waio_free (waio_cx cx)
 	status = __ntapi->zw_wait_for_multiple_objects(
 		2,
 		hwait,
-		NT_WAIT_ALL,
+		__ntapi->wait_type_all,
 		NT_SYNC_NON_ALERTABLE,
 		&timeout);
 

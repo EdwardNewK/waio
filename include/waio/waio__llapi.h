@@ -56,6 +56,7 @@ typedef enum {
 	WAIO_HOOK_BEFORE_DATA_PROCESSED,
 	WAIO_HOOK_AFTER_DATA_PROCESSED,
 	WAIO_HOOK_ON_TIMEOUT,
+	WAIO_HOOK_ON_CANCEL,
 	WAIO_HOOK_ON_FAILURE,
 	WAIO_HOOK_ON_QUERY,
 	WAIO_HOOK_CAP
@@ -79,8 +80,8 @@ typedef struct waio_interface {
 	void *		hfile;			/* os handle    */
 	void *		hevent_loop_ready;	/* notification */
 	void *		hevent_io_ready;	/* notification */
-	void *		hevent_io_requested;	/* notification */
-	void *		hevent_io_completed;	/* notification */
+	void *		hevent_io_request;	/* notification */
+	void *		hevent_io_complete;	/* notification */
 	void *		hevent_queue_request;	/* notification */
 	void *		hevent_abort_request;	/* notification */
 	void *		hthread_io;		/* the blocking thread */

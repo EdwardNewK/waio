@@ -67,8 +67,11 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 					"ZwCancelIoFileEx");
 
 	/* use fallback method if not */
-	if (!pfn_zw_cancel_io_file_ex)
+	if (!pfn_zw_cancel_io_file_ex || __ntapi->wine_get_version)
 		return waio_thread_shutdown_fallback(paio);
+
+	/* hook: before shutdown_request */
+	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);
 
 	/* cancel io request */
 	status = pfn_zw_cancel_io_file_ex(
@@ -76,8 +79,14 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 		&paio->packet->iosb,
 		&paio->cancel_io->iosb);
 
+	/* hook: before shutdown_request */
+	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);
+
 	/* NOT_FOUND means the io thread was not blocking, slight chance of race */
 	if (status == NT_STATUS_NOT_FOUND) {
+		/* hook: before shutdown_request */
+		paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);
+
 		timeout.quad = (-1) * 10 * 1000;
 		do {
 			/* wait for the thread for one millisecond */
@@ -92,13 +101,17 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 				&paio->packet->iosb,
 				&paio->cancel_io->iosb);
 		} while (status);
-	} else {
+	} else if (status == 0) {
+		paio->hooks[WAIO_HOOK_ON_CANCEL](paio,WAIO_HOOK_ON_CANCEL,0);
 		/* the thread was blocking: now wait for it to terminate */
 		paio->status_loop = __ntapi->zw_wait_for_single_object(
 			paio->hthread_io,
 			NT_SYNC_NON_ALERTABLE,
 			(nt_timeout *)0);
-	}
+	} else
+		paio->hooks[WAIO_HOOK_ON_FAILURE](paio,WAIO_HOOK_ON_FAILURE,0);
+
+	paio->hooks[WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE](paio,WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE,0);
 
 	/* terminate this thread cleanly */
 	__ntapi->zw_terminate_thread(

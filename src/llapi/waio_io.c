@@ -57,7 +57,7 @@ int32_t __stdcall waio_io(waio * paio)
 	io_routine[1] = __ntapi->zw_write_file;
 
 	/* events of interest */
-	hwait[0] = paio->hevent_io_requested;
+	hwait[0] = paio->hevent_io_request;
 	hwait[1] = paio->hevent_abort_request;
 
 	do {
@@ -66,7 +66,7 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->status_io = __ntapi->zw_wait_for_multiple_objects(
 			2,
 			hwait,
-			NT_WAIT_ANY,
+			__ntapi->wait_type_any,
 			0,
 			&paio->io_request_timeout);
 
@@ -77,8 +77,8 @@ int32_t __stdcall waio_io(waio * paio)
 			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
 				2,
 				hwait,
-				NT_WAIT_ANY,
-				0,
+				__ntapi->wait_type_any,
+				NT_SYNC_NON_ALERTABLE,
 				&paio->io_request_timeout);
 		}
 
@@ -116,6 +116,9 @@ int32_t __stdcall waio_io(waio * paio)
 			(nt_large_integer *)0,
 			(uint32_t *)0);
 
+		/* hook: after io */
+		paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
+
 		if (paio->status_io) return paio->status_io;
 
 		/* hook: after io */
@@ -138,7 +141,7 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->packet->counter++;
 
 		paio->status_io = __ntapi->zw_reset_event(
-			paio->hevent_io_requested,
+			paio->hevent_io_request,
 			&state);
 
 		if (paio->status_io) return paio->status_io;
@@ -147,7 +150,7 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->hooks[WAIO_HOOK_BEFORE_IO_COMPLETE](paio,WAIO_HOOK_BEFORE_IO_COMPLETE,0);
 
 		paio->status_io = __ntapi->zw_set_event(
-			paio->hevent_io_completed,
+			paio->hevent_io_complete,
 			&state);
 
 		if (paio->status_io) return paio->status_io;
@@ -167,8 +170,10 @@ int32_t __stdcall waio_io_entry_point(waio * paio)
 	/* enter loop */
 	status = waio_io(paio);
 
-	/* hook: on failure */
-	if (status)
+	/* hook: on cancel / on failure */
+	if (status == NT_STATUS_CANCELLED)
+		paio->hooks[WAIO_HOOK_ON_CANCEL](paio,WAIO_HOOK_ON_CANCEL,status);
+	else if (status)
 		paio->hooks[WAIO_HOOK_ON_FAILURE](paio,WAIO_HOOK_ON_FAILURE,status);
 
 	/* terminate thread cleanly */

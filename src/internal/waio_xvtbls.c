@@ -105,7 +105,7 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 	__get_proc_address(pvtbl,zw_set_event,"ZwSetEvent");
 	__get_proc_address(pvtbl,zw_query_event,"ZwQueryEvent");
 	__get_proc_address(pvtbl,zw_wait_for_single_object,"ZwWaitForSingleObject");
-	__get_proc_address(pvtbl,zw_wait_for_multiple_objects,"ZwWaitForMultipleObjects");
+	__get_proc_address(pvtbl,zw_wait_for_multiple_objects,"NtWaitForMultipleObjects");
 	/* file */
 	__get_proc_address(pvtbl,zw_query_information_file,"ZwQueryInformationFile");
 	__get_proc_address(pvtbl,zw_write_file,"ZwWriteFile");
@@ -117,6 +117,17 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 	__get_proc_address(pvtbl,sprintf,"sprintf");
 	__get_proc_address(pvtbl,strlen,"strlen");
 	__get_proc_address(pvtbl,wcslen,"wcslen");
+
+	/* wine bugs */
+	pvtbl->wine_get_version = __winapi->get_proc_address(__hntdll,"wine_get_version");
+
+	if (pvtbl->wine_get_version) {
+		__ntapi->wait_type_any = NT_WAIT_ALL;
+		__ntapi->wait_type_all = NT_WAIT_ANY;
+	} else {
+		__ntapi->wait_type_any = NT_WAIT_ANY;
+		__ntapi->wait_type_all = NT_WAIT_ALL;
+	}
 
 	/* done */
 	return NT_STATUS_SUCCESS;

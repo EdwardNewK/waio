@@ -133,11 +133,21 @@ typedef struct _nt_file_basic_information {
 } nt_file_basic_information, nt_fbi;
 
 
+typedef struct _nt_file_standard_information {
+	nt_large_integer	allocation_size;
+	nt_large_integer	end_of_file;
+	uint32_t		number_of_links;
+	unsigned char		delete_pending;
+	unsigned char		directory;
+	unsigned char		reserved[2];
+} nt_file_standard_information, nt_fsi;
+
+
 /* structures related to nt_fs_info_class */
 typedef struct _nt_file_pipe_information {
 	uint32_t	read_mode;
 	uint32_t	completion_mode;
-} nt_file_pipe_information;
+} nt_file_pipe_information, nt_fpi;
 
 
 typedef struct _nt_file_pipe_local_information {

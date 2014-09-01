@@ -44,7 +44,7 @@ waio_api waio_cx waio_alloc(
 {
 	int32_t		_status;
 	nt_iosb		iosb;
-	nt_fbi		fbi;
+	nt_fsi		fsi;
 	waio_cx_block *	cx_block;
 	size_t		cx_block_size;
 	waio_hook **	hook;
@@ -62,9 +62,9 @@ waio_api waio_cx waio_alloc(
 	*status = __ntapi->zw_query_information_file(
 		handle,
 		&iosb,
-		&fbi,
-		sizeof(fbi),
-		NT_FILE_BASIC_INFORMATION);
+		&fsi,
+		sizeof(fsi),
+		NT_FILE_STANDARD_INFORMATION);
 
 	if (*status) return (waio_cx)0;
 

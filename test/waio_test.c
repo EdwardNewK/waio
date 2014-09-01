@@ -39,8 +39,8 @@ static void *		hstdout;
 
 
 char * waio_test_hook_strings[WAIO_HOOK_CAP] = {
-	"WAIO_HOOK_BEFORE_PIPE_INIT",
-	"WAIO_HOOK_AFTER_PIPE_INIT",
+	"WAIO_HOOK_BEFORE_INIT",
+	"WAIO_HOOK_AFTER_INIT",
 	"WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST",
 	"WAIO_HOOK_AFTER_SHUTDOWN_REQUEST",
 	"WAIO_HOOK_BEFORE_SHUTDOWN_RESPONSE",
@@ -54,6 +54,7 @@ char * waio_test_hook_strings[WAIO_HOOK_CAP] = {
 	"WAIO_HOOK_BEFORE_DATA_PROCESSED",
 	"WAIO_HOOK_AFTER_DATA_PROCESSED",
 	"WAIO_HOOK_ON_TIMEOUT",
+	"WAIO_HOOK_ON_CANCEL",
 	"WAIO_HOOK_ON_FAILURE",
 	"WAIO_HOOK_ON_QUERY"
 };
@@ -83,7 +84,7 @@ int __cdecl waio_test_pipe(waio * paio)
 	int		i;
 	waio_hook **	hook;
 	void *		hwrite;
-	nt_fbi		fbi;
+	nt_fsi		fsi;
 	int32_t		status;
 
 	/* init the message structure */
@@ -120,9 +121,9 @@ int __cdecl waio_test_pipe(waio * paio)
 	status = __ntapi->zw_query_information_file(
 		paio->hfile,
 		&paio->lpacket.iosb,
-		&fbi,
-		sizeof(fbi),
-		NT_FILE_BASIC_INFORMATION);
+		&fsi,
+		sizeof(fsi),
+		NT_FILE_STANDARD_INFORMATION);
 
 	if (status) return status;
 
@@ -177,6 +178,11 @@ int __cdecl waio_test_pipes(unsigned int pool_size, uint32_t flags, void * optio
 		hevent_abort_request,
 		NT_SYNC_NON_ALERTABLE,
 		&timeout);
+
+	__ntapi->zw_wait_for_single_object(
+		hevent_abort_request,
+		NT_SYNC_NON_ALERTABLE,
+		(nt_timeout *)&timeout);
 
 	/* ask everyone to abort */
 	__ntapi->zw_set_event(

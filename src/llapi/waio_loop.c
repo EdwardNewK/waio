@@ -45,22 +45,22 @@ int32_t __stdcall waio_loop(waio * paio)
 
 	if (paio->status_loop) return paio->status_loop;
 
-	/* hook: before read request */
+	/* hook: before io request */
 	paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
 
-	/* submit initial read request */
+	/* submit initial io request */
 	paio->status_loop = __ntapi->zw_set_event(
-		paio->hevent_io_requested,
+		paio->hevent_io_request,
 		&state);
 
 	if (paio->status_loop) return paio->status_loop;
 
-	/* hook: before read request */
+	/* hook: before io request */
 	paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
 
 	/* prepare for the waits */
 	hwait[0] = paio->hevent_abort_request;
-	hwait[1] = paio->hevent_io_completed;
+	hwait[1] = paio->hevent_io_complete;
 	hwait[2] = paio->hthread_io;
 
 	do {
@@ -70,12 +70,11 @@ int32_t __stdcall waio_loop(waio * paio)
 		paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
 			3,
 			hwait,
-			NT_WAIT_ANY,
-			0,
+			__ntapi->wait_type_any,
+			NT_SYNC_NON_ALERTABLE,
 			&paio->io_request_timeout);
 
-		/* wine debug */
-		paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,paio->status_loop);
+		paio->hooks[WAIO_HOOK_BEFORE_DATA_PROCESSED](paio,WAIO_HOOK_BEFORE_DATA_PROCESSED,0);
 
 		if ((uint32_t)paio->status_loop >= NT_STATUS_WAIT_CAP)
 			waio_thread_shutdown_request(paio);
@@ -109,7 +108,7 @@ int32_t __stdcall waio_loop(waio * paio)
 
 		/* submit the next data request */
 		paio->status_loop = __ntapi->zw_reset_event(
-			paio->hevent_io_completed,
+			paio->hevent_io_complete,
 			&state);
 
 		if (paio->status_loop)
@@ -119,7 +118,7 @@ int32_t __stdcall waio_loop(waio * paio)
 		paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
 
 		paio->status_loop = __ntapi->zw_set_event(
-			paio->hevent_io_requested,
+			paio->hevent_io_request,
 			&state);
 
 		if (paio->status_loop)
@@ -144,6 +143,8 @@ int32_t __stdcall waio_loop_entry_point(waio * paio)
 	/* hook: on failure */
 	if (status)
 		paio->hooks[WAIO_HOOK_ON_FAILURE](paio,WAIO_HOOK_ON_FAILURE,status);
+
+	waio_thread_shutdown_request(paio);
 
 	/* terminate thread cleanly */
 	__ntapi->zw_terminate_thread(
