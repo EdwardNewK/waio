@@ -46,21 +46,21 @@ int32_t __stdcall waio_loop(waio * paio)
 	if (paio->status_loop) return paio->status_loop;
 
 	/* hook: before read request */
-	paio->hooks[WAIO_HOOK_BEFORE_READ_REQUEST](paio,WAIO_HOOK_BEFORE_READ_REQUEST,0);
+	paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
 
 	/* submit initial read request */
 	paio->status_loop = __ntapi->zw_set_event(
-		paio->hevent_data_request,
+		paio->hevent_io_requested,
 		&state);
 
 	if (paio->status_loop) return paio->status_loop;
 
 	/* hook: before read request */
-	paio->hooks[WAIO_HOOK_BEFORE_READ_REQUEST](paio,WAIO_HOOK_BEFORE_READ_REQUEST,0);
+	paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
 
 	/* prepare for the waits */
 	hwait[0] = paio->hevent_abort_request;
-	hwait[1] = paio->hevent_data_received;
+	hwait[1] = paio->hevent_io_completed;
 	hwait[2] = paio->hthread_io;
 
 	do {
@@ -72,7 +72,7 @@ int32_t __stdcall waio_loop(waio * paio)
 			hwait,
 			NT_WAIT_ANY,
 			0,
-			&paio->read_request_timeout);
+			&paio->io_request_timeout);
 
 		/* wine debug */
 		paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,paio->status_loop);
@@ -96,7 +96,7 @@ int32_t __stdcall waio_loop(waio * paio)
 			return NT_STATUS_THREAD_NOT_IN_PROCESS;
 
 		/* hook: after data received */
-		paio->hooks[WAIO_HOOK_AFTER_DATA_RECEIVED](paio,WAIO_HOOK_AFTER_DATA_RECEIVED,0);
+		paio->hooks[WAIO_HOOK_AFTER_IO_COMPLETE](paio,WAIO_HOOK_AFTER_IO_COMPLETE,0);
 
 		/* update the local counter */
 		counter = paio->packet->counter;
@@ -109,17 +109,17 @@ int32_t __stdcall waio_loop(waio * paio)
 
 		/* submit the next data request */
 		paio->status_loop = __ntapi->zw_reset_event(
-			paio->hevent_data_received,
+			paio->hevent_io_completed,
 			&state);
 
 		if (paio->status_loop)
 			waio_thread_shutdown_request(paio);
 
 		/* hook: before read request */
-		paio->hooks[WAIO_HOOK_BEFORE_READ_REQUEST](paio,WAIO_HOOK_BEFORE_READ_REQUEST,0);
+		paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
 
 		paio->status_loop = __ntapi->zw_set_event(
-			paio->hevent_data_request,
+			paio->hevent_io_requested,
 			&state);
 
 		if (paio->status_loop)

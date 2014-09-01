@@ -47,20 +47,14 @@ typedef enum {
 	WAIO_HOOK_AFTER_SHUTDOWN_REQUEST,
 	WAIO_HOOK_BEFORE_SHUTDOWN_RESPONSE,
 	WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE,
-	WAIO_HOOK_BEFORE_READ_REQUEST,
-	WAIO_HOOK_AFTER_READ_REQUEST,
-	WAIO_HOOK_BEFORE_READ,
-	WAIO_HOOK_AFTER_READ,
-	WAIO_HOOK_BEFORE_DATA_RECEIVED,
-	WAIO_HOOK_AFTER_DATA_RECEIVED,
+	WAIO_HOOK_BEFORE_IO_REQUEST,
+	WAIO_HOOK_AFTER_IO_REQUEST,
+	WAIO_HOOK_BEFORE_IO,
+	WAIO_HOOK_AFTER_IO,
+	WAIO_HOOK_BEFORE_IO_COMPLETE,
+	WAIO_HOOK_AFTER_IO_COMPLETE,
 	WAIO_HOOK_BEFORE_DATA_PROCESSED,
 	WAIO_HOOK_AFTER_DATA_PROCESSED,
-	WAIO_HOOK_BEFORE_WRITE_REQUEST,
-	WAIO_HOOK_AFTER_WRITE_REQUEST,
-	WAIO_HOOK_BEFORE_WRITE,
-	WAIO_HOOK_AFTER_WRITE,
-	WAIO_HOOK_BEFORE_DATA_WRITTEN,
-	WAIO_HOOK_AFTER_DATA_WRITTEN,
 	WAIO_HOOK_ON_TIMEOUT,
 	WAIO_HOOK_ON_FAILURE,
 	WAIO_HOOK_ON_QUERY,
@@ -85,8 +79,8 @@ typedef struct waio_interface {
 	void *		hfile;			/* os handle    */
 	void *		hevent_loop_ready;	/* notification */
 	void *		hevent_io_ready;	/* notification */
-	void *		hevent_data_request;	/* notification */
-	void *		hevent_data_received;	/* notification */
+	void *		hevent_io_requested;	/* notification */
+	void *		hevent_io_completed;	/* notification */
 	void *		hevent_queue_request;	/* notification */
 	void *		hevent_abort_request;	/* notification */
 	void *		hthread_io;		/* the blocking thread */
@@ -94,7 +88,7 @@ typedef struct waio_interface {
 	void *		hevent_info;		/* (app, optional) */
 	signed int	info_type;		/* (app, optional) */
 	signed int	info_tip;		/* (app, optional) */
-	os_timeout	read_request_timeout;	/* (app, optional) */
+	os_timeout	io_request_timeout;	/* (app, optional) */
 	signed int	status_loop;		/* loop thread: last os status */
 	signed int	status_io;		/* io thread:   last os status */
 	void *		fallback_tip;		/* internal use */

@@ -40,6 +40,10 @@ int32_t __stdcall waio_init(waio * paio)
 		if (!(*hook))
 			*hook = waio_hook_default;
 
+	/* default longest interval between requests (infinite) */
+	if (paio->io_request_timeout.quad == 0)
+		paio->io_request_timeout.quad = (long long)(-1);
+
 	/* hook: before pipe init */
 	paio->hooks[WAIO_HOOK_BEFORE_INIT](paio,WAIO_HOOK_BEFORE_INIT,0);
 
@@ -62,18 +66,18 @@ int32_t __stdcall waio_init(waio * paio)
 	if (paio->status_loop)
 		return paio->status_loop;
 
-	if (!paio->hevent_data_request)
+	if (!paio->hevent_io_requested)
 		paio->status_loop = __ntapi->tt_create_private_event(
-			&paio->hevent_data_request,
+			&paio->hevent_io_requested,
 			NT_NOTIFICATION_EVENT,
 			NT_EVENT_NOT_SIGNALED);
 
 	if (paio->status_loop)
 		return paio->status_loop;
 
-	if (!paio->hevent_data_received)
+	if (!paio->hevent_io_completed)
 		paio->status_loop = __ntapi->tt_create_private_event(
-			&paio->hevent_data_received,
+			&paio->hevent_io_completed,
 			NT_NOTIFICATION_EVENT,
 			NT_EVENT_NOT_SIGNALED);
 

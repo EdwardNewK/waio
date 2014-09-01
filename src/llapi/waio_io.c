@@ -40,50 +40,47 @@ int32_t __stdcall waio_io(waio * paio)
 	uint32_t			state;
 	size_t				info_size;
 	void *				hwait[2];
-
-	/* wine debug */
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,1);
+	ntapi_zw_read_file *		io_routine[2];
 
 	/* fallback tip for legacy os versions */
 	paio->fallback_tip = &state;
 
-	/* norify the app that the child is ready */
+	/* notify the app that the io thread is ready */
 	paio->status_io = __ntapi->zw_set_event(
 		paio->hevent_io_ready,
 		&state);
 
-	/* wine debug */
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,2);
-
 	if (paio->status_io) return paio->status_io;
 
-	hwait[0] = paio->hevent_data_request;
+	/* io routines */
+	io_routine[0] = __ntapi->zw_read_file;
+	io_routine[1] = __ntapi->zw_write_file;
+
+	/* events of interest */
+	hwait[0] = paio->hevent_io_requested;
 	hwait[1] = paio->hevent_abort_request;
 
 	do {
-		/* wine debug */
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,3);
 		/* wait for an abort request to arrive;	*/
-		/* or for data to be requested;		*/
+		/* or for io op to be requested;	*/
 		paio->status_io = __ntapi->zw_wait_for_multiple_objects(
 			2,
 			hwait,
 			NT_WAIT_ANY,
 			0,
-			&paio->read_request_timeout);
+			&paio->io_request_timeout);
 
-		/* wine debug */
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,4);
+		/* optionally enforce a longest time interval between requests */
+		while (paio->status_io == NT_STATUS_TIMEOUT) {
+			paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,0);
 
-		/* when enforcing a longest time interval between requests */
-		/* (here we simply keep trying)                            */
-		while (paio->status_io == NT_STATUS_TIMEOUT)
 			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
 				2,
 				hwait,
 				NT_WAIT_ANY,
 				0,
-				&paio->read_request_timeout);
+				&paio->io_request_timeout);
+		}
 
 		if ((uint32_t)paio->status_io >= NT_STATUS_WAIT_CAP)
 			return paio->status_io;
@@ -101,17 +98,14 @@ int32_t __stdcall waio_io(waio * paio)
 		else if (event_info.signal_state == NT_EVENT_SIGNALED)
 			waio_thread_shutdown_response(paio);
 
-		/* read from pipe */
-		/* todo: read or write */
+		/* hook: after io request */
+		paio->hooks[WAIO_HOOK_AFTER_IO_REQUEST](paio,WAIO_HOOK_AFTER_IO_REQUEST,0);
 
-		/* hook: after read request */
-		paio->hooks[WAIO_HOOK_AFTER_READ_REQUEST](paio,WAIO_HOOK_AFTER_READ_REQUEST,0);
+		/* hook: before io */
+		paio->hooks[WAIO_HOOK_BEFORE_IO](paio,WAIO_HOOK_BEFORE_IO,0);
 
-		/* hook: before read */
-		paio->hooks[WAIO_HOOK_BEFORE_READ](paio,WAIO_HOOK_BEFORE_READ,0);
-
-		/* io: read */
-		paio->status_io = __ntapi->zw_read_file(
+		/* io system call */
+		paio->status_io = io_routine[paio->type](
 			paio->hfile,
 			(void *)0,
 			(void *)0,
@@ -124,8 +118,8 @@ int32_t __stdcall waio_io(waio * paio)
 
 		if (paio->status_io) return paio->status_io;
 
-		/* hook: after read */
-		paio->hooks[WAIO_HOOK_AFTER_READ](paio,WAIO_HOOK_AFTER_READ,0);
+		/* hook: after io */
+		paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
 
 		/* abort message? */
 		paio->status_io = __ntapi->zw_query_event(
@@ -140,20 +134,20 @@ int32_t __stdcall waio_io(waio * paio)
 		else if (event_info.signal_state == NT_EVENT_SIGNALED)
 			waio_thread_shutdown_response(paio);
 
-		/* successful read; advance the counter and notify the parent */
+		/* successful io; advance the counter and notify the parent */
 		paio->packet->counter++;
 
 		paio->status_io = __ntapi->zw_reset_event(
-			paio->hevent_data_request,
+			paio->hevent_io_requested,
 			&state);
 
 		if (paio->status_io) return paio->status_io;
 
-		/* hook: before data received */
-		paio->hooks[WAIO_HOOK_BEFORE_DATA_RECEIVED](paio,WAIO_HOOK_BEFORE_DATA_RECEIVED,0);
+		/* hook: before io complete */
+		paio->hooks[WAIO_HOOK_BEFORE_IO_COMPLETE](paio,WAIO_HOOK_BEFORE_IO_COMPLETE,0);
 
 		paio->status_io = __ntapi->zw_set_event(
-			paio->hevent_data_received,
+			paio->hevent_io_completed,
 			&state);
 
 		if (paio->status_io) return paio->status_io;
