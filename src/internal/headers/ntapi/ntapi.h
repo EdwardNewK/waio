@@ -14,6 +14,7 @@
 #include "nt_string.h"
 
 /* extensions */
+ntapi_tt_uint32_to_hex_utf8		__ntapi_tt_uint32_to_hex_utf8;
 ntapi_tt_create_inheritable_event	__ntapi_tt_create_inheritable_event;
 ntapi_tt_create_private_event		__ntapi_tt_create_private_event;
 

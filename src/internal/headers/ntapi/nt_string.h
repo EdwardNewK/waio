@@ -26,4 +26,7 @@ typedef void ntapi_rtl_init_unicode_string(
     _out_ 	nt_unicode_string *	str_dest,
     _in_	wchar16_t *		str_src);
 
+typedef void __fastcall ntapi_tt_uint32_to_hex_utf8(
+	_in_	uint32_t	key,
+	_out_	char *		key_formatted);
 #endif /* _NT_STRING_H_ */

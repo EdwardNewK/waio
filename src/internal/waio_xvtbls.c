@@ -118,9 +118,10 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 	__get_proc_address(pvtbl,strlen,"strlen");
 	__get_proc_address(pvtbl,wcslen,"wcslen");
 
-	/* wine bugs */
+	/* wine */
 	pvtbl->wine_get_version = __winapi->get_proc_address(__hntdll,"wine_get_version");
 
+	/* todo: this is now fixed in trunk, detect behavior at runtime */
 	if (pvtbl->wine_get_version) {
 		__ntapi->wait_type_any = NT_WAIT_ALL;
 		__ntapi->wait_type_all = NT_WAIT_ANY;
@@ -176,8 +177,9 @@ int32_t __stdcall waio_xvtbls_init(waio_xvtbls * pxvtbls)
 		return NT_STATUS_DLL_INIT_FAILED;
 
 	/* extensions */
+	__ntapi->tt_uint32_to_hex_utf8		= __ntapi_tt_uint32_to_hex_utf8;
 	__ntapi->tt_create_inheritable_event	= __ntapi_tt_create_inheritable_event;
-	__ntapi->tt_create_private_event		= __ntapi_tt_create_private_event;
+	__ntapi->tt_create_private_event	= __ntapi_tt_create_private_event;
 
 	return NT_STATUS_SUCCESS;
 }

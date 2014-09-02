@@ -75,7 +75,8 @@ typedef struct _ntapi_vtbl {
 	/* extensions */
 	ntapi_tt_create_inheritable_event *	tt_create_inheritable_event;
 	ntapi_tt_create_private_event *		tt_create_private_event;
-	/* wine bugs */
+	ntapi_tt_uint32_to_hex_utf8 *		tt_uint32_to_hex_utf8;
+	/* wine-behavior (now fixed in trunk: thank you!) */
 	void *					wine_get_version;
 	nt_wait_type				wait_type_any;
 	nt_wait_type				wait_type_all;

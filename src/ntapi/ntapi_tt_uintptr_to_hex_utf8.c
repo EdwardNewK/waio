@@ -43,14 +43,14 @@ static void __fastcall __ntapi_tt_uint_to_hex_utf8(
 	/* avoid using .rdata for that one */
 	hex_buf[0] = ('3' << 24) | ('2' << 16) | ('1' << 8) | '0';
 	hex_buf[1] = ('7' << 24) | ('6' << 16) | ('5' << 8) | '4';
-	hex_buf[2] = ('b' << 24) | ('a' << 16) | ('9' << 8) | '8';
-	hex_buf[3] = ('f' << 24) | ('e' << 16) | ('d' << 8) | 'c';
+	hex_buf[2] = ('B' << 24) | ('A' << 16) | ('9' << 8) | '8';
+	hex_buf[3] = ('F' << 24) | ('E' << 16) | ('D' << 8) | 'C';
 
 	uch = (unsigned char *)&key;
 	hex_chars = (unsigned char *)&hex_buf;
 
 	bytes  = bits / 8;
-	offset = bits / 2;
+	offset = bits / 4;
 
 	for (i = 0; i < bytes; i++) {
 		key_formatted[offset - 1 - (i*2)] =	hex_chars[uch[i] % 16];
