@@ -30,7 +30,7 @@
 /* Wild & Asynchronous I/O Library: test unit */
 
 /* testing options */
-#define waio_POOL_SIZE		1
+#define waio_POOL_SIZE		256
 #define WAIO_READ_BUFFER_SIZE	4096
 
 /* forward declarations */

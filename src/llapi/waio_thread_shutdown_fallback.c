@@ -45,6 +45,9 @@ int32_t __stdcall waio_thread_shutdown_fallback(waio * paio)
 	size_t				info_size;
 	nt_memory_basic_information	mbi;
 
+	/* hook */
+	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_FALLBACK](paio,WAIO_HOOK_BEFORE_SHUTDOWN_FALLBACK,0);
+
 	/* suspend the reader (child) thread */
 	status = __ntapi->zw_suspend_thread(
 		paio->hthread_io,
@@ -94,6 +97,8 @@ int32_t __stdcall waio_thread_shutdown_fallback(waio * paio)
 		&mbi.allocation_base,
 		&mbi.region_size,
 		NT_MEM_RELEASE);
+
+	paio->hooks[WAIO_HOOK_AFTER_SHUTDOWN_FALLBACK](paio,WAIO_HOOK_AFTER_SHUTDOWN_FALLBACK,0);
 
 	/* return control to synchronization loop */
 	return paio->status_loop;

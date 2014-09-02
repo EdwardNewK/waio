@@ -43,6 +43,8 @@ char * waio_test_hook_strings[WAIO_HOOK_CAP] = {
 	"WAIO_HOOK_AFTER_INIT",
 	"WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST",
 	"WAIO_HOOK_AFTER_SHUTDOWN_REQUEST",
+	"WAIO_HOOK_BEFORE_SHUTDOWN_FALLBACK",
+	"WAIO_HOOK_AFTER_SHUTDOWN_FALLBACK",
 	"WAIO_HOOK_BEFORE_SHUTDOWN_RESPONSE",
 	"WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE",
 	"WAIO_HOOK_BEFORE_IO_REQUEST",
@@ -70,12 +72,6 @@ int32_t __stdcall waio_test_default_hook(
 	char newline[1] = {'\n'};
 
 	__ntapi->memset(buffer,0,32);
-
-	/* avoid "normal" loop messages */
-	/* 
-	if ((type == WAIO_HOOK_ON_QUERY) && (status == NT_STATUS_NOT_FOUND))
-		return status;
-	*/
 
 	waio_test_output(
 		hstdout,

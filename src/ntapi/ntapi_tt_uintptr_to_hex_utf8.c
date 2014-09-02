@@ -19,12 +19,6 @@
 /*                                                                           */
 /*****************************************************************************/
 
-/* UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED */
-/* UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED */
-/* UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED */
-/* UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED */
-/* UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED UNTESTED */
-
 #include <psxtypes/psxtypes.h>
 
 #ifndef NTAPI_STATIC

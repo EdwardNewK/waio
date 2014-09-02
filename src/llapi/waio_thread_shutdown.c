@@ -68,7 +68,8 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 					"ZwCancelIoFileEx");
 
 	/* use fallback method if not */
-	if (!pfn_zw_cancel_io_file_ex)
+	/* confirmed on #winehackers: wine still requires the fallback method */
+	if ((!pfn_zw_cancel_io_file_ex) || (__ntapi->wine_get_version))
 		return waio_thread_shutdown_fallback(paio);
 
 	/* hook: before shutdown_request */
@@ -77,7 +78,7 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 	/* cancel io request */
 	status = pfn_zw_cancel_io_file_ex(
 		paio->hfile,
-		&paio->packet->iosb,
+		(os_iosb *)0,//&paio->packet->iosb,
 		&paio->cancel_io->iosb);
 
 	/* hook: before shutdown_request */
