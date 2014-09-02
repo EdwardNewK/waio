@@ -63,17 +63,47 @@ char * waio_test_hook_strings[WAIO_HOOK_CAP] = {
 int32_t __stdcall waio_test_default_hook(
 	_in_		waio *		paio,
 	_in_		waio_hook_type	type,
-	_in_		int32_t			status)
+	_in_		int32_t		status)
 {
-	if (type == WAIO_HOOK_ON_FAILURE)
-		status = status;
+	char buffer[32];
+	char zerox[2] = {'0','x'};
+	char newline[1] = {'\n'};
+
+	__ntapi->memset(buffer,0,32);
+
+	/* avoid "normal" loop messages */
+	/* 
+	if ((type == WAIO_HOOK_ON_QUERY) && (status == NT_STATUS_NOT_FOUND))
+		return status;
+	*/
 
 	waio_test_output(
 		hstdout,
 		waio_test_hook_strings[type],
 		__ntapi->strlen(waio_test_hook_strings[type]));
 
-	waio_test_output(hstdout,"\n",1);
+	waio_test_output(hstdout,newline,1);
+
+	if (type == WAIO_HOOK_ON_QUERY) {
+		__ntapi->tt_uint32_to_hex_utf8(
+			status,
+			buffer);
+
+		waio_test_output(
+			hstdout,
+			zerox,
+			2);
+
+		waio_test_output(
+			hstdout,
+			buffer,
+			8);
+
+		waio_test_output(
+			hstdout,
+			newline,
+			1);
+	}
 
 	return status;
 }
