@@ -64,6 +64,7 @@ waio_internal_api int32_t __stdcall waio_xvtbls_init(waio_xvtbls *);
 waio_internal_api int32_t __stdcall ntapi_init(ntapi_vtbl *);
 waio_internal_api int32_t __stdcall ntcon_init(ntcon_vtbl *);
 waio_internal_api int32_t __stdcall winapi_init(winapi_vtbl *);
+waio_internal_api int32_t __stdcall ntapi_detect_wine_behavior(ntapi_vtbl *);
 
 /* loop */
 waio_internal_api int32_t __stdcall waio_loop_entry_point(waio *);

@@ -105,7 +105,7 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 	__get_proc_address(pvtbl,zw_set_event,"ZwSetEvent");
 	__get_proc_address(pvtbl,zw_query_event,"ZwQueryEvent");
 	__get_proc_address(pvtbl,zw_wait_for_single_object,"ZwWaitForSingleObject");
-	__get_proc_address(pvtbl,zw_wait_for_multiple_objects,"NtWaitForMultipleObjects");
+	__get_proc_address(pvtbl,zw_wait_for_multiple_objects,"ZwWaitForMultipleObjects");
 	/* file */
 	__get_proc_address(pvtbl,zw_query_information_file,"ZwQueryInformationFile");
 	__get_proc_address(pvtbl,zw_write_file,"ZwWriteFile");
@@ -120,15 +120,6 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 
 	/* wine */
 	pvtbl->wine_get_version = __winapi->get_proc_address(__hntdll,"wine_get_version");
-
-	/* todo: this is now fixed in trunk, detect behavior at runtime */
-	if (pvtbl->wine_get_version) {
-		__ntapi->wait_type_any = NT_WAIT_ALL;
-		__ntapi->wait_type_all = NT_WAIT_ANY;
-	} else {
-		__ntapi->wait_type_any = NT_WAIT_ANY;
-		__ntapi->wait_type_all = NT_WAIT_ALL;
-	}
 
 	/* done */
 	return NT_STATUS_SUCCESS;
@@ -161,6 +152,8 @@ int32_t __stdcall ntcon_init(ntcon_vtbl * pvtbl)
 waio_internal_api
 int32_t __stdcall waio_xvtbls_init(waio_xvtbls * pxvtbls)
 {
+	int32_t status;
+
 	/* internal pointer to accessor tables */
 	pxvtbls->ntapi	= &_ntapi;
 	pxvtbls->ntcon	= &_ntcon;
@@ -181,7 +174,16 @@ int32_t __stdcall waio_xvtbls_init(waio_xvtbls * pxvtbls)
 	__ntapi->tt_create_inheritable_event	= __ntapi_tt_create_inheritable_event;
 	__ntapi->tt_create_private_event	= __ntapi_tt_create_private_event;
 
-	return NT_STATUS_SUCCESS;
+	/* wine */
+	if (1 || __ntapi->wine_get_version) {
+		status = ntapi_detect_wine_behavior(__ntapi);
+	} else {
+		__ntapi->wait_type_any = NT_WAIT_ANY;
+		__ntapi->wait_type_all = NT_WAIT_ALL;
+		status = NT_STATUS_SUCCESS;
+	}
+
+	return status;
 }
 
 
@@ -261,6 +263,62 @@ int32_t __stdcall waio_xvtbls_init_once(void)
 	return status;
 }
 
+
+waio_internal_api
+int32_t __stdcall ntapi_detect_wine_behavior(ntapi_vtbl * pvtbl)
+{
+	int32_t		status;
+	void *		hevent[2];
+	nt_timeout	timeout;
+
+	/* create two events */
+	status = pvtbl->tt_create_private_event(
+		&hevent[0],
+		NT_NOTIFICATION_EVENT,
+		NT_EVENT_NOT_SIGNALED);
+
+	if (status) return (status);
+
+	status = pvtbl->tt_create_private_event(
+		&hevent[1],
+		NT_NOTIFICATION_EVENT,
+		NT_EVENT_NOT_SIGNALED);
+
+	if (status) {
+		pvtbl->zw_close(hevent[0]);
+		return (status);
+	}
+
+	/* set one of them */
+	status = pvtbl->zw_set_event(hevent[0],(uint32_t *)0);
+
+	/* detect behavior (reversed flags fixed in wine on 02.09.2014) */
+	timeout.quad = (-1);
+
+	status = pvtbl->zw_wait_for_multiple_objects(
+		2,
+		hevent,
+		NT_WAIT_ANY,
+		NT_SYNC_NON_ALERTABLE,
+		&timeout);
+
+	/* set flags accordingly */
+	if (status == NT_STATUS_SUCCESS) {
+		/* compatible flags */
+		pvtbl->wait_type_any = NT_WAIT_ANY;
+		pvtbl->wait_type_all = NT_WAIT_ALL;
+	} else if (status == NT_STATUS_TIMEOUT) {
+		/* reversed flags */
+		pvtbl->wait_type_any = NT_WAIT_ALL;
+		pvtbl->wait_type_all = NT_WAIT_ANY;
+	}
+
+	/* clean-up & return */
+	pvtbl->zw_close(hevent[0]);
+	pvtbl->zw_close(hevent[1]);
+
+	return status;
+}
 
 waio_internal_api
 int __stdcall waio_lib_entry_point(void * hinstance, uint32_t reason, void * reserved)
