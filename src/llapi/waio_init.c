@@ -48,6 +48,15 @@ int32_t __stdcall waio_init(waio * paio)
 	paio->hooks[WAIO_HOOK_BEFORE_INIT](paio,WAIO_HOOK_BEFORE_INIT,0);
 
 	/* pipe events (app might have created some of them for us) */
+	if (!paio->hevent_queue_request)
+		paio->status_loop = __ntapi->tt_create_private_event(
+			&paio->hevent_queue_request,
+			NT_NOTIFICATION_EVENT,
+			NT_EVENT_NOT_SIGNALED);
+
+	if (paio->status_loop)
+		return paio->status_loop;
+
 	if (!paio->hevent_loop_ready)
 		paio->status_loop = __ntapi->tt_create_private_event(
 			&paio->hevent_loop_ready,

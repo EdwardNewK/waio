@@ -33,10 +33,11 @@ typedef enum {
 
 /* packet */
 typedef struct waio_packet_interface {
-	os_signed_ptr		counter;
 	os_iosb			iosb;
+	os_iosb			cancel_io;
 	os_unsigned_ptr *	data;
 	os_unsigned_ptr		buffer_size;
+	nt_large_integer	offset;
 } waio_packet;
 
 /* hooks */
@@ -55,8 +56,6 @@ typedef enum {
 	WAIO_HOOK_AFTER_IO,
 	WAIO_HOOK_BEFORE_IO_COMPLETE,
 	WAIO_HOOK_AFTER_IO_COMPLETE,
-	WAIO_HOOK_BEFORE_DATA_PROCESSED,
-	WAIO_HOOK_AFTER_DATA_PROCESSED,
 	WAIO_HOOK_ON_TIMEOUT,
 	WAIO_HOOK_ON_CANCEL,
 	WAIO_HOOK_ON_FAILURE,
@@ -86,6 +85,11 @@ typedef struct waio_interface {
 	void *		hevent_io_complete;	/* notification */
 	void *		hevent_queue_request;	/* notification */
 	void *		hevent_abort_request;	/* notification */
+	intptr_t	abort_req_counter;	/* optimization */
+	intptr_t	abort_inc_counter;	/* optimization */
+	intptr_t	queue_req_counter;	/* optimization */
+	intptr_t	queue_inc_counter;	/* optimization */
+	intptr_t	io_counter;		/* optimization */
 	void *		hthread_io;		/* the blocking thread */
 	void *		hthread_loop;		/* (app) */
 	void *		hevent_info;		/* (app, optional) */
@@ -102,7 +106,9 @@ typedef struct waio_interface {
 	waio_packet	lcancel_io;		/* internal cencellation status */
 	waio_packet *	packet;			/* aio single request        */
 	waio_packet *	cancel_io;		/* aio cencellation status   */
-	waio_request **	queue;			/* request serialization */
+	waio_request *	queue;			/* request serialization */
+	waio_request *	qtail;			/* request serialization */
+	waio_request *	qfree;			/* request serialization */
 	waio_slot **	slots;			/* request serialization */
 	signed int	cpu_count;		/* serialization helper  */
 	signed int	favorite_slot_index;	/* serialization helper  */
@@ -117,6 +123,8 @@ waio_api waio_fn waio_init;
 /* parent */
 waio_api waio_fn waio_create;
 waio_api waio_fn waio_loop;
+waio_api waio_fn waio_enqueue;
+waio_api waio_fn waio_dequeue;
 waio_api waio_fn waio_thread_shutdown_request;
 waio_api waio_fn waio_thread_shutdown_fallback;
 

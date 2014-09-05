@@ -103,6 +103,7 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 	/* sync */
 	__get_proc_address(pvtbl,zw_create_event,"ZwCreateEvent");
 	__get_proc_address(pvtbl,zw_set_event,"ZwSetEvent");
+	__get_proc_address(pvtbl,zw_reset_event,"ZwResetEvent");
 	__get_proc_address(pvtbl,zw_query_event,"ZwQueryEvent");
 	__get_proc_address(pvtbl,zw_wait_for_single_object,"ZwWaitForSingleObject");
 	__get_proc_address(pvtbl,zw_wait_for_multiple_objects,"ZwWaitForMultipleObjects");
@@ -311,6 +312,7 @@ int32_t __stdcall ntapi_detect_wine_behavior(ntapi_vtbl * pvtbl)
 		/* reversed flags */
 		pvtbl->wait_type_any = NT_WAIT_ALL;
 		pvtbl->wait_type_all = NT_WAIT_ANY;
+		status = NT_STATUS_SUCCESS;
 	}
 
 	/* clean-up & return */

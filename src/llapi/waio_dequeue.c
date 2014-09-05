@@ -20,44 +20,48 @@
 /*****************************************************************************/
 
 
-#ifndef _WAIO_CX_H_
-#define _WAIO_CX_H_
-
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 #include <waio/waio__llapi.h>
 #include "waio_impl.h"
-
-#define WAIO_CX_BLOCK_SIZE	4096
-#define	WAIO_CX_SLOT_COUNT	4
-
-typedef struct waio_slot_interface	waio_slot;
-typedef struct waio_request_interface	waio_request;
-
-typedef struct waio_slot_interface {
-	uint32_t		pid;
-	uint32_t		tid;
-	int			aio_lio_opcode;
-	int			aio_reqprio;
-	void *			aio_hevent;
-	volatile void *		aio_buf;
-	size_t			aio_nbytes;
-	off_t           	aio_offset;
-} waio_slot;
+#include "waio_cx.h"
 
 
-typedef struct waio_request_interface {
-	waio_slot		slot;
-	waio_packet		rpacket;
-	waio_request *		next;
-} waio_request;
+waio_api
+int32_t __stdcall waio_dequeue(waio * paio)
+{
+	waio_request *	req;
+	uint32_t	state;
 
+	/* check for non-empty queue and no pending (blocking) io */
+	if (paio->queue && !paio->packet) {
+		req          = paio->queue;
+		paio->packet = &req->rpacket;
 
-typedef struct waio_cx_interface {
-	struct waio_cx_interface *	self;
-	struct waio_interface *		paio;
-	size_t				cx_size;
-} waio_opaque_cx;
+		/* update the queue */
+		paio->queue  = req->next;
+		req->next    = paio->qfree;
+		paio->qfree  = req;
 
+		/* submit the next io request */
+		paio->status_loop = __ntapi->zw_reset_event(
+			paio->hevent_io_complete,
+			&state);
 
-#endif /* _WAIO_CX_H_ */
+		if (paio->status_loop)
+			waio_thread_shutdown_request(paio);
+
+		/* hook: before io request */
+		paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
+
+		paio->status_loop = __ntapi->zw_set_event(
+			paio->hevent_io_request,
+			&state);
+
+		if (paio->status_loop)
+			waio_thread_shutdown_request(paio);
+	}
+
+	return NT_STATUS_SUCCESS;
+}
+

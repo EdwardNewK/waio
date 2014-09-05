@@ -33,17 +33,39 @@
 **/
 
 
+static int32_t	__stdcall __io_nop(
+	_in_	void *			hfile,
+	_in_	void *			hevent		_optional_,
+	_in_	void *			apc_routine	_optional_,
+	_in_	void *			apc_context	_optional_,
+	_out_	nt_io_status_block *	io_status_block,
+	_out_	void *			buffer,
+	_in_	uint32_t		bytes_to_read,
+	_in_	nt_large_integer *	byte_offset	_optional_,
+	_in_	uint32_t *		key		_optional_)
+{
+	return 0;
+}
+
+
 waio_api
 int32_t __stdcall waio_io(waio * paio)
 {
-	nt_event_basic_information	event_info;
 	uint32_t			state;
-	size_t				info_size;
+	void *				hpending[2];
 	void *				hwait[2];
-	ntapi_zw_read_file *		io_routine[2];
+	ntapi_zw_read_file *		io_routine[3];
 
 	/* fallback tip for legacy os versions */
 	paio->fallback_tip = &state;
+
+	/* hfile may be non-blocking */
+	paio->status_io = __ntapi->tt_create_private_event(
+		&hpending[0],
+		NT_NOTIFICATION_EVENT,
+		NT_EVENT_NOT_SIGNALED);
+
+	if (paio->status_io) return paio->status_io;
 
 	/* notify the app that the io thread is ready */
 	paio->status_io = __ntapi->zw_set_event(
@@ -52,13 +74,15 @@ int32_t __stdcall waio_io(waio * paio)
 
 	if (paio->status_io) return paio->status_io;
 
+	/* events of interest */
+	hwait[0]    = paio->hevent_abort_request;
+	hwait[1]    = paio->hevent_io_request;
+	hpending[1] = paio->hevent_abort_request;
+
 	/* io routines */
 	io_routine[0] = __ntapi->zw_read_file;
 	io_routine[1] = __ntapi->zw_write_file;
-
-	/* events of interest */
-	hwait[0] = paio->hevent_io_request;
-	hwait[1] = paio->hevent_abort_request;
+	io_routine[2] = __io_nop;
 
 	do {
 		/* wait for an abort request to arrive;	*/
@@ -67,7 +91,7 @@ int32_t __stdcall waio_io(waio * paio)
 			2,
 			hwait,
 			__ntapi->wait_type_any,
-			0,
+			NT_SYNC_NON_ALERTABLE,
 			&paio->io_request_timeout);
 
 		/* optionally enforce a longest time interval between requests */
@@ -85,17 +109,8 @@ int32_t __stdcall waio_io(waio * paio)
 		if ((uint32_t)paio->status_io >= NT_STATUS_WAIT_CAP)
 			return paio->status_io;
 
-		/* abort message? */
-		paio->status_io = __ntapi->zw_query_event(
-			paio->hevent_abort_request,
-			NT_EVENT_BASIC_INFORMATION,
-			&event_info,
-			sizeof(event_info),
-			&info_size);
-
-		if (paio->status_io)
-			return paio->status_io;
-		else if (event_info.signal_state == NT_EVENT_SIGNALED)
+		/* abort request? */
+		if (paio->abort_inc_counter > paio->abort_req_counter)
 			waio_thread_shutdown_response(paio);
 
 		/* hook: after io request */
@@ -107,38 +122,35 @@ int32_t __stdcall waio_io(waio * paio)
 		/* io system call */
 		paio->status_io = io_routine[paio->type](
 			paio->hfile,
-			(void *)0,
+			hpending[0],
 			(void *)0,
 			(void *)0,
 			&paio->packet->iosb,
 			paio->packet->data,
 			(uint32_t)paio->packet->buffer_size,
-			(nt_large_integer *)0,
+			&paio->packet->offset,
 			(uint32_t *)0);
 
-		/* hook: after io */
-		paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
+		/* hfile may be non-blocking */
+		if (paio->status_io == NT_STATUS_PENDING)
+			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
+				2,
+				hpending,
+				__ntapi->wait_type_any,
+				NT_SYNC_NON_ALERTABLE,
+				(nt_timeout *)0);
 
 		if (paio->status_io) return paio->status_io;
 
+		/* abort request? */
+		if (paio->abort_inc_counter > paio->abort_req_counter)
+			waio_thread_shutdown_response(paio);
+
 		/* hook: after io */
 		paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
 
-		/* abort message? */
-		paio->status_io = __ntapi->zw_query_event(
-			paio->hevent_abort_request,
-			NT_EVENT_BASIC_INFORMATION,
-			&event_info,
-			sizeof(event_info),
-			&info_size);
-
-		if (paio->status_io)
-			return paio->status_io;
-		else if (event_info.signal_state == NT_EVENT_SIGNALED)
-			waio_thread_shutdown_response(paio);
-
-		/* successful io; advance the counter and notify the parent */
-		paio->packet->counter++;
+		/* advance the io counter and notify the parent */
+		at_locked_inc(&paio->io_counter);
 
 		paio->status_io = __ntapi->zw_reset_event(
 			paio->hevent_io_request,

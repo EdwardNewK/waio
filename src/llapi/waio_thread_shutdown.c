@@ -113,7 +113,7 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 			NT_SYNC_NON_ALERTABLE,
 			(nt_timeout *)0);
 	} else
-		paio->hooks[WAIO_HOOK_ON_FAILURE](paio,WAIO_HOOK_ON_FAILURE,0);
+		paio->hooks[WAIO_HOOK_ON_FAILURE](paio,WAIO_HOOK_ON_FAILURE,status);
 
 	paio->hooks[WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE](paio,WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE,0);
 

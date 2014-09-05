@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\llapi\waio_dequeue.c" />
+    <ClCompile Include="src\llapi\waio_enqueue.c" />
     <ClCompile Include="src\waio_fsync.c" />
     <ClCompile Include="src\waio_listio.c" />
     <ClCompile Include="src\waio_read_write.c" />

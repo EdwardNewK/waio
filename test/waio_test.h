@@ -42,7 +42,7 @@ waio_hook waio_test_default_hook;
 
 uint32_t __cdecl waio_test_output(
 	_in_	void *	hconsole,
-	_in_	char *	buffer,	
+	_in_	char *	buffer,
 	_in_	size_t	count);
 
 /* wine testing */

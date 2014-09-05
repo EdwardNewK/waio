@@ -33,7 +33,7 @@
 
 /* .rdata */
 static waio_xvtbls	xvtbls = {0};
-static waio		pipe_pool[waio_POOL_SIZE] = {{0}};
+static waio		pipe_pool[WAIO_POOL_SIZE] = {{0}};
 static void *		hevent_abort_request;
 static void *		hstdout;
 
@@ -53,8 +53,6 @@ char * waio_test_hook_strings[WAIO_HOOK_CAP] = {
 	"WAIO_HOOK_AFTER_IO",
 	"WAIO_HOOK_BEFORE_IO_COMPLETE",
 	"WAIO_HOOK_AFTER_IO_COMPLETE",
-	"WAIO_HOOK_BEFORE_DATA_PROCESSED",
-	"WAIO_HOOK_AFTER_DATA_PROCESSED",
 	"WAIO_HOOK_ON_TIMEOUT",
 	"WAIO_HOOK_ON_CANCEL",
 	"WAIO_HOOK_ON_FAILURE",
@@ -68,8 +66,6 @@ int32_t __stdcall waio_test_default_hook(
 	_in_		int32_t		status)
 {
 	char buffer[32];
-	char zerox[2] = {'0','x'};
-	char newline[1] = {'\n'};
 
 	__ntapi->memset(buffer,0,32);
 
@@ -78,27 +74,21 @@ int32_t __stdcall waio_test_default_hook(
 		waio_test_hook_strings[type],
 		__ntapi->strlen(waio_test_hook_strings[type]));
 
-	waio_test_output(hstdout,newline,1);
+	waio_test_output(hstdout,"\n",1);
 
-	if (type == WAIO_HOOK_ON_QUERY) {
+	if ((type == WAIO_HOOK_ON_QUERY) || (type == WAIO_HOOK_ON_FAILURE)) {
+		buffer[0]  = '0';
+		buffer[1]  = 'x';
+		buffer[10] = '\n';
+
 		__ntapi->tt_uint32_to_hex_utf8(
 			status,
-			buffer);
-
-		waio_test_output(
-			hstdout,
-			zerox,
-			2);
+			&buffer[2]);
 
 		waio_test_output(
 			hstdout,
 			buffer,
-			8);
-
-		waio_test_output(
-			hstdout,
-			newline,
-			1);
+			11);
 	}
 
 	return status;
@@ -191,7 +181,7 @@ int __cdecl waio_test_pipes(unsigned int pool_size, uint32_t flags, void * optio
 	if (status) return status;
 
 	/* test loop */
-	for (i=0; i<waio_POOL_SIZE; i++) {
+	for (i=0; i<WAIO_POOL_SIZE; i++) {
 		waio_test_pipe(&pipe_pool[i]);
 		pfn_yield();
 	}
@@ -205,18 +195,16 @@ int __cdecl waio_test_pipes(unsigned int pool_size, uint32_t flags, void * optio
 		NT_SYNC_NON_ALERTABLE,
 		&timeout);
 
-	__ntapi->zw_wait_for_single_object(
-		hevent_abort_request,
-		NT_SYNC_NON_ALERTABLE,
-		(nt_timeout *)&timeout);
-
 	/* ask everyone to abort */
+	for (i=0; i<WAIO_POOL_SIZE; i++)
+		at_locked_inc(&pipe_pool[i].abort_inc_counter);
+
 	__ntapi->zw_set_event(
 		hevent_abort_request,
 		(uint32_t *)0);
 
 	/* see that everyone has aborted */
-	for (i=0; i<waio_POOL_SIZE; i++) {
+	for (i=0; i<WAIO_POOL_SIZE; i++) {
 		status = __ntapi->zw_wait_for_single_object(
 			pipe_pool[i].hthread_io,
 			NT_SYNC_NON_ALERTABLE,
@@ -248,7 +236,7 @@ int __cdecl waio_main_utf8(int argc, char ** argv, char ** envp)
 	/* return waio_test_wine_behavior(); */
 
 	hstdout = __ntcon->get_std_handle(NT_STD_OUTPUT_HANDLE);
-	ret = waio_test_pipes(waio_POOL_SIZE,0,(void *)0);
+	ret = waio_test_pipes(WAIO_POOL_SIZE,0,(void *)0);
 	return ret;
 }
 

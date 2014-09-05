@@ -30,7 +30,7 @@
 typedef struct waio_cx_opaque_block {
 	struct waio_cx_interface	cx;
 	struct waio_interface		cx_waio;
-	struct waio_slot_interface	cx_slots[WAIO_CX_SLOT_COUNT_TODO];
+	struct waio_slot_interface	cx_slots[WAIO_CX_SLOT_COUNT];
 	struct waio_request_interface	cx_requests[1];
 } waio_cx_block;
 
@@ -48,7 +48,8 @@ waio_api waio_cx waio_alloc(
 	waio_cx_block *	cx_block;
 	size_t		cx_block_size;
 	waio_hook **	hook;
-	int		i;
+	size_t		req_count;
+	size_t		i;
 
 	/* status */
 	if (!status) status = &_status;
@@ -69,6 +70,7 @@ waio_api waio_cx waio_alloc(
 	if (*status) return (waio_cx)0;
 
 	/* cx_block alloc */
+	cx_block      = (waio_cx_block *)0;
 	cx_block_size = WAIO_CX_BLOCK_SIZE;
 
 	*status = __ntapi->zw_allocate_virtual_memory(
@@ -81,14 +83,26 @@ waio_api waio_cx waio_alloc(
 
 	if (*status) return (waio_cx)0;
 
+	/* cx_block: memory init */
+	__ntapi->memset(cx_block,0,cx_block_size);
+
 	/* cx_block->cx init */
 	cx_block->cx.self	= &cx_block->cx;
 	cx_block->cx.paio	= &cx_block->cx_waio;
-	cx_block->cx.free_nodes	= &cx_block->cx_requests[0];
 	cx_block->cx.cx_size	= cx_block_size;
 
 	/* cx_block->cx_waio init */
 	cx_block->cx_waio.hfile = handle;
+
+	/* cx_block: free nodes init */
+	req_count = (cx_block_size -  ((size_t)(&((waio_cx_block *)0)->cx_requests))) \
+		/ sizeof(waio_request);
+
+	for (i=0; i<(req_count-1); i++)
+		cx_block->cx_requests[i].next = &(cx_block->cx_requests[i+1]);
+
+	/* cx_block->cx.paio init */
+	cx_block->cx.paio->qfree = cx_block->cx_requests;
 
 	/* default hooks */
 	hook = (waio_hook **)&cx_block->cx.paio->hooks;
@@ -96,8 +110,6 @@ waio_api waio_cx waio_alloc(
 	for (i=0; i<WAIO_HOOK_CAP; i++, hook++)
 		if (!(*hook))
 			*hook = waio_hook_default;
-
-	/* todo: free_nodes init */
 
 	/* thread pair init */
 	*status = waio_init(cx_block->cx.paio);

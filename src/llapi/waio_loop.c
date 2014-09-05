@@ -29,14 +29,11 @@
 waio_api
 int32_t __stdcall waio_loop(waio * paio)
 {
-	nt_event_basic_information	event_info;
-	uint32_t			state;
-	size_t				info_size;
-	intptr_t			counter;
-	void *				hwait[3];
+	intptr_t	io_counter;
+	void *		hwait[4];
 
-	/* get initial counter */
-	counter = paio->packet->counter;
+	/* init local io counter */
+	io_counter = paio->io_counter;
 
 	/* notify the init routine that the loop is ready */
 	paio->status_loop = __ntapi->zw_set_event(
@@ -45,87 +42,58 @@ int32_t __stdcall waio_loop(waio * paio)
 
 	if (paio->status_loop) return paio->status_loop;
 
-	/* hook: before io request */
-	paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
-
-	/* submit initial io request */
-	paio->status_loop = __ntapi->zw_set_event(
-		paio->hevent_io_request,
-		&state);
-
-	if (paio->status_loop) return paio->status_loop;
-
-	/* hook: before io request */
-	paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
-
 	/* prepare for the waits */
 	hwait[0] = paio->hevent_abort_request;
-	hwait[1] = paio->hevent_io_complete;
-	hwait[2] = paio->hthread_io;
+	hwait[1] = paio->hevent_queue_request;
+	hwait[2] = paio->hevent_io_complete;
+	hwait[3] = paio->hthread_io;
 
 	do {
 		/* wait for an abort request to arrive;	*/
-		/* or for data to be received;		*/
-		/* or for the io thread to die.         */
+		/* or for a queue request to arrive;	*/
+		/* or for io operation to complete;	*/
+		/* or for the io thread to die.		*/
 		paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
-			3,
+			4,
 			hwait,
 			__ntapi->wait_type_any,
 			NT_SYNC_NON_ALERTABLE,
 			&paio->io_request_timeout);
 
-		paio->hooks[WAIO_HOOK_BEFORE_DATA_PROCESSED](paio,WAIO_HOOK_BEFORE_DATA_PROCESSED,0);
+		/* hook: on query */
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,paio->status_loop);
 
 		if ((uint32_t)paio->status_loop >= NT_STATUS_WAIT_CAP)
 			waio_thread_shutdown_request(paio);
 
 		/* abort request? */
-		paio->status_loop = __ntapi->zw_query_event(
-			paio->hevent_abort_request,
-			NT_EVENT_BASIC_INFORMATION,
-			&event_info,
-			sizeof(event_info),
-			&info_size);
-
-		if ((paio->status_loop) || (event_info.signal_state == NT_EVENT_SIGNALED))
+		if (paio->abort_inc_counter > paio->abort_req_counter)
 			waio_thread_shutdown_request(paio);
 
-		if (paio->packet->counter == counter)
-			/* that must have been the thread crashing */
+		/* queue request? */
+		if (paio->queue_inc_counter > paio->queue_req_counter)
+			waio_enqueue(paio);
+
+		/* io thread died? */
+		else if (paio->io_counter == io_counter)
 			return NT_STATUS_THREAD_NOT_IN_PROCESS;
 
-		/* hook: after data received */
-		paio->hooks[WAIO_HOOK_AFTER_IO_COMPLETE](paio,WAIO_HOOK_AFTER_IO_COMPLETE,0);
+		/* io complete? */
+		if (paio->io_counter > io_counter) {
+			/* hook: after io complete */
+			paio->hooks[WAIO_HOOK_AFTER_IO_COMPLETE](paio,WAIO_HOOK_AFTER_IO_COMPLETE,0);
 
-		/* update the local counter */
-		counter = paio->packet->counter;
+			/* update the local io counter */
+			io_counter = paio->io_counter;
 
-		/* hook: before data processed */
-		paio->hooks[WAIO_HOOK_BEFORE_DATA_PROCESSED](paio,WAIO_HOOK_BEFORE_DATA_PROCESSED,0);
+			/* allow the next request to be processed */
+			paio->packet    = (waio_packet *)0;
+			paio->cancel_io = (waio_packet *)0;
+		}
 
-		/* hook: after data processed */
-		paio->hooks[WAIO_HOOK_AFTER_DATA_PROCESSED](paio,WAIO_HOOK_AFTER_DATA_PROCESSED,0);
-
-		/* submit the next data request */
-		paio->status_loop = __ntapi->zw_reset_event(
-			paio->hevent_io_complete,
-			&state);
-
-		if (paio->status_loop)
-			waio_thread_shutdown_request(paio);
-
-		/* hook: before read request */
-		paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
-
-		paio->status_loop = __ntapi->zw_set_event(
-			paio->hevent_io_request,
-			&state);
-
-		if (paio->status_loop)
-			waio_thread_shutdown_request(paio);
-
-		/* app's data processing takes place here */
-	} while (paio->status_loop == NT_STATUS_SUCCESS); /* (1) */
+		/* submit the next io request if applicable */
+		waio_dequeue(paio);
+	} while (paio->status_loop == NT_STATUS_SUCCESS);
 
 	/* should never get here */
 	return NT_STATUS_INTERNAL_ERROR;
