@@ -33,6 +33,12 @@
 #define WAIO_POOL_SIZE		256
 #define WAIO_READ_BUFFER_SIZE	4096
 
+/* .rdata */
+extern waio_xvtbls	xvtbls;
+extern waio		pipe_pool[WAIO_POOL_SIZE];
+extern void *		hevent_abort_request;
+extern void *		hstdout;
+
 /* forward declarations */
 int __cdecl waio_tu_entry_point(void);
 int __cdecl waio_main_utf8(int argc, char ** argv, char ** envp);
