@@ -55,6 +55,7 @@ int32_t __stdcall waio_io(waio * paio)
 	void *			hpending[2];
 	void *			hwait[2];
 	ntapi_zw_read_file *	io_routine[3];
+	nt_timeout *		timeout;
 
 	/* fallback tip for legacy os versions */
 	paio->fallback_tip = &state;
@@ -95,12 +96,17 @@ int32_t __stdcall waio_io(waio * paio)
 	do {
 		/* wait for an abort request to arrive;	*/
 		/* or for io op to be requested;	*/
+		if (paio->io_request_timeout.quad)
+			timeout = &paio->io_request_timeout;
+		else
+			timeout = (nt_timeout *)0;
+
 		paio->status_io = __ntapi->zw_wait_for_multiple_objects(
 			2,
 			hwait,
 			__ntapi->wait_type_any,
 			NT_SYNC_NON_ALERTABLE,
-			&paio->io_request_timeout);
+			timeout);
 
 		/* optionally enforce a longest time interval between requests */
 		while (paio->status_io == NT_STATUS_TIMEOUT) {
@@ -111,7 +117,7 @@ int32_t __stdcall waio_io(waio * paio)
 				hwait,
 				__ntapi->wait_type_any,
 				NT_SYNC_NON_ALERTABLE,
-				&paio->io_request_timeout);
+				timeout);
 		}
 
 		if ((uint32_t)paio->status_io >= NT_STATUS_WAIT_CAP)

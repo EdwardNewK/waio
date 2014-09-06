@@ -23,6 +23,7 @@
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 #include <waio/waio__llapi.h>
+#include <waio/waio.h>
 #include "waio_impl.h"
 #include "waio_cx.h"
 
@@ -30,9 +31,10 @@
 waio_api
 int32_t __stdcall waio_enqueue(waio * paio)
 {
-	waio_slot *	slot;
-	waio_request *	req;
-	int		i;
+	waio_slot *		slot;
+	waio_request *		req;
+	waio_aiocb_opaque *	opaque;
+	int			i;
 
 	/* waio_enqueue: executes in the loop thread */
 
@@ -55,6 +57,10 @@ int32_t __stdcall waio_enqueue(waio * paio)
 			req->slot.aio_nbytes     = slot->aio_nbytes;
 			req->slot.aio_offset     = slot->aio_offset;
 			req->slot.aiocb		 = slot->aiocb;
+
+			/* request pointer (cancellation reference) */
+			opaque = ((waio_aiocb_opaque *)(slot->aiocb->__opaque));
+			opaque->request = req;
 
 			/* translation */
 			req->rpacket.data        = (os_unsigned_ptr *)slot->aio_buf;

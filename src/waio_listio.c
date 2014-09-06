@@ -91,7 +91,7 @@ int waio_listio(
 	for (i=0; i<nent; i++) {
 		opaque = ((waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
 
-		if (opaque->iosb.status || opaque->cancel_io.status)
+		if (opaque->iosb.status)
 			return -WAIO_EIO;
 	}
 

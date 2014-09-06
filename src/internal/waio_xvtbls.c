@@ -119,6 +119,12 @@ int32_t __stdcall ntapi_init(ntapi_vtbl * pvtbl)
 	__get_proc_address(pvtbl,strlen,"strlen");
 	__get_proc_address(pvtbl,wcslen,"wcslen");
 
+	/* zw_cancel_io_file_ex (newer os versions only) */
+	pvtbl->zw_cancel_io_file_ex = (ntapi_zw_cancel_io_file_ex *)
+					__winapi->get_proc_address(
+						__hntdll,
+						"ZwCancelIoFileEx");
+
 	/* wine */
 	pvtbl->wine_get_version = __winapi->get_proc_address(__hntdll,"wine_get_version");
 

@@ -163,7 +163,12 @@ static signed int __waio_call_conv__hook cx_after_io(
 
 		default:
 			opaque->qstatus = NT_STATUS_GENERIC_COMMAND_FAILED;
+			break;
 	}
+
+	/* copy completion status */
+	opaque->iosb.pointer = paio->packet->iosb.pointer;
+	opaque->iosb.info    = paio->packet->iosb.info;
 
 	/* finalize */
 	paio->packet    = (waio_packet *)0;

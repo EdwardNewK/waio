@@ -31,8 +31,8 @@
 #define WAIO_CX_BLOCK_SIZE	4096
 #define	WAIO_CX_SLOT_COUNT	4
 
-typedef struct waio_slot_interface	waio_slot;
-typedef struct waio_request_interface	waio_request;
+typedef struct waio_slot_interface		waio_slot;
+typedef struct waio_request_interface		waio_request;
 
 typedef struct waio_slot_interface {
 	uint32_t		pid;
@@ -65,7 +65,9 @@ typedef struct waio_aiocb_opaque_interface {
 	nt_iosb		iosb;
 	nt_iosb		cancel_io;
 	void *		hpending;
+	waio_request *	request;
 	int32_t		qstatus;
+	int32_t		fcancel;
 } waio_aiocb_opaque;
 
 

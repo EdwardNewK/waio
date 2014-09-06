@@ -85,7 +85,7 @@ int32_t __stdcall waio_loop(waio * paio)
 		else if (paio->io_counter == io_counter)
 			return NT_STATUS_THREAD_NOT_IN_PROCESS;
 
-		/* io complete? */
+		/* io call completed? */
 		if (paio->io_counter > io_counter) {
 			/* hook: after io complete */
 			paio->hooks[WAIO_HOOK_AFTER_IO_COMPLETE](paio,WAIO_HOOK_AFTER_IO_COMPLETE,0);
@@ -95,7 +95,6 @@ int32_t __stdcall waio_loop(waio * paio)
 
 			/* allow the next request to be processed */
 			paio->packet    = (waio_packet *)0;
-			paio->cancel_io = (waio_packet *)0;
 		}
 
 		/* submit the next io request if applicable */

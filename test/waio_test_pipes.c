@@ -44,7 +44,6 @@ int __cdecl waio_test_pipe(waio * paio)
 
 	/* use the internal packet and cancel_io structures */
 	paio->packet    = &paio->lpacket;
-	paio->cancel_io = &paio->lcancel_io;
 
 	/* allocate buffer */
 	paio->packet->buffer_size = WAIO_READ_BUFFER_SIZE;

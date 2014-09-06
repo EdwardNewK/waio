@@ -208,4 +208,10 @@ typedef int32_t	__stdcall ntapi_zw_set_information_file(
 	_in_	uint32_t		file_info_length,
 	_in_	nt_file_info_class	file_info_class);
 
+
+typedef int32_t __stdcall ntapi_zw_cancel_io_file_ex(
+	_in_	void *		hfile,
+	_in_	nt_iosb *	iosb_in		_optional_,
+	_out_	nt_iosb *	iosb_out);
+
 #endif /* _NT_FILE_H_ */

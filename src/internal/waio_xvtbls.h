@@ -65,6 +65,7 @@ typedef struct _ntapi_vtbl {
 	ntapi_zw_query_information_file *	zw_query_information_file;
 	ntapi_zw_write_file *			zw_write_file;
 	ntapi_zw_read_file *			zw_read_file;
+	ntapi_zw_cancel_io_file_ex *		zw_cancel_io_file_ex;
 	/* time */
 	ntapi_zw_yield_execution *		zw_yield_execution;
 	/* string */
@@ -76,7 +77,7 @@ typedef struct _ntapi_vtbl {
 	ntapi_tt_create_inheritable_event *	tt_create_inheritable_event;
 	ntapi_tt_create_private_event *		tt_create_private_event;
 	ntapi_tt_uint32_to_hex_utf8 *		tt_uint32_to_hex_utf8;
-	/* wine-behavior (now fixed in trunk: thank you!) */
+	/* wine-behavior */
 	void *					wine_get_version;
 	nt_wait_type				wait_type_any;
 	nt_wait_type				wait_type_all;

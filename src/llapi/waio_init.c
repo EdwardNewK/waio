@@ -40,10 +40,6 @@ int32_t __stdcall waio_init(waio * paio)
 		if (!(*hook))
 			*hook = waio_hook_default;
 
-	/* default longest interval between requests (infinite) */
-	if (paio->io_request_timeout.quad == 0)
-		paio->io_request_timeout.quad = 0x7FFFFFFFFFFFFFFF;
-
 	/* hook: before pipe init */
 	paio->hooks[WAIO_HOOK_BEFORE_INIT](paio,WAIO_HOOK_BEFORE_INIT,0);
 

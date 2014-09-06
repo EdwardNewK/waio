@@ -25,13 +25,6 @@
 #include <waio/waio__llapi.h>
 #include "waio_impl.h"
 
-/* cancel all io operations on a file within the current process */
-typedef int32_t __stdcall ntapi_zw_cancel_io_file_ex(
-	_in_	void *		hfile,
-	_in_	nt_iosb *	iosb_in		_optional_,
-	_out_	nt_iosb *	iosb_out);
-
-
 /* the thread shutdown response executes in the context of the io thread */
 waio_api
 int32_t __stdcall waio_thread_shutdown_response(waio * paio)
@@ -55,31 +48,23 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 {
 	int32_t				status;
 	int32_t				status_cancel_io_ex;
-	ntapi_zw_cancel_io_file_ex *	pfn_zw_cancel_io_file_ex;
 	nt_timeout			timeout;
 
 	/* hook: before shutdown_request */
 	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);
 
-	/* see whether zw_cancel_io_file_ex is available (vista->, wine); */
-	pfn_zw_cancel_io_file_ex = (ntapi_zw_cancel_io_file_ex *)
-				__winapi->get_proc_address(
-					__hntdll,
-					"ZwCancelIoFileEx");
-
-	/* use fallback method if not */
-	/* confirmed on #winehackers: wine still requires the fallback method */
-	if ((!pfn_zw_cancel_io_file_ex) || (__ntapi->wine_get_version))
+	/* use fallback method if not supported */
+	if ((!__ntapi->zw_cancel_io_file_ex) || (__ntapi->wine_get_version))
 		return waio_thread_shutdown_fallback(paio);
 
 	/* hook: before shutdown_request */
 	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);
 
 	/* cancel io request */
-	status = pfn_zw_cancel_io_file_ex(
+	status = __ntapi->zw_cancel_io_file_ex(
 		paio->hfile,
-		(os_iosb *)0,//&paio->packet->iosb,
-		&paio->cancel_io->iosb);
+		&paio->packet->iosb,
+		&paio->packet->iosb);
 
 	/* hook: before shutdown_request */
 	paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,status);
@@ -98,10 +83,10 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 				&timeout);
 
 			/* cancel io request */
-			status_cancel_io_ex = pfn_zw_cancel_io_file_ex(
+			status_cancel_io_ex = __ntapi->zw_cancel_io_file_ex(
 				paio->hfile,
 				&paio->packet->iosb,
-				&paio->cancel_io->iosb);
+				&paio->packet->iosb);
 
 			paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,status_cancel_io_ex);
 		} while (status);

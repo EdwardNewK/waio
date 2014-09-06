@@ -46,6 +46,8 @@ typedef struct waio_packet_interface {
 typedef enum {
 	WAIO_HOOK_BEFORE_INIT,
 	WAIO_HOOK_AFTER_INIT,
+	WAIO_HOOK_BEFORE_CANCEL,
+	WAIO_HOOK_AFTER_CANCEL,
 	WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,
 	WAIO_HOOK_AFTER_SHUTDOWN_REQUEST,
 	WAIO_HOOK_BEFORE_SHUTDOWN_FALLBACK,
@@ -91,6 +93,8 @@ typedef struct waio_interface {
 	intptr_t	abort_inc_counter;	/* optimization */
 	intptr_t	queue_req_counter;	/* optimization */
 	intptr_t	queue_inc_counter;	/* optimization */
+	intptr_t	cancel_req_counter;	/* optimization */
+	intptr_t	cancel_inc_counter;	/* optimization */
 	intptr_t	io_counter;		/* optimization */
 	void *		hthread_io;		/* the blocking thread */
 	void *		hthread_loop;		/* (app) */
@@ -107,7 +111,7 @@ typedef struct waio_interface {
 	waio_packet	lpacket;		/* internal request info        */
 	waio_packet	lcancel_io;		/* internal cencellation status */
 	waio_packet *	packet;			/* aio single request        */
-	waio_packet *	cancel_io;		/* aio cencellation status   */
+	waio_packet *	cancel_io;		/* aio cancellation request  */
 	waio_request *	queue;			/* request serialization */
 	waio_request *	qtail;			/* request serialization */
 	waio_request *	qfree;			/* request serialization */
