@@ -24,9 +24,9 @@
 #include <ntapi/ntapi.h>
 #include <waio/waio.h>
 #include <waio/waio__llapi.h>
+#include <waio/waio__errno.h>
 #include "waio_impl.h"
 #include "waio_cx.h"
-#include "waio_errno.h"
 
 static int waio_read_write(
 	_in_	waio_cx			cx,
@@ -43,9 +43,10 @@ static int waio_read_write(
 		__winapi->get_current_thread_id());
 
 	if (status == NT_STATUS_INVALID_HANDLE)
-		return -EBADF;
+		return -WAIO_EBADF;
 	else if (status)
-		return -EAGAIN;
+		return -WAIO_EAGAIN;
+
 	return 0;
 }
 

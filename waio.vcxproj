@@ -52,6 +52,7 @@
     <ClInclude Include="include\waio\waio.h" />
     <ClInclude Include="include\waio\waio__common.h" />
     <ClInclude Include="include\waio\waio__compiler.h" />
+    <ClInclude Include="include\waio\waio__errno.h" />
     <ClInclude Include="include\waio\waio__llapi.h" />
     <ClInclude Include="include\waio\waio__os.h" />
     <ClInclude Include="include\waio\waio__stddef.h" />
@@ -82,7 +83,6 @@
     <ClInclude Include="src\internal\headers\psxtypes\__psxtypes.h" />
     <ClInclude Include="src\internal\headers\winapi\winapi.h" />
     <ClInclude Include="src\internal\waio_cx.h" />
-    <ClInclude Include="src\internal\waio_errno.h" />
     <ClInclude Include="src\internal\waio_impl.h" />
     <ClInclude Include="src\internal\waio_xvtbls.h" />
     <ClInclude Include="test\waio_test.h" />

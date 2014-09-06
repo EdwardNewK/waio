@@ -24,9 +24,9 @@
 #include <ntapi/ntapi.h>
 #include <waio/waio.h>
 #include <waio/waio__llapi.h>
+#include <waio/waio__errno.h>
 #include "waio_impl.h"
 #include "waio_cx.h"
-#include "waio_errno.h"
 
 static int32_t __get_slot(
 	_in_	waio *		paio,

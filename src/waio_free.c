@@ -24,9 +24,9 @@
 #include <ntapi/ntapi.h>
 #include <waio/waio.h>
 #include <waio/waio__llapi.h>
+#include <waio/waio__errno.h>
 #include "waio_impl.h"
 #include "waio_cx.h"
-#include "waio_errno.h"
 
 waio_api int waio_free (waio_cx cx)
 {
@@ -40,7 +40,7 @@ waio_api int waio_free (waio_cx cx)
 		cx->paio->hevent_abort_request,
 		&state);
 
-	if (status) return -EACCES;
+	if (status) return -WAIO_EACCES;
 
 	/* wait for loop and io threads to terminate */
 	hwait[0] = cx->paio->hthread_loop;
@@ -54,7 +54,7 @@ waio_api int waio_free (waio_cx cx)
 		NT_SYNC_NON_ALERTABLE,
 		&timeout);
 
-	if (status) return -EACCES;
+	if (status) return -WAIO_EACCES;
 
 	/* free memory */
 	status = __ntapi->zw_free_virtual_memory(
@@ -63,7 +63,7 @@ waio_api int waio_free (waio_cx cx)
 		&cx->cx_size,
 		NT_MEM_RELEASE);
 
-	if (status) return -EINVAL;
+	if (status) return -WAIO_EINVAL;
 
 	return 0;
 }
