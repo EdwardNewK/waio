@@ -45,9 +45,9 @@ int waio_listio(
 
 	/* validation */
 	if ((mode < 0) || (mode > WAIO_NOWAIT))
-		return EINVAL;
+		return -EINVAL;
 	else if (nent > WAIO_LISTIO_MAX)
-		return EINVAL;
+		return -EINVAL;
 
 	/* submit requests */
 	pid = __winapi->get_current_process_id();
@@ -57,7 +57,7 @@ int waio_listio(
 		aio_lio_opcode = aiocb_list[i]->aio_lio_opcode;
 
 		if ((aio_lio_opcode < 0) || (aio_lio_opcode > WAIO_NOP))
-			return EINVAL;
+			return -EINVAL;
 
 		status = waio_submit_single_request(
 			cx->paio,
@@ -66,8 +66,7 @@ int waio_listio(
 			pid,
 			tid);
 
-		if (status)
-			return EAGAIN;
+		if (status) return -EAGAIN;
 	}
 
 	if (mode == WAIO_NOWAIT)
@@ -86,15 +85,14 @@ int waio_listio(
 		NT_SYNC_NON_ALERTABLE,
 		(nt_timeout *)0);
 
-	if (status)
-		return EINTR;
+	if (status) return -EINTR;
 
 	/* check results */
 	for (i=0; i<nent; i++) {
 		opaque = ((struct waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
 
 		if (opaque->iosb.status || opaque->cancel_io.status)
-			return EIO;
+			return -EIO;
 	}
 
 	return 0;
