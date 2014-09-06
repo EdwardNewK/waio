@@ -20,53 +20,56 @@
 /*****************************************************************************/
 
 
-#ifndef _WAIO_CX_H_
-#define _WAIO_CX_H_
-
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
+#include <waio/waio.h>
 #include <waio/waio__llapi.h>
+#include <waio/waio__errno.h>
 #include "waio_impl.h"
+#include "waio_cx.h"
 
-#define WAIO_CX_BLOCK_SIZE	4096
-#define	WAIO_CX_SLOT_COUNT	4
+waio_api
+int waio_error(
+	_in_	waio_cx				cx,
+	_in_	const struct waio_aiocb	*	aiocb)
+{
+	waio_aiocb_opaque *	opaque;
 
-typedef struct waio_slot_interface	waio_slot;
-typedef struct waio_request_interface	waio_request;
+	opaque	 = ((waio_aiocb_opaque *)(aiocb->__opaque));
 
-typedef struct waio_slot_interface {
-	uint32_t		pid;
-	uint32_t		tid;
-	int			aio_lio_opcode;
-	int			aio_reqprio;
-	void *			aio_hevent;
-	volatile void *		aio_buf;
-	size_t			aio_nbytes;
-	off_t           	aio_offset;
-	struct waio_aiocb *	aiocb;
-} waio_slot;
+	switch (opaque->qstatus) {
+		case NT_STATUS_WAIT_1:
+			return -WAIO_EINPROGRESS;
+			break;
 
+		case NT_STATUS_PENDING:
+			return -WAIO_EINPROGRESS;
+			break;
 
-typedef struct waio_request_interface {
-	waio_slot		slot;
-	waio_packet		rpacket;
-	waio_request *		next;
-} waio_request;
+		case NT_STATUS_CANCELLED:
+			return -WAIO_EINTR;
+			break;
+	}
 
+	/* completed: translate error */
+	switch (opaque->iosb.status) {
+		case NT_STATUS_SUCCESS:
+			return 0;
+			break;
 
-typedef struct waio_cx_interface {
-	struct waio_cx_interface *	self;
-	struct waio_interface *		paio;
-	size_t				cx_size;
-} waio_opaque_cx;
+		case NT_STATUS_INVALID_HANDLE:
+			return -WAIO_EBADF;
+			break;
 
+		case NT_STATUS_ACCESS_VIOLATION:
+			return -WAIO_EACCES;
+			break;
 
-typedef struct waio_aiocb_opaque_interface {
-	nt_iosb		iosb;
-	nt_iosb		cancel_io;
-	void *		hpending;
-	int32_t		qstatus;
-} waio_aiocb_opaque;
+		case NT_STATUS_BAD_FILE_TYPE:
+			return -WAIO_EINVAL;
+			break;
 
-
-#endif /* _WAIO_CX_H_ */
+		default:
+			return -WAIO_ENXIO;
+	}
+}

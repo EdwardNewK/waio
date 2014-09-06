@@ -5,6 +5,7 @@
 #define WAIO_ENOENT            2
 #define WAIO_EINTR             4
 #define WAIO_EIO               5
+#define WAIO_ENXIO             6
 #define WAIO_EBADF             9
 #define WAIO_ECHILD           10
 #define WAIO_EAGAIN           11

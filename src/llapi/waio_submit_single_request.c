@@ -41,11 +41,11 @@ int32_t waio_submit_single_request(
 	_in_	uint32_t		pid,
 	_in_	uint32_t		tid)
 {
-	int32_t		status;
-	int32_t		state;
-	int32_t		initial_state;
-	waio_slot *	slot;
-
+	int32_t			status;
+	int32_t			state;
+	int32_t			initial_state;
+	waio_slot *		slot;
+	waio_aiocb_opaque *	opaque;
 
 	/* lio_opcode */
 	if ((lio_opcode < 0) || (lio_opcode > WAIO_NOP))
@@ -75,12 +75,15 @@ int32_t waio_submit_single_request(
 	aiocb->__opaque[7] = (void *)0;
 
 	/* init opaque notification event */
+	opaque = ((waio_aiocb_opaque *)(aiocb->__opaque));
+	opaque->qstatus = NT_STATUS_WAIT_1;
+
 	initial_state = (lio_opcode == WAIO_NOP)
 			? NT_EVENT_SIGNALED
 			: NT_EVENT_NOT_SIGNALED;
 
 	status = __ntapi->tt_create_private_event(
-		&(((waio_aiocb_opaque *)(aiocb->__opaque))->hpending),
+		&opaque->hpending,
 		NT_NOTIFICATION_EVENT,
 		initial_state);
 

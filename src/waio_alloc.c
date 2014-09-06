@@ -27,14 +27,15 @@
 #include "waio_impl.h"
 #include "waio_cx.h"
 
+static waio_hook cx_before_io;
+static waio_hook cx_after_io;
+
 typedef struct waio_cx_opaque_block {
 	struct waio_cx_interface	cx;
 	struct waio_interface		cx_waio;
 	struct waio_slot_interface	cx_slots[WAIO_CX_SLOT_COUNT];
 	struct waio_request_interface	cx_requests[1];
 } waio_cx_block;
-
-
 
 waio_api waio_cx waio_alloc(
 	_in_	void * 		handle,
@@ -111,10 +112,54 @@ waio_api waio_cx waio_alloc(
 		if (!(*hook))
 			*hook = waio_hook_default;
 
+	/* hooks */
+	cx_block->cx.paio->hooks[WAIO_HOOK_BEFORE_IO] = cx_before_io;
+	cx_block->cx.paio->hooks[WAIO_HOOK_AFTER_IO]  = cx_after_io;
+
 	/* thread pair init */
 	*status = waio_init(cx_block->cx.paio);
 	if (*status) return (waio_cx)0;
 
 	/* return opaque pointer */
 	return &cx_block->cx;
+}
+
+
+signed int __waio_call_conv__hook cx_before_io(
+	waio *		paio,
+	waio_hook_type	type,
+	signed int	status)
+{
+	waio_aiocb_opaque * opaque;
+
+	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
+	opaque->qstatus = NT_STATUS_PENDING;
+
+	return status;
+}
+
+
+signed int __waio_call_conv__hook cx_after_io(
+	waio *		paio,
+	waio_hook_type	type,
+	signed int	status)
+{
+	waio_aiocb_opaque * opaque;
+
+	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
+
+	switch (status) {
+		case NT_STATUS_SUCCESS:
+			opaque->qstatus = NT_STATUS_SUCCESS;
+			break;
+
+		case NT_STATUS_CANCELLED:
+			opaque->qstatus = NT_STATUS_CANCELLED;
+			break;
+
+		default:
+			opaque->qstatus = NT_STATUS_GENERIC_COMMAND_FAILED;
+	}
+
+	return status;
 }

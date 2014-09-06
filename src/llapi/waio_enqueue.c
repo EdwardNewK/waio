@@ -60,6 +60,7 @@ int32_t __stdcall waio_enqueue(waio * paio)
 			req->rpacket.data        = (os_unsigned_ptr *)slot->aio_buf;
 			req->rpacket.buffer_size = slot->aio_nbytes;
 			req->rpacket.offset.quad = slot->aio_offset;
+			req->rpacket.aiocb       = slot->aiocb;
 
 			/* fake memset and default status */
 			req->rpacket.cancel_io.info    = 0;
@@ -95,4 +96,3 @@ int32_t __stdcall waio_enqueue(waio * paio)
 		paio->hevent_queue_request,
 		(int32_t *)0);
 }
-

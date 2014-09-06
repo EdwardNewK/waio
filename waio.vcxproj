@@ -22,6 +22,7 @@
     <ClCompile Include="src\llapi\waio_dequeue.c" />
     <ClCompile Include="src\llapi\waio_enqueue.c" />
     <ClCompile Include="src\llapi\waio_submit_single_request.c" />
+    <ClCompile Include="src\waio_error.c" />
     <ClCompile Include="src\waio_fsync.c" />
     <ClCompile Include="src\waio_listio.c" />
     <ClCompile Include="src\waio_read_write.c" />

@@ -39,6 +39,7 @@ typedef struct waio_packet_interface {
 	os_unsigned_ptr *	data;
 	os_unsigned_ptr		buffer_size;
 	nt_large_integer	offset;
+	struct waio_aiocb *	aiocb;
 } waio_packet;
 
 /* hooks */
