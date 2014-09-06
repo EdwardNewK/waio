@@ -73,14 +73,6 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->hevent_io_ready,
 		&state);
 
-	paio->status_io = __ntapi->zw_set_event(
-		paio->hevent_io_ready,
-		&state);
-
-	paio->status_io = __ntapi->zw_set_event(
-		paio->hevent_io_ready,
-		&state);
-
 	if (paio->status_io) return paio->status_io;
 
 	/* events of interest */
