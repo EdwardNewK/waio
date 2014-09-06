@@ -148,12 +148,6 @@ int32_t __stdcall waio_io(waio * paio)
 				NT_SYNC_NON_ALERTABLE,
 				(nt_timeout *)0);
 
-		if (paio->status_io) return paio->status_io;
-
-		/* abort request? */
-		if (paio->abort_inc_counter > paio->abort_req_counter)
-			waio_thread_shutdown_response(paio);
-
 		/* hook: after io */
 		paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
 

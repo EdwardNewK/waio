@@ -64,4 +64,3 @@ int32_t __stdcall waio_dequeue(waio * paio)
 
 	return NT_STATUS_SUCCESS;
 }
-

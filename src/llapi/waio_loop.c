@@ -31,6 +31,7 @@ int32_t __stdcall waio_loop(waio * paio)
 {
 	intptr_t	io_counter;
 	void *		hwait[4];
+	nt_timeout *	timeout;
 
 	/* init local io counter */
 	io_counter = paio->io_counter;
@@ -53,18 +54,24 @@ int32_t __stdcall waio_loop(waio * paio)
 		/* or for a queue request to arrive;	*/
 		/* or for io operation to complete;	*/
 		/* or for the io thread to die.		*/
+		if (paio->io_request_timeout.quad)
+			timeout = &paio->io_request_timeout;
+		else
+			timeout = (nt_timeout *)0;
+
 		paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
 			4,
 			hwait,
 			__ntapi->wait_type_any,
 			NT_SYNC_NON_ALERTABLE,
-			&paio->io_request_timeout);
+			timeout);
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,paio->status_loop);
 
-		if ((uint32_t)paio->status_loop >= NT_STATUS_WAIT_CAP)
-			waio_thread_shutdown_request(paio);
+		/* timeout? */
+		if (paio->status_loop == NT_STATUS_TIMEOUT)
+			paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,paio->status_loop);
 
 		/* abort request? */
 		if (paio->abort_inc_counter > paio->abort_req_counter)

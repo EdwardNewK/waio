@@ -29,6 +29,7 @@
 
 static waio_hook cx_before_io;
 static waio_hook cx_after_io;
+static waio_hook cx_shutdown_response;
 
 typedef struct waio_cx_opaque_block {
 	struct waio_cx_interface	cx;
@@ -115,6 +116,9 @@ waio_api waio_cx waio_alloc(
 	/* hooks */
 	cx_block->cx.paio->hooks[WAIO_HOOK_BEFORE_IO] = cx_before_io;
 	cx_block->cx.paio->hooks[WAIO_HOOK_AFTER_IO]  = cx_after_io;
+	cx_block->cx.paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_RESPONSE] = cx_shutdown_response;
+	cx_block->cx.paio->hooks[WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE]  = cx_shutdown_response;
+	cx_block->cx.paio->hooks[WAIO_HOOK_AFTER_SHUTDOWN_FALLBACK]  = cx_shutdown_response;
 
 	/* thread pair init */
 	*status = waio_init(cx_block->cx.paio);
@@ -125,7 +129,7 @@ waio_api waio_cx waio_alloc(
 }
 
 
-signed int __waio_call_conv__hook cx_before_io(
+static signed int __waio_call_conv__hook cx_before_io(
 	waio *		paio,
 	waio_hook_type	type,
 	signed int	status)
@@ -139,7 +143,7 @@ signed int __waio_call_conv__hook cx_before_io(
 }
 
 
-signed int __waio_call_conv__hook cx_after_io(
+static signed int __waio_call_conv__hook cx_after_io(
 	waio *		paio,
 	waio_hook_type	type,
 	signed int	status)
@@ -159,6 +163,26 @@ signed int __waio_call_conv__hook cx_after_io(
 
 		default:
 			opaque->qstatus = NT_STATUS_GENERIC_COMMAND_FAILED;
+	}
+
+	/* finalize */
+	paio->packet    = (waio_packet *)0;
+	paio->cancel_io = (waio_packet *)0;
+
+	return status;
+}
+
+
+static signed int __waio_call_conv__hook cx_shutdown_response(
+	waio *		paio,
+	waio_hook_type	type,
+	signed int	status)
+{
+	waio_aiocb_opaque * opaque;
+
+	if (paio->packet) {
+		opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
+		opaque->qstatus = NT_STATUS_CANCELLED;
 	}
 
 	return status;
