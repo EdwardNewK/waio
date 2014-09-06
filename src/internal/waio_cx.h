@@ -61,11 +61,11 @@ typedef struct waio_cx_interface {
 } waio_opaque_cx;
 
 
-struct waio_aiocb_opaque {
+typedef struct waio_aiocb_opaque_interface {
 	nt_iosb		iosb;
 	nt_iosb		cancel_io;
 	void *		hpending;
-};
+} waio_aiocb_opaque;
 
 
 #endif /* _WAIO_CX_H_ */

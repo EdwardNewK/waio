@@ -26,7 +26,6 @@
     <ClCompile Include="src\waio_listio.c" />
     <ClCompile Include="src\waio_read_write.c" />
     <ClCompile Include="src\waio_cancel.c" />
-    <ClCompile Include="src\waio_error.c" />
     <ClCompile Include="src\waio_fcntl.c" />
     <ClCompile Include="src\waio_alloc.c" />
     <ClCompile Include="src\waio_free.c" />

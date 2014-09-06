@@ -80,7 +80,7 @@ int32_t waio_submit_single_request(
 			: NT_EVENT_NOT_SIGNALED;
 
 	status = __ntapi->tt_create_private_event(
-		&(((struct waio_aiocb_opaque *)(aiocb->__opaque))->hpending),
+		&(((waio_aiocb_opaque *)(aiocb->__opaque))->hpending),
 		NT_NOTIFICATION_EVENT,
 		initial_state);
 

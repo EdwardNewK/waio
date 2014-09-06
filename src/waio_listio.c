@@ -35,13 +35,13 @@ int waio_listio(
 	_in_	struct waio_aiocb *	const aiocb_list[],
 	_in_	int			nent)
 {
-	int32_t				status;
-	struct waio_aiocb_opaque *	opaque;
-	void *				hwait[WAIO_LISTIO_MAX];
-	int				aio_lio_opcode;
-	uint32_t			pid;
-	uint32_t			tid;
-	int				i;
+	int32_t			status;
+	waio_aiocb_opaque *	opaque;
+	void *			hwait[WAIO_LISTIO_MAX];
+	int			aio_lio_opcode;
+	uint32_t		pid;
+	uint32_t		tid;
+	int			i;
 
 	/* validation */
 	if ((mode < 0) || (mode > WAIO_NOWAIT))
@@ -74,7 +74,7 @@ int waio_listio(
 
 	/* init list of wait events */
 	for (i=0; i<nent; i++) {
-		opaque	 = ((struct waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
+		opaque	 = ((waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
 		hwait[i] = opaque->hpending;
 	}
 
@@ -89,7 +89,7 @@ int waio_listio(
 
 	/* check results */
 	for (i=0; i<nent; i++) {
-		opaque = ((struct waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
+		opaque = ((waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
 
 		if (opaque->iosb.status || opaque->cancel_io.status)
 			return -WAIO_EIO;
