@@ -54,6 +54,7 @@ int32_t __stdcall waio_enqueue(waio * paio)
 			req->slot.aio_buf        = slot->aio_buf;
 			req->slot.aio_nbytes     = slot->aio_nbytes;
 			req->slot.aio_offset     = slot->aio_offset;
+			req->slot.aiocb		 = slot->aiocb;
 
 			/* translation */
 			req->rpacket.data        = (os_unsigned_ptr *)slot->aio_buf;
@@ -92,6 +93,6 @@ int32_t __stdcall waio_enqueue(waio * paio)
 	/* allow new requests to be placed */
 	return __ntapi->zw_reset_event(
 		paio->hevent_queue_request,
-		(uint32_t *)0);
+		(int32_t *)0);
 }
 

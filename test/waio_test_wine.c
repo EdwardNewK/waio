@@ -33,7 +33,7 @@ int __cdecl waio_test_wine_behavior(void)
 	void *		hevent;
 	nt_timeout	timeout;
 	int32_t		status;
-	uint32_t	previous_state;
+	int32_t		previous_state;
 
 	/* create event */
 	status = __ntapi->tt_create_private_event(

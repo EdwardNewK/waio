@@ -38,6 +38,10 @@
 extern "C" {
 #endif
 
+/* limits */
+#define WAIO_MAX	0x100	/* per context */
+#define WAIO_LISTIO_MAX	0x40	/* per call    */
+
 /* status codes */
 typedef enum waio_status_enum {
 	WAIO_CANCELED,
@@ -82,7 +86,7 @@ struct waio_aiocb {
 	volatile void *		aio_buf;
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
-	void *			__opaque[16];
+	void *			__opaque[8];
 };
 
 /* opaque context handle */
@@ -133,7 +137,7 @@ waio_api int		waio_write	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_error	(waio_cx, const struct waio_aiocb *);
 waio_api int		waio_cancel	(waio_cx, int, struct waio_aiocb *);
 waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
-
+waio_api int		waio_listio	(waio_cx, int mode, struct waio_aiocb * const aiocb_list[], int nitems);
 
 #ifdef __cplusplus
 }

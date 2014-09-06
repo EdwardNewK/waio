@@ -73,12 +73,12 @@ typedef int32_t __stdcall ntapi_zw_open_event(
 
 typedef int32_t __stdcall ntapi_zw_set_event(
 	_in_	void *		hevent,
-	_out_	uint32_t *	previous_state);
+	_out_	int32_t *	previous_state);
 
 
 typedef int32_t __stdcall ntapi_zw_reset_event(
 	_in_	void *		hevent,
-	_out_	uint32_t *	previous_state);
+	_out_	int32_t *	previous_state);
 
 
 typedef int32_t __stdcall ntapi_zw_clear_event(

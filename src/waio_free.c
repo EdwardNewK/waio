@@ -30,7 +30,7 @@
 waio_api int waio_free (waio_cx cx)
 {
 	int32_t		status;
-	uint32_t	state;
+	int32_t		state;
 	void *		hwait[2];
 	nt_timeout	timeout;
 

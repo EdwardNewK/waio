@@ -137,7 +137,7 @@ int __cdecl waio_test_pipes(unsigned int pool_size, uint32_t flags, void * optio
 
 	__ntapi->zw_set_event(
 		hevent_abort_request,
-		(uint32_t *)0);
+		(int32_t *)0);
 
 	/* see that everyone has aborted */
 	for (i=0; i<WAIO_POOL_SIZE; i++) {

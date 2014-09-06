@@ -38,7 +38,7 @@ int32_t __stdcall waio_loop(waio * paio)
 	/* notify the init routine that the loop is ready */
 	paio->status_loop = __ntapi->zw_set_event(
 		paio->hevent_loop_ready,
-		(uint32_t *)0);
+		(int32_t *)0);
 
 	if (paio->status_loop) return paio->status_loop;
 

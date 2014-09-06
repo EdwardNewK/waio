@@ -23,6 +23,7 @@ typedef struct waio_interface		waio;
 typedef struct waio_vtbl_interface	waio_vtbl;
 typedef struct waio_slot_interface	waio_slot;
 typedef struct waio_request_interface	waio_request;
+struct waio_aiocb;
 
 /* i/o type */
 typedef enum {
@@ -120,7 +121,7 @@ typedef signed int __waio_call_conv__api waio_fn(waio *);
 /* library */
 waio_api waio_fn waio_init;
 
-/* parent */
+/* loop thread */
 waio_api waio_fn waio_create;
 waio_api waio_fn waio_loop;
 waio_api waio_fn waio_enqueue;
@@ -128,12 +129,21 @@ waio_api waio_fn waio_dequeue;
 waio_api waio_fn waio_thread_shutdown_request;
 waio_api waio_fn waio_thread_shutdown_fallback;
 
-/* child */
+/* io thread */
 waio_api waio_fn waio_io;
 waio_api waio_fn waio_thread_shutdown_response;
 
 /* hooks */
 waio_hook waio_hook_default;
+
+/* client */
+waio_api int32_t waio_submit_single_request(
+	_in_	waio *			paio,
+	_in_	struct waio_aiocb *	aiocb,
+	_in_	int			lio_opcode,
+	_in_	uint32_t		pid,
+	_in_	uint32_t		tid);
+
 
 #ifdef __cplusplus
 }

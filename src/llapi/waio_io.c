@@ -51,10 +51,10 @@ static int32_t	__stdcall __io_nop(
 waio_api
 int32_t __stdcall waio_io(waio * paio)
 {
-	uint32_t			state;
-	void *				hpending[2];
-	void *				hwait[2];
-	ntapi_zw_read_file *		io_routine[3];
+	int32_t			state;
+	void *			hpending[2];
+	void *			hwait[2];
+	ntapi_zw_read_file *	io_routine[3];
 
 	/* fallback tip for legacy os versions */
 	paio->fallback_tip = &state;
@@ -68,6 +68,14 @@ int32_t __stdcall waio_io(waio * paio)
 	if (paio->status_io) return paio->status_io;
 
 	/* notify the app that the io thread is ready */
+	paio->status_io = __ntapi->zw_set_event(
+		paio->hevent_io_ready,
+		&state);
+
+	paio->status_io = __ntapi->zw_set_event(
+		paio->hevent_io_ready,
+		&state);
+
 	paio->status_io = __ntapi->zw_set_event(
 		paio->hevent_io_ready,
 		&state);

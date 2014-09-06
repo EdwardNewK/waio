@@ -43,6 +43,7 @@ typedef struct waio_slot_interface {
 	volatile void *		aio_buf;
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
+	struct waio_aiocb *	aiocb;
 } waio_slot;
 
 
@@ -58,6 +59,13 @@ typedef struct waio_cx_interface {
 	struct waio_interface *		paio;
 	size_t				cx_size;
 } waio_opaque_cx;
+
+
+struct waio_aiocb_opaque {
+	nt_iosb		iosb;
+	nt_iosb		cancel_io;
+	void *		hpending;
+};
 
 
 #endif /* _WAIO_CX_H_ */

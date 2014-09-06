@@ -31,7 +31,7 @@ waio_api
 int32_t __stdcall waio_dequeue(waio * paio)
 {
 	waio_request *	req;
-	uint32_t	state;
+	int32_t		state;
 
 	/* check for non-empty queue and no pending (blocking) io */
 	if (paio->queue && !paio->packet) {

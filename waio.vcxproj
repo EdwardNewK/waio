@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\llapi\waio_dequeue.c" />
     <ClCompile Include="src\llapi\waio_enqueue.c" />
+    <ClCompile Include="src\llapi\waio_submit_single_request.c" />
     <ClCompile Include="src\waio_fsync.c" />
     <ClCompile Include="src\waio_listio.c" />
     <ClCompile Include="src\waio_read_write.c" />
@@ -44,6 +45,7 @@
     <ClCompile Include="test\waio_test.c" />
     <ClCompile Include="test\waio_test_hooks.c" />
     <ClCompile Include="test\waio_test_output.c" />
+    <ClCompile Include="test\waio_test_pipes.c" />
     <ClCompile Include="test\waio_test_wine.c" />
   </ItemGroup>
   <ItemGroup>

@@ -291,7 +291,7 @@ int32_t __stdcall ntapi_detect_wine_behavior(ntapi_vtbl * pvtbl)
 	}
 
 	/* set one of them */
-	status = pvtbl->zw_set_event(hevent[0],(uint32_t *)0);
+	status = pvtbl->zw_set_event(hevent[0],(int32_t *)0);
 
 	/* detect behavior (reversed flags fixed in wine on 02.09.2014) */
 	timeout.quad = (-1);
