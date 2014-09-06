@@ -34,6 +34,9 @@
 /* size_t and friends */
 #include "waio__stddef.h"
 
+/* error constants */
+#include "waio__errno.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
