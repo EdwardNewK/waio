@@ -29,6 +29,7 @@
 
 static waio_hook cx_before_io;
 static waio_hook cx_after_io;
+static waio_hook cx_cancel_request;
 static waio_hook cx_shutdown_response;
 
 typedef struct waio_cx_opaque_block {
@@ -116,6 +117,7 @@ waio_api waio_cx waio_alloc(
 	/* hooks */
 	cx_block->cx.paio->hooks[WAIO_HOOK_BEFORE_IO] = cx_before_io;
 	cx_block->cx.paio->hooks[WAIO_HOOK_AFTER_IO]  = cx_after_io;
+	cx_block->cx.paio->hooks[WAIO_HOOK_ON_CANCEL_REQUEST]  = cx_cancel_request;
 	cx_block->cx.paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_RESPONSE] = cx_shutdown_response;
 	cx_block->cx.paio->hooks[WAIO_HOOK_AFTER_SHUTDOWN_RESPONSE]  = cx_shutdown_response;
 	cx_block->cx.paio->hooks[WAIO_HOOK_AFTER_SHUTDOWN_FALLBACK]  = cx_shutdown_response;
@@ -202,6 +204,15 @@ static signed int __waio_call_conv__hook cx_after_io(
 }
 
 
+static signed int __waio_call_conv__hook cx_cancel_request(
+	waio *		paio,
+	waio_hook_type	type,
+	signed int	status)
+{
+	return waio_cancel_aiocb(paio,(struct waio_aiocb *)paio->context_loop);
+}
+
+
 static signed int __waio_call_conv__hook cx_shutdown_response(
 	waio *		paio,
 	waio_hook_type	type,
@@ -210,7 +221,7 @@ static signed int __waio_call_conv__hook cx_shutdown_response(
 	waio_aiocb_opaque * opaque;
 
 	if (paio->packet) {
-		opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
+		opaque = (waio_aiocb_opaque *)paio->packet->aiocb->__opaque;
 		opaque->qstatus = NT_STATUS_CANCELLED;
 	}
 

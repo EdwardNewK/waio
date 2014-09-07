@@ -36,7 +36,7 @@
 /****************************************************************/
 
 /* the thread shutdown request executes in the context of the parent */
-waio_api
+waio_internal_api
 int32_t __stdcall waio_thread_shutdown_fallback(waio * paio)
 {
 	uint32_t			prev_suspend_count;

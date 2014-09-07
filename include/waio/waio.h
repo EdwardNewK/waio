@@ -88,7 +88,7 @@ typedef struct waio_aiocb {
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
 	void *			hsignal;
-	void *			__opaque[8];
+	void *			__opaque[16];
 } waio_aiocbs;
 
 /* opaque context handle */

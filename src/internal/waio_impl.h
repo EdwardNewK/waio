@@ -68,8 +68,10 @@ waio_internal_api int32_t __stdcall ntapi_detect_wine_behavior(ntapi_vtbl *);
 
 /* loop */
 waio_internal_api int32_t __stdcall waio_loop_entry_point(waio *);
+waio_internal_api waio_fn waio_thread_shutdown_fallback;
 
 /* io */
 waio_internal_api int32_t __stdcall waio_io_entry_point(waio *);
+waio_internal_api waio_fn waio_thread_shutdown_response;
 
 #endif /* _WAIO_IMPL_H_ */

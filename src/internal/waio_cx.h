@@ -64,12 +64,20 @@ typedef struct waio_aiocb_opaque_interface {
 	nt_iosb		iosb;
 	void *          hpending;
 	void *          hlistio;
+	void *		hcancel;
 	waio_request *	request;
 	int32_t		qstatus;
-	int32_t		fcancel;
+	int32_t		cx_cancel;
 	intptr_t	fc_after_io;
 	intptr_t	fc_before_io_complete;
+	int32_t		status_cancel;
+	int32_t		status_suspend;
 } waio_aiocb_opaque;
 
+
+waio_internal_api
+int waio_cancel_aiocb(
+	_in_	waio *			paio,
+	_in_	struct waio_aiocb *	aiocb);
 
 #endif /* _WAIO_CX_H_ */

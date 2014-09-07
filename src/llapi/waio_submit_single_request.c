@@ -70,14 +70,7 @@ int32_t waio_submit_single_request(
 	hlistio  = opaque->hlistio;
 
 	/* init opaque data */
-	aiocb->__opaque[0] = (void *)0;
-	aiocb->__opaque[1] = (void *)0;
-	aiocb->__opaque[2] = (void *)0;
-	aiocb->__opaque[3] = (void *)0;
-	aiocb->__opaque[4] = (void *)0;
-	aiocb->__opaque[5] = (void *)0;
-	aiocb->__opaque[6] = (void *)0;
-	aiocb->__opaque[7] = (void *)0;
+	__ntapi->memset(aiocb->__opaque,0,sizeof(*aiocb->__opaque));
 
 	/* opaque queue status & internal notificaiton */
 	opaque->qstatus  = NT_STATUS_WAIT_1;
@@ -136,7 +129,7 @@ static int32_t __get_slot(
 	nt_timeout	timeout;
 	int		i;
 
-	#define __GET_SLOT_TRIES 128
+	#define WAIO_GET_SLOT_TRIES 128
 
 	/* get slot: first (non-contended) attempt */
 	status = _get_slot(paio,slot,tid);
@@ -152,19 +145,20 @@ static int32_t __get_slot(
 
 	if (status) return status;
 
-	/* try 128 times using ~1usec intervals */
-	i = 0;
+	/* try acquiring lock using ~1usec intervals */
 	timeout.quad = (-1) * 10;
 
-	do {
+	for (i=0; (i<WAIO_GET_SLOT_TRIES) && status; i++) {
 		__ntapi->zw_wait_for_single_object(
 			hwait,
 			NT_SYNC_NON_ALERTABLE,
 			&timeout);
 
 		status = _get_slot(paio,slot,tid);
-		i++;
-	} while (status && (i<__GET_SLOT_TRIES));
+	}
+
+	/* clean-up */
+	__ntapi->zw_close(hwait);
 
 	return status;
 }

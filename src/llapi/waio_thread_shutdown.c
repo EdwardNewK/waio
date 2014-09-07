@@ -26,7 +26,7 @@
 #include "waio_impl.h"
 
 /* the thread shutdown response executes in the context of the io thread */
-waio_api
+waio_internal_api
 int32_t __stdcall waio_thread_shutdown_response(waio * paio)
 {
 	/* hook: before shutdown_response */

@@ -134,11 +134,9 @@ waio_api waio_fn waio_enqueue;
 waio_api waio_fn waio_dequeue;
 waio_api waio_fn waio_cancel_current_request;
 waio_api waio_fn waio_thread_shutdown_request;
-waio_api waio_fn waio_thread_shutdown_fallback;
 
 /* io thread */
 waio_api waio_fn waio_io;
-waio_api waio_fn waio_thread_shutdown_response;
 
 /* hooks */
 waio_hook waio_hook_default;
