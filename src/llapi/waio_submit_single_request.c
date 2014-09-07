@@ -82,15 +82,30 @@ int32_t waio_submit_single_request(
 			? NT_EVENT_SIGNALED
 			: NT_EVENT_NOT_SIGNALED;
 
-	status = __ntapi->tt_create_private_event(
-		&opaque->hpending,
-		NT_NOTIFICATION_EVENT,
-		initial_state);
+	if (!opaque->hpending)
+		status = __ntapi->tt_create_private_event(
+			&opaque->hpending,
+			NT_NOTIFICATION_EVENT,
+			initial_state);
+	else if (initial_state == NT_EVENT_SIGNALED)
+		status = __ntapi->zw_set_event(
+			opaque->hpending,
+			(int32_t *)0);
+	else if (initial_state == NT_EVENT_NOT_SIGNALED)
+		status = __ntapi->zw_reset_event(
+			opaque->hpending,
+			(int32_t *)0);
 
 	if (status) return status;
 
 	/* mark slot for queueing */
 	slot->pid = pid;
+
+	/* reset the associated event */
+	if (aiocb->aio_hevent)
+		__ntapi->zw_reset_event(
+			paio->packet->aiocb->aio_hevent,
+			(int32_t *)0);
 
 	/* submit request to the loop thread */
 	do {

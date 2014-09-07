@@ -183,6 +183,12 @@ static signed int __waio_call_conv__hook cx_after_io(
 	paio->packet    = (waio_packet *)0;
 	paio->cancel_io = (waio_packet *)0;
 
+	/* set the associated event */
+	if (paio->packet->aiocb->aio_hevent)
+		__ntapi->zw_set_event(
+			paio->packet->aiocb->aio_hevent,
+			(int32_t *)0);
+
 	return status;
 }
 
