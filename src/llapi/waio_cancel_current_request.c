@@ -20,57 +20,66 @@
 /*****************************************************************************/
 
 
-#ifndef _WAIO_CX_H_
-#define _WAIO_CX_H_
-
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 #include <waio/waio__llapi.h>
 #include "waio_impl.h"
 
-#define WAIO_CX_BLOCK_SIZE	4096
-#define	WAIO_CX_SLOT_COUNT	4
+/* the thread shutdown request executes in the context of the loop thread */
+waio_api
+int32_t __stdcall waio_cancel_current_request(waio * paio)
+{
+	int32_t		status;
+	nt_iosb		cancel_iosb;
 
-typedef struct waio_slot_interface		waio_slot;
-typedef struct waio_request_interface		waio_request;
+	/* cancel needed? */
+	if (paio->packet->iosb.status != NT_STATUS_PENDING)
+		return NT_STATUS_SUCCESS;
 
-typedef struct waio_slot_interface {
-	uint32_t		pid;
-	uint32_t		tid;
-	int			aio_lio_opcode;
-	int			aio_reqprio;
-	void *			aio_hevent;
-	volatile void *		aio_buf;
-	size_t			aio_nbytes;
-	off_t           	aio_offset;
-	struct waio_aiocb *	aiocb;
-} waio_slot;
+	/* cancel current request using the appropriate method */
+	if (__ntapi->zw_cancel_io_file_ex && !__ntapi->wine_get_version) {
+		/* preferred method */
+		status = __ntapi->zw_cancel_io_file_ex(
+			paio->hfile,
+			&paio->packet->iosb,
+			&cancel_iosb);
+	} else {
+		/* fallback method */
+		waio_thread_shutdown_fallback(paio);
 
+		/* i/o completed nonetheless? */
+		if (paio->packet->iosb.status != NT_STATUS_PENDING) {
+			/* hook: after io */
+			paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
 
-typedef struct waio_request_interface {
-	waio_slot		slot;
-	waio_packet		rpacket;
-	waio_request *		next;
-} waio_request;
+			/* advance the io counter */
+			at_locked_inc(&paio->io_counter);
 
+			/* hook: before io complete */
+			paio->hooks[WAIO_HOOK_BEFORE_IO_COMPLETE](paio,WAIO_HOOK_BEFORE_IO_COMPLETE,0);
+		}
 
-typedef struct waio_cx_interface {
-	struct waio_cx_interface *	self;
-	struct waio_interface *		paio;
-	size_t				cx_size;
-} waio_opaque_cx;
+		/* re-create io thread */
+		paio->status_io = NT_STATUS_THREAD_NOT_IN_PROCESS;
 
+		paio->hthread_io = __winapi->create_thread(
+			(nt_sa *)0,
+			0x1000,
+			(nt_thread_start_routine *)waio_io_entry_point,
+			paio,
+			0,
+			(uint32_t *)0);
 
-typedef struct waio_aiocb_opaque_interface {
-	nt_iosb		iosb;
-	nt_iosb		cancel_io;
-	void *		hpending;
-	waio_request *	request;
-	int32_t		qstatus;
-	int32_t		fcancel;
-	intptr_t	fc_after_io;
-	intptr_t	fc_before_io_complete;
-} waio_aiocb_opaque;
+		if (!paio->hthread_io) return NT_STATUS_INVALID_THREAD;
 
+		/* wait for the io thread to be ready */
+		status = __ntapi->zw_wait_for_single_object(
+			paio->hevent_io_ready,
+			NT_SYNC_NON_ALERTABLE,
+			(nt_large_integer *)0);
 
-#endif /* _WAIO_CX_H_ */
+		if (status) return status;
+	}
+
+	return NT_STATUS_SUCCESS;
+}

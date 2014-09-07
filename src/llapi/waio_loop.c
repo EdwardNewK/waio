@@ -30,7 +30,7 @@ waio_api
 int32_t __stdcall waio_loop(waio * paio)
 {
 	intptr_t	io_counter;
-	void *		hwait[4];
+	void *		hwait[5];
 	nt_timeout *	timeout;
 
 	/* init local io counter */
@@ -45,12 +45,14 @@ int32_t __stdcall waio_loop(waio * paio)
 
 	/* prepare for the waits */
 	hwait[0] = paio->hevent_abort_request;
-	hwait[1] = paio->hevent_queue_request;
-	hwait[2] = paio->hevent_io_complete;
-	hwait[3] = paio->hthread_io;
+	hwait[1] = paio->hevent_cancel_request;
+	hwait[2] = paio->hevent_queue_request;
+	hwait[3] = paio->hevent_io_complete;
+	hwait[4] = paio->hthread_io;
 
 	do {
 		/* wait for an abort request to arrive;	*/
+		/* or for a cancel request to arrive;	*/
 		/* or for a queue request to arrive;	*/
 		/* or for io operation to complete;	*/
 		/* or for the io thread to die.		*/
@@ -60,7 +62,7 @@ int32_t __stdcall waio_loop(waio * paio)
 			timeout = (nt_timeout *)0;
 
 		paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
-			4,
+			5,
 			hwait,
 			__ntapi->wait_type_any,
 			NT_SYNC_NON_ALERTABLE,
@@ -76,6 +78,10 @@ int32_t __stdcall waio_loop(waio * paio)
 		/* abort request? */
 		if (paio->abort_inc_counter > paio->abort_req_counter)
 			waio_thread_shutdown_request(paio);
+
+		/* cancel request? */
+		if (paio->cancel_inc_counter > paio->cancel_req_counter)
+			paio->hooks[WAIO_HOOK_ON_CANCEL_REQUEST](paio,WAIO_HOOK_ON_CANCEL_REQUEST,paio->status_loop);
 
 		/* queue request? */
 		if (paio->queue_inc_counter > paio->queue_req_counter)

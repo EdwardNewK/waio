@@ -69,12 +69,9 @@ int32_t __stdcall waio_enqueue(waio * paio)
 			req->rpacket.aiocb       = slot->aiocb;
 
 			/* fake memset and default status */
-			req->rpacket.cancel_io.info    = 0;
-			req->rpacket.cancel_io.pointer = (void *)0;
-
-			req->rpacket.iosb.info         = 0;
-			req->rpacket.iosb.pointer      = (void *)0;
-			req->rpacket.iosb.status       = NT_STATUS_PENDING;
+			req->rpacket.iosb.info	  = 0;
+			req->rpacket.iosb.pointer = (void *)0;
+			req->rpacket.iosb.status	  = NT_STATUS_PENDING;
 
 			/* add request to queue */
 			if (paio->qtail) {

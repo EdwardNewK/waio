@@ -43,54 +43,72 @@ int32_t __stdcall waio_init(waio * paio)
 	/* hook: before pipe init */
 	paio->hooks[WAIO_HOOK_BEFORE_INIT](paio,WAIO_HOOK_BEFORE_INIT,0);
 
-	/* pipe events (app might have created some of them for us) */
+	/* notification events (app might have created some of them for us) */
+	/* hevent_abort_request */
+	if (!paio->hevent_abort_request)
+		paio->status_loop = __ntapi->tt_create_private_event(
+			&paio->hevent_abort_request,
+			NT_NOTIFICATION_EVENT,
+			NT_EVENT_NOT_SIGNALED);
+
+	if (paio->status_loop) return paio->status_loop;
+
+	/* hevent_cancel_request */
+	if (!paio->hevent_cancel_request)
+		paio->status_loop = __ntapi->tt_create_private_event(
+			&paio->hevent_cancel_request,
+			NT_NOTIFICATION_EVENT,
+			NT_EVENT_NOT_SIGNALED);
+
+	if (paio->status_loop) return paio->status_loop;
+
+	/* hevent_queue_request */
 	if (!paio->hevent_queue_request)
 		paio->status_loop = __ntapi->tt_create_private_event(
 			&paio->hevent_queue_request,
 			NT_NOTIFICATION_EVENT,
 			NT_EVENT_NOT_SIGNALED);
 
-	if (paio->status_loop)
-		return paio->status_loop;
+	if (paio->status_loop) return paio->status_loop;
 
+	/* hevent_loop_ready */
 	if (!paio->hevent_loop_ready)
 		paio->status_loop = __ntapi->tt_create_private_event(
 			&paio->hevent_loop_ready,
 			NT_NOTIFICATION_EVENT,
 			NT_EVENT_NOT_SIGNALED);
 
-	if (paio->status_loop)
-		return paio->status_loop;
+	if (paio->status_loop) return paio->status_loop;
 
+	/* hevent_io_ready */
 	if (!paio->hevent_io_ready)
 		paio->status_loop = __ntapi->tt_create_private_event(
 			&paio->hevent_io_ready,
 			NT_NOTIFICATION_EVENT,
 			NT_EVENT_NOT_SIGNALED);
 
-	if (paio->status_loop)
-		return paio->status_loop;
+	if (paio->status_loop) return paio->status_loop;
 
+	/* hevent_io_request */
 	if (!paio->hevent_io_request)
 		paio->status_loop = __ntapi->tt_create_private_event(
 			&paio->hevent_io_request,
 			NT_NOTIFICATION_EVENT,
 			NT_EVENT_NOT_SIGNALED);
 
-	if (paio->status_loop)
-		return paio->status_loop;
+	if (paio->status_loop) return paio->status_loop;
 
+	/* hevent_io_complete */
 	if (!paio->hevent_io_complete)
 		paio->status_loop = __ntapi->tt_create_private_event(
 			&paio->hevent_io_complete,
 			NT_NOTIFICATION_EVENT,
 			NT_EVENT_NOT_SIGNALED);
 
-	if (paio->status_loop)
-		return paio->status_loop;
+	if (paio->status_loop) return paio->status_loop;
 
 	/* (custom thread creation routine not included with this project) */
-	/* create io thread (must be first) */
+	/* create io thread */
 	paio->status_io = NT_STATUS_THREAD_NOT_IN_PROCESS;
 
 	paio->hthread_io = __winapi->create_thread(
@@ -101,10 +119,9 @@ int32_t __stdcall waio_init(waio * paio)
 		0,
 		(uint32_t *)0);
 
-	if (!paio->hthread_io)
-		return NT_STATUS_INVALID_THREAD;
+	if (!paio->hthread_io) return NT_STATUS_INVALID_THREAD;
 
-	/* create loop thread (must be last) */
+	/* create loop thread */
 	paio->status_loop = NT_STATUS_THREAD_NOT_IN_PROCESS;
 
 	paio->hthread_loop = __winapi->create_thread(
@@ -115,8 +132,7 @@ int32_t __stdcall waio_init(waio * paio)
 		0,
 		(uint32_t *)0);
 
-	if (!paio->hthread_loop)
-		return NT_STATUS_INVALID_THREAD;
+	if (!paio->hthread_loop) return NT_STATUS_INVALID_THREAD;
 
 	/* wait for the io thread to be ready */
 	status = __ntapi->zw_wait_for_single_object(

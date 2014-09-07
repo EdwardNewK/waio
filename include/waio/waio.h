@@ -80,7 +80,7 @@ typedef enum waio_wait_mode_enum {
 #define WAIO_POLLRDHUP		0x2000
 
 /* request */
-struct waio_aiocb {
+typedef struct waio_aiocb {
 	int			aio_fildes;
 	int			aio_reserved;
 	int			aio_lio_opcode;
@@ -90,17 +90,17 @@ struct waio_aiocb {
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
 	void *			__opaque[8];
-};
+} waio_aiocbs;
 
 /* opaque context handle */
 typedef struct waio_cx_interface * waio_cx;
 
 /* context poll request */
-struct waio_poll_cx {
+typedef struct waio_poll_cx {
 	waio_cx		cx;
 	short		events;
 	short		revents;
-};
+} waio_poll_cxs;
 
 
 /* timeout */

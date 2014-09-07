@@ -23,7 +23,7 @@ typedef struct waio_interface		waio;
 typedef struct waio_vtbl_interface	waio_vtbl;
 typedef struct waio_slot_interface	waio_slot;
 typedef struct waio_request_interface	waio_request;
-struct waio_aiocb;
+typedef struct waio_aiocb		waio_aiocbs;
 
 /* i/o type */
 typedef enum {
@@ -35,7 +35,6 @@ typedef enum {
 /* packet */
 typedef struct waio_packet_interface {
 	os_iosb			iosb;
-	os_iosb			cancel_io;
 	os_unsigned_ptr *	data;
 	os_unsigned_ptr		buffer_size;
 	nt_large_integer	offset;
@@ -62,6 +61,7 @@ typedef enum {
 	WAIO_HOOK_AFTER_IO_COMPLETE,
 	WAIO_HOOK_ON_TIMEOUT,
 	WAIO_HOOK_ON_CANCEL,
+	WAIO_HOOK_ON_CANCEL_REQUEST,
 	WAIO_HOOK_ON_FAILURE,
 	WAIO_HOOK_ON_QUERY,
 	WAIO_HOOK_CAP
@@ -87,14 +87,15 @@ typedef struct waio_interface {
 	void *		hevent_io_ready;	/* notification */
 	void *		hevent_io_request;	/* notification */
 	void *		hevent_io_complete;	/* notification */
-	void *		hevent_queue_request;	/* notification */
 	void *		hevent_abort_request;	/* notification */
+	void *		hevent_cancel_request;	/* notification */
+	void *		hevent_queue_request;	/* notification */
 	intptr_t	abort_req_counter;	/* optimization */
 	intptr_t	abort_inc_counter;	/* optimization */
-	intptr_t	queue_req_counter;	/* optimization */
-	intptr_t	queue_inc_counter;	/* optimization */
 	intptr_t	cancel_req_counter;	/* optimization */
 	intptr_t	cancel_inc_counter;	/* optimization */
+	intptr_t	queue_req_counter;	/* optimization */
+	intptr_t	queue_inc_counter;	/* optimization */
 	intptr_t	io_counter;		/* optimization */
 	void *		hthread_io;		/* the blocking thread */
 	void *		hthread_loop;		/* (app) */
@@ -131,6 +132,7 @@ waio_api waio_fn waio_create;
 waio_api waio_fn waio_loop;
 waio_api waio_fn waio_enqueue;
 waio_api waio_fn waio_dequeue;
+waio_api waio_fn waio_cancel_current_request;
 waio_api waio_fn waio_thread_shutdown_request;
 waio_api waio_fn waio_thread_shutdown_fallback;
 

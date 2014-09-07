@@ -149,7 +149,7 @@ int32_t __stdcall waio_io(waio * paio)
 		/* hook: after io */
 		paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
 
-		/* advance the io counter and notify the parent */
+		/* advance the io counter and notify the loop thread */
 		at_locked_inc(&paio->io_counter);
 
 		paio->status_io = __ntapi->zw_reset_event(

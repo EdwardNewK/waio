@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\llapi\waio_cancel_current_request.c" />
     <ClCompile Include="src\llapi\waio_dequeue.c" />
     <ClCompile Include="src\llapi\waio_enqueue.c" />
     <ClCompile Include="src\llapi\waio_submit_single_request.c" />
