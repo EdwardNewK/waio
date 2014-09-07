@@ -87,6 +87,7 @@ typedef struct waio_aiocb {
 	volatile void *		aio_buf;
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
+	void *			hsignal;
 	void *			__opaque[8];
 } waio_aiocbs;
 
