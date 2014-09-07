@@ -88,6 +88,8 @@ typedef struct waio_aiocb {
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
 	void *			hsignal;
+	void *			hreserved;
+	size_t			freserved;
 	void *			__opaque[16];
 } waio_aiocbs;
 
@@ -124,7 +126,7 @@ waio_api int		waio_cancel	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_error	(waio_cx, const struct waio_aiocb *);
 waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_listio	(waio_cx, int mode, struct waio_aiocb * const aiocb_list[], int nitems);
-waio_api int		waio_suspend	(waio_cx, const struct waio_aiocb * const aiocb_list[], int nitems, waio_timeout timeout);
+waio_api int		waio_suspend	(waio_cx, const struct waio_aiocb * const aiocb_list[], int nitems, waio_timeout * timeout);
 
 #ifdef __cplusplus
 }

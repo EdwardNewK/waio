@@ -54,14 +54,20 @@ int waio_listio(
 	tid = __winapi->get_current_thread_id();
 
 	for (i=0; i<nent; i++) {
+		opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
 		aio_lio_opcode = aiocb_list[i]->aio_lio_opcode;
 
 		if ((aio_lio_opcode < 0) || (aio_lio_opcode > WAIO_NOP))
 			return -WAIO_EINVAL;
 
-		if (mode == WAIO_WAIT) {
-			opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
+		status = __ntapi->tt_create_private_event(
+				&opaque->hpending,
+				NT_NOTIFICATION_EVENT,
+				NT_EVENT_NOT_SIGNALED);
 
+		if (status) return -WAIO_EAGAIN;
+
+		if (mode == WAIO_WAIT) {
 			status = __ntapi->tt_create_private_event(
 					&opaque->hlistio,
 					NT_NOTIFICATION_EVENT,
