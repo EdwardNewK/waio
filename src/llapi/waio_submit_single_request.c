@@ -46,6 +46,7 @@ int32_t waio_submit_single_request(
 	waio_slot *		slot;
 	waio_aiocb_opaque *	opaque;
 	void *			hpending;
+	void *			hlistio;
 
 	/* lio_opcode */
 	if ((lio_opcode < 0) || (lio_opcode > WAIO_NOP))
@@ -58,7 +59,6 @@ int32_t waio_submit_single_request(
 	/* slot init */
 	slot->aio_lio_opcode	= lio_opcode;
 	slot->aio_reqprio	= aiocb->aio_reqprio;
-	slot->aio_hevent		= aiocb->aio_hevent;
 	slot->aio_buf		= aiocb->aio_buf;
 	slot->aio_nbytes		= aiocb->aio_nbytes;
 	slot->aio_offset		= aiocb->aio_offset;
@@ -67,6 +67,7 @@ int32_t waio_submit_single_request(
 	/* internal notification */
 	opaque   = ((waio_aiocb_opaque *)(aiocb->__opaque));
 	hpending = opaque->hpending;
+	hlistio  = opaque->hlistio;
 
 	/* init opaque data */
 	aiocb->__opaque[0] = (void *)0;
@@ -81,15 +82,10 @@ int32_t waio_submit_single_request(
 	/* opaque queue status & internal notificaiton */
 	opaque->qstatus  = NT_STATUS_WAIT_1;
 	opaque->hpending = hpending;
+	opaque->hlistio  = hlistio;
 
 	/* mark slot for queueing */
 	slot->pid = pid;
-
-	/* reset the associated event */
-	if (aiocb->aio_hevent)
-		__ntapi->zw_reset_event(
-			paio->packet->aiocb->aio_hevent,
-			(int32_t *)0);
 
 	/* submit request to the loop thread */
 	do {

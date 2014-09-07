@@ -183,17 +183,20 @@ static signed int __waio_call_conv__hook cx_after_io(
 	paio->packet    = (waio_packet *)0;
 	paio->cancel_io = (waio_packet *)0;
 
-	/* internal notification */
-	if (opaque->hpending)
+	/* waio_listio notification */
+	if (opaque->hlistio)
+		__ntapi->zw_set_event(
+			opaque->hlistio,
+			(int32_t *)0);
+
+	/* waio_suspend notification */
+	if (opaque->hpending) {
 		__ntapi->zw_set_event(
 			opaque->hpending,
 			(int32_t *)0);
 
-	/* set the associated event */
-	if (paio->packet->aiocb->aio_hevent)
-		__ntapi->zw_set_event(
-			paio->packet->aiocb->aio_hevent,
-			(int32_t *)0);
+		__ntapi->zw_close(opaque->hpending);
+	}
 
 	return status;
 }

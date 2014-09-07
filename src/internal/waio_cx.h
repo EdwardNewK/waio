@@ -39,7 +39,6 @@ typedef struct waio_slot_interface {
 	uint32_t		tid;
 	int			aio_lio_opcode;
 	int			aio_reqprio;
-	void *			aio_hevent;
 	volatile void *		aio_buf;
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
@@ -64,6 +63,7 @@ typedef struct waio_cx_interface {
 typedef struct waio_aiocb_opaque_interface {
 	nt_iosb		iosb;
 	void *          hpending;
+	void *          hlistio;
 	waio_request *	request;
 	int32_t		qstatus;
 	int32_t		fcancel;

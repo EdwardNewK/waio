@@ -11,8 +11,7 @@
 /* cannot adhere to them completely due to the differences between file      */
 /* descriptors and file or socket handles, as well as the lack of support    */
 /* of signals within the current library.  in this last respect, however,    */
-/* a similar functionality is available via the aio_hevent member of the     */
-/* waio_aiocb structure.                                                     */
+/* a similar functionality is available via the waio_suspend interface.      */
 /*                                                                           */
 /* the forthcoming midipix development framework offers a full-fledged       */
 /* asynchronous i/o through a standard <aio.h> header, and accordingly       */
@@ -85,7 +84,6 @@ typedef struct waio_aiocb {
 	int			aio_reserved;
 	int			aio_lio_opcode;
 	int			aio_reqprio;
-	void *			aio_hevent;
 	volatile void *		aio_buf;
 	size_t			aio_nbytes;
 	off_t           	aio_offset;
@@ -95,14 +93,6 @@ typedef struct waio_aiocb {
 /* opaque context handle */
 typedef struct waio_cx_interface * waio_cx;
 
-/* context poll request */
-typedef struct waio_poll_cx {
-	waio_cx		cx;
-	short		events;
-	short		revents;
-} waio_poll_cxs;
-
-
 /* timeout */
 typedef union waio_timeout_union {
 	struct {
@@ -111,7 +101,6 @@ typedef union waio_timeout_union {
 	} __u;
 	long long		quad;
 } waio_timeout;
-
 
 
 /* function prototypes: library-specific interfaces */
@@ -127,20 +116,14 @@ waio_api waio_cx waio_alloc(
 waio_api int waio_free (waio_cx);
 
 
-/* waio_poll(): poll assorted file handles via their associated waio contexts */
-waio_api int waio_poll(
-		struct waio_poll_cx *	cxs,
-		unsigned long		ncxs,
-		waio_timeout *		timeout);
-
-
 /* function prototypes: aio-like interfaces */
 waio_api int		waio_read	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_write	(waio_cx, struct waio_aiocb *);
+waio_api int		waio_cancel	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_error	(waio_cx, const struct waio_aiocb *);
-waio_api int		waio_cancel	(waio_cx, int, struct waio_aiocb *);
 waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_listio	(waio_cx, int mode, struct waio_aiocb * const aiocb_list[], int nitems);
+waio_api int		waio_suspend	(waio_cx, const struct waio_aiocb * const aiocb_list[], int nitems, waio_timeout timeout);
 
 #ifdef __cplusplus
 }

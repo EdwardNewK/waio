@@ -52,7 +52,6 @@ int32_t __stdcall waio_enqueue(waio * paio)
 			req->slot.tid            = slot->tid;
 			req->slot.aio_lio_opcode = slot->aio_lio_opcode;
 			req->slot.aio_reqprio    = slot->aio_reqprio;
-			req->slot.aio_hevent     = slot->aio_hevent;
 			req->slot.aio_buf        = slot->aio_buf;
 			req->slot.aio_nbytes     = slot->aio_nbytes;
 			req->slot.aio_offset     = slot->aio_offset;

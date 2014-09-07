@@ -33,9 +33,9 @@ int waio_error(
 	_in_	waio_cx				cx,
 	_in_	const struct waio_aiocb	*	aiocb)
 {
-	waio_aiocb_opaque *	opaque;
+	waio_aiocb_opaque * opaque;
 
-	opaque	 = ((waio_aiocb_opaque *)(aiocb->__opaque));
+	opaque = (waio_aiocb_opaque *)aiocb->__opaque;
 
 	switch (opaque->qstatus) {
 		case NT_STATUS_WAIT_1:

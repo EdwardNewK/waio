@@ -63,13 +63,13 @@ int waio_listio(
 			opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
 
 			status = __ntapi->tt_create_private_event(
-					&opaque->hpending,
+					&opaque->hlistio,
 					NT_NOTIFICATION_EVENT,
 					NT_EVENT_NOT_SIGNALED);
 
 			if (status) return -WAIO_EAGAIN;
 
-			hwait[i] = opaque->hpending;
+			hwait[i] = opaque->hlistio;
 		}
 
 		status = waio_submit_single_request(
@@ -97,7 +97,7 @@ int waio_listio(
 	/* check results & clean-up */
 	for (i=0; i<nent; i++) {
 		opaque = ((waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
-		__ntapi->zw_close(opaque->hpending);
+		__ntapi->zw_close(opaque->hlistio);
 
 		if (opaque->qstatus)
 			status = -WAIO_EIO;
