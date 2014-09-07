@@ -43,9 +43,9 @@ int32_t waio_submit_single_request(
 {
 	int32_t			status;
 	int32_t			state;
-	int32_t			initial_state;
 	waio_slot *		slot;
 	waio_aiocb_opaque *	opaque;
+	void *			hpending;
 
 	/* lio_opcode */
 	if ((lio_opcode < 0) || (lio_opcode > WAIO_NOP))
@@ -64,6 +64,10 @@ int32_t waio_submit_single_request(
 	slot->aio_offset		= aiocb->aio_offset;
 	slot->aiocb		= aiocb;
 
+	/* internal notification */
+	opaque   = ((waio_aiocb_opaque *)(aiocb->__opaque));
+	hpending = opaque->hpending;
+
 	/* init opaque data */
 	aiocb->__opaque[0] = (void *)0;
 	aiocb->__opaque[1] = (void *)0;
@@ -74,29 +78,9 @@ int32_t waio_submit_single_request(
 	aiocb->__opaque[6] = (void *)0;
 	aiocb->__opaque[7] = (void *)0;
 
-	/* init opaque notification event */
-	opaque = ((waio_aiocb_opaque *)(aiocb->__opaque));
-	opaque->qstatus = NT_STATUS_WAIT_1;
-
-	initial_state = (lio_opcode == WAIO_NOP)
-			? NT_EVENT_SIGNALED
-			: NT_EVENT_NOT_SIGNALED;
-
-	if (!opaque->hpending)
-		status = __ntapi->tt_create_private_event(
-			&opaque->hpending,
-			NT_NOTIFICATION_EVENT,
-			initial_state);
-	else if (initial_state == NT_EVENT_SIGNALED)
-		status = __ntapi->zw_set_event(
-			opaque->hpending,
-			(int32_t *)0);
-	else if (initial_state == NT_EVENT_NOT_SIGNALED)
-		status = __ntapi->zw_reset_event(
-			opaque->hpending,
-			(int32_t *)0);
-
-	if (status) return status;
+	/* opaque queue status & internal notificaiton */
+	opaque->qstatus  = NT_STATUS_WAIT_1;
+	opaque->hpending = hpending;
 
 	/* mark slot for queueing */
 	slot->pid = pid;

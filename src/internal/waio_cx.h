@@ -63,8 +63,7 @@ typedef struct waio_cx_interface {
 
 typedef struct waio_aiocb_opaque_interface {
 	nt_iosb		iosb;
-	nt_iosb		cancel_io;
-	void *		hpending;
+	void *          hpending;
 	waio_request *	request;
 	int32_t		qstatus;
 	int32_t		fcancel;

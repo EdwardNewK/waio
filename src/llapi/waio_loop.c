@@ -25,7 +25,6 @@
 #include <waio/waio__llapi.h>
 #include "waio_impl.h"
 
-
 waio_api
 int32_t __stdcall waio_loop(waio * paio)
 {

@@ -59,6 +59,19 @@ int waio_listio(
 		if ((aio_lio_opcode < 0) || (aio_lio_opcode > WAIO_NOP))
 			return -WAIO_EINVAL;
 
+		if (mode == WAIO_WAIT) {
+			opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
+
+			status = __ntapi->tt_create_private_event(
+					&opaque->hpending,
+					NT_NOTIFICATION_EVENT,
+					NT_EVENT_NOT_SIGNALED);
+
+			if (status) return -WAIO_EAGAIN;
+
+			hwait[i] = opaque->hpending;
+		}
+
 		status = waio_submit_single_request(
 			cx->paio,
 			aiocb_list[i],
@@ -72,12 +85,6 @@ int waio_listio(
 	if (mode == WAIO_NOWAIT)
 		return 0;
 
-	/* init list of wait events */
-	for (i=0; i<nent; i++) {
-		opaque	 = ((waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
-		hwait[i] = opaque->hpending;
-	}
-
 	status = __ntapi->zw_wait_for_multiple_objects(
 		nent,
 		hwait,
@@ -87,13 +94,14 @@ int waio_listio(
 
 	if (status) return -WAIO_EINTR;
 
-	/* check results */
+	/* check results & clean-up */
 	for (i=0; i<nent; i++) {
 		opaque = ((waio_aiocb_opaque *)(aiocb_list[i]->__opaque));
+		__ntapi->zw_close(opaque->hpending);
 
-		if (opaque->iosb.status)
-			return -WAIO_EIO;
+		if (opaque->qstatus)
+			status = -WAIO_EIO;
 	}
 
-	return 0;
+	return status;
 }
