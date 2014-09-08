@@ -25,7 +25,7 @@ typedef void * __stdcall winapi_create_thread(
 
 /* a pipe created by kernel32's CreatePipe is always a blop (blocking pipe) */
 typedef int32_t __stdcall winapi_create_pipe(
-	_out_	void *		hread,
-	_out_	void *		hwrite,
+	_out_	void **		hread,
+	_out_	void **		hwrite,
 	_in_	nt_sa *		pipe_attr	_optional_,
 	_in_	uint32_t	advisory_size);

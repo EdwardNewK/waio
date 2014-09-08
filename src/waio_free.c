@@ -36,6 +36,7 @@ waio_api int waio_free (waio_cx cx)
 	int32_t		state;
 	void *		hwait[2];
 	nt_timeout	timeout;
+	void *		region_addr;
 	size_t		region_size;
 
 	/* abort pending io operations */
@@ -70,14 +71,14 @@ waio_api int waio_free (waio_cx cx)
 	__ntapi->zw_close(cx->paio->hevent_queue_request);
 
 	/* free memory */
+	region_addr = cx->self;
 	region_size = 0;
+
 	status = __ntapi->zw_free_virtual_memory(
 		NT_CURRENT_PROCESS_HANDLE,
-		(void **)&cx->self,
+		&region_addr,
 		&region_size,
 		NT_MEM_RELEASE);
-
-	waio_test_default_hook((void *)0,WAIO_HOOK_ON_QUERY,status);
 
 	if (status) return -WAIO_EINVAL;
 

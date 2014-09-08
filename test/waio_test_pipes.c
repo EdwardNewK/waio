@@ -93,7 +93,6 @@ int __cdecl waio_test_pipe(waio * paio)
 }
 
 
-/* main */
 int __cdecl waio_test_pipes(unsigned int pool_size, uint32_t flags, void * options)
 {
 	typedef int32_t __stdcall ntapi_zw_yield_execution(void);

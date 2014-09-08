@@ -16,3 +16,4 @@ x64/
 ldflags.mak
 ldpath.mak
 makeobjs.mak
+backtrace.txt

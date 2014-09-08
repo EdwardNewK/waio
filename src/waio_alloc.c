@@ -156,6 +156,8 @@ static signed int __waio_call_conv__hook cx_after_io(
 	waio_aiocb_opaque *	opaque;
 	intptr_t		fc_after_io;
 
+	if (!paio->packet) return status;
+
 	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
 
 	/* account for the fallback cancellation method */

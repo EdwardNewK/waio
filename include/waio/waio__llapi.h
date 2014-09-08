@@ -106,9 +106,9 @@ typedef struct waio_interface {
 	signed int	status_loop;		/* loop thread: last os status */
 	signed int	status_io;		/* io thread:   last os status */
 	void *		fallback_tip;		/* internal use */
-	void *		context_init;		/* future use or app-defined */
-	void *		context_loop;		/* future use or app-defined */
-	void *		context_io;		/* future use or app-defined */
+	void *		context_init;		/* internal use */
+	void *		context_loop;		/* internal use */
+	void *		context_io;		/* internal use */
 	waio_packet	lpacket;		/* internal request info        */
 	waio_packet	lcancel_io;		/* internal cencellation status */
 	waio_packet *	packet;			/* aio single request        */

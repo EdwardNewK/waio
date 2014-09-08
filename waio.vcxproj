@@ -44,6 +44,7 @@
     <ClCompile Include="src\llapi\waio_thread_shutdown_fallback.c" />
     <ClCompile Include="src\internal\waio_xvtbls.c" />
     <ClCompile Include="test\waio_test.c" />
+    <ClCompile Include="test\waio_test_alloc_free.c" />
     <ClCompile Include="test\waio_test_hooks.c" />
     <ClCompile Include="test\waio_test_output.c" />
     <ClCompile Include="test\waio_test_pipes.c" />

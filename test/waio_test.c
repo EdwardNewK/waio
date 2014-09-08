@@ -35,7 +35,7 @@
 waio_xvtbls	xvtbls = {0};
 waio		pipe_pool[WAIO_POOL_SIZE] = {{0}};
 void *		hevent_abort_request;
-void *		hstdout;
+void *		hstdout = (void *)0;
 
 char * waio_test_hook_strings[WAIO_HOOK_CAP] = {
 	"WAIO_HOOK_BEFORE_INIT",
@@ -70,6 +70,9 @@ int32_t __stdcall waio_test_default_hook(
 	char buffer[32];
 
 	__ntapi->memset(buffer,0,32);
+
+	if (!hstdout)
+		hstdout = __ntcon->get_std_handle(NT_STD_OUTPUT_HANDLE);
 
 	waio_test_output(
 		hstdout,
@@ -117,6 +120,13 @@ int waio_tu_entry_point(void)
 
 	/* xvtbl init (library) */
 	waio_alloc((void *)0,0,(void *)0,&status);
+
+	/* high-level api */
+	status = waio_test_alloc_free();
+
+	__ntapi->zw_terminate_process(
+		NT_CURRENT_PROCESS_HANDLE,
+		status);
 
 	/* xvtbl init (test unit) */
 	if (waio_xvtbls_init(&xvtbls) != NT_STATUS_SUCCESS)

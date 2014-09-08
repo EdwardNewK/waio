@@ -1,7 +1,7 @@
 all:	tu lib
 
 tu:
-	sh ./makeobjs.sh $(CC) -c $(CFLAGS) -D__WAIO_BUILD__ -D__WAIO_INTERNAL -DMIDIPIX_WIN$(ARCHBITS) $(DEBUG) $(INCLUDEDIR) -Werror=all
+	sh ./makeobjs.sh $(CC) -c $(CFLAGS) -D__WAIO_BUILD__ -D__WAIO_TEST_UNIT -D__WAIO_INTERNAL -DMIDIPIX_WIN$(ARCHBITS) $(DEBUG) $(INCLUDEDIR) -Werror=all
 	sh ./makeflag.sh $(LDFLAGS)
 	sh ./makeldpath.sh $(CC)
 	sh ./makeapp.sh  $(LD) -o $(BINDIR)/waio.exe \

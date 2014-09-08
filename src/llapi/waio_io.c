@@ -126,25 +126,27 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->hooks[WAIO_HOOK_BEFORE_IO](paio,WAIO_HOOK_BEFORE_IO,0);
 
 		/* io system call */
-		paio->status_io = io_routine[paio->type](
-			paio->hfile,
-			hpending[0],
-			(void *)0,
-			(void *)0,
-			&paio->packet->iosb,
-			paio->packet->data,
-			(uint32_t)paio->packet->buffer_size,
-			&paio->packet->offset,
-			(uint32_t *)0);
+		if (paio->packet) {
+			paio->status_io = io_routine[paio->type](
+				paio->hfile,
+				hpending[0],
+				(void *)0,
+				(void *)0,
+				&paio->packet->iosb,
+				paio->packet->data,
+				(uint32_t)paio->packet->buffer_size,
+				&paio->packet->offset,
+				(uint32_t *)0);
 
-		/* hfile may be non-blocking */
-		if (paio->status_io == NT_STATUS_PENDING)
-			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
-				2,
-				hpending,
-				__ntapi->wait_type_any,
-				NT_SYNC_NON_ALERTABLE,
-				(nt_timeout *)0);
+			/* hfile may be non-blocking */
+			if (paio->status_io == NT_STATUS_PENDING)
+				paio->status_io = __ntapi->zw_wait_for_multiple_objects(
+					2,
+					hpending,
+					__ntapi->wait_type_any,
+					NT_SYNC_NON_ALERTABLE,
+					(nt_timeout *)0);
+		}
 
 		/* hook: after io */
 		paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);

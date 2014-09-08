@@ -24,33 +24,34 @@
 #include <ntapi/ntapi.h>
 #include <ntcon/ntcon.h>
 #include <winapi/winapi.h>
+#include <waio/waio.h>
 #include <waio/waio__llapi.h>
 #include "waio_impl.h"
+#include "waio_cx.h"
+#include "waio_test.h"
 
-/* Wild & Asynchronous I/O Library: test unit */
+int __cdecl waio_test_alloc_free(void)
+{
+	int	ret;
+	waio_cx cx_read;
+	waio_cx cx_write;
+	void *	hread;
+	void *	hwrite;
 
-/* testing options */
-#define WAIO_POOL_SIZE		256
-#define WAIO_READ_BUFFER_SIZE	4096
+	ret = __winapi->create_pipe(&hread,&hwrite,(nt_sa *)0,0);
+	if (ret == 0) return NT_STATUS_INVALID_PIPE_STATE;
 
-/* .rdata */
-extern waio_xvtbls	xvtbls;
-extern waio		pipe_pool[WAIO_POOL_SIZE];
-extern void *		hevent_abort_request;
-extern void *		hstdout;
+	cx_read = waio_alloc(hread, 0, (void *)0, &ret);
+	if (!cx_read) return ret;
 
-/* forward declarations */
-int __cdecl waio_tu_entry_point(void);
-int __cdecl waio_main_utf8(int argc, char ** argv, char ** envp);
-int __cdecl waio_test_pipe(waio *);
-int __cdecl waio_test_pipes(unsigned int, uint32_t, void *);
-int __cdecl waio_test_alloc_free(void);
-waio_hook waio_test_default_hook;
+	cx_write = waio_alloc(hwrite, 0, (void *)0, &ret);
+	if (!cx_write) return ret;
 
-uint32_t __cdecl waio_test_output(
-	_in_	void *	hconsole,
-	_in_	char *	buffer,
-	_in_	size_t	count);
+	ret = waio_free(cx_read);
+	if (ret) return -ret;
 
-/* wine testing */
-int __cdecl waio_test_wine_behavior(void);
+	ret = waio_free(cx_write);
+	if (ret) return -ret;
+
+	return 0;
+}
