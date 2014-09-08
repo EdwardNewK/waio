@@ -28,14 +28,18 @@
 #include "waio_impl.h"
 #include "waio_cx.h"
 
+waio_hook waio_test_default_hook;
+
 waio_api int waio_free (waio_cx cx)
 {
 	int32_t		status;
 	int32_t		state;
 	void *		hwait[2];
 	nt_timeout	timeout;
+	size_t		region_size;
 
 	/* abort pending io operations */
+	at_locked_inc(&cx->paio->abort_inc_counter);
 	status = __ntapi->zw_set_event(
 		cx->paio->hevent_abort_request,
 		&state);
@@ -56,12 +60,24 @@ waio_api int waio_free (waio_cx cx)
 
 	if (status) return -WAIO_EACCES;
 
+	/* close private notification events */
+	__ntapi->zw_close(cx->paio->hevent_loop_ready);
+	__ntapi->zw_close(cx->paio->hevent_io_ready);
+	__ntapi->zw_close(cx->paio->hevent_io_request);
+	__ntapi->zw_close(cx->paio->hevent_io_complete);
+	__ntapi->zw_close(cx->paio->hevent_abort_request);
+	__ntapi->zw_close(cx->paio->hevent_cancel_request);
+	__ntapi->zw_close(cx->paio->hevent_queue_request);
+
 	/* free memory */
+	region_size = 0;
 	status = __ntapi->zw_free_virtual_memory(
 		NT_CURRENT_PROCESS_HANDLE,
 		(void **)&cx->self,
-		&cx->cx_size,
+		&region_size,
 		NT_MEM_RELEASE);
+
+	waio_test_default_hook((void *)0,WAIO_HOOK_ON_QUERY,status);
 
 	if (status) return -WAIO_EINVAL;
 
