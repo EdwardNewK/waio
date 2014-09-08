@@ -35,10 +35,12 @@ int waio_suspend(
 	_in_	int				nent,
 	_in_	waio_timeout *			timeout)
 {
+	int32_t			status;
 	waio_aiocb_opaque *	opaque;
 	void *			hwait[WAIO_LISTIO_MAX];
 	void *			hsignal;
 	int			events;
+	nt_ebi			ebi;
 	int			i;
 
 	events  = 0;
@@ -72,6 +74,19 @@ int waio_suspend(
 			__ntapi->wait_type_any,
 			NT_SYNC_NON_ALERTABLE,
 			(nt_timeout *)timeout);
+
+	/* signal? */
+	if (hsignal) {
+		status = __ntapi->zw_query_event(
+			hsignal,
+			NT_EVENT_BASIC_INFORMATION,
+			&ebi,
+			sizeof(ebi),
+			(size_t *)0);
+
+		if ((status == NT_STATUS_SUCCESS) && ebi.signal_state)
+			return -WAIO_EINTR;
+	}
 
 	/* check & return */
 	for (i=0; i<nent; i++) {
