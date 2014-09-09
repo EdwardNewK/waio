@@ -5,7 +5,7 @@ static __inline__ void at_locked_inc(
 {
 	__asm__(
 		"lock;"
-		"incq %0"
+		"incl %0"
 		: "=m" (*ptr)
 		: "m"  (*ptr)
 		: "memory");
@@ -18,7 +18,7 @@ static __inline__ void at_locked_dec(
 {
 	__asm__(
 		"lock;"
-		"decq %0"
+		"decl %0"
 		: "=m" (*ptr)
 		: "m"  (*ptr)
 		: "memory");
@@ -30,10 +30,10 @@ static __inline__ void at_locked_add(
 	intptr_t volatile * ptr,
 	intptr_t val)
 {
-	/* FIXME: use addq */
+	/* FIXME: use addl */
 	__asm__(
 		"lock;"
-		"xaddq %1, %0"
+		"xaddl %1, %0"
 		: "=m" (*ptr), "=r" (val)
 		: "1"  (val)
 		: "memory");
@@ -45,12 +45,12 @@ static __inline__ void at_locked_sub(
 	intptr_t volatile * ptr,
 	intptr_t val)
 {
-	/* FIXME: use subq */
+	/* FIXME: use subl */
 	val = -val;
 
 	__asm__(
 		"lock;"
-		"xaddq %1, %0"
+		"xaddl %1, %0"
 		: "=m" (*ptr), "=r" (val)
 		: "1"  (val)
 		: "memory");
@@ -64,7 +64,7 @@ static __inline__ intptr_t at_locked_xadd(
 {
 	__asm__(
 		"lock;"
-		"xaddq %1, %0"
+		"xaddl %1, %0"
 		: "=m" (*ptr), "=r" (val)
 		: "1"  (val)
 		: "memory");
@@ -80,7 +80,7 @@ static __inline__ intptr_t at_locked_xsub(
 
 	__asm__(
 		"lock;"
-		"xaddq %1, %0"
+		"xaddl %1, %0"
 		: "=m" (*ptr), "=r" (val)
 		: "1"  (val)
 		: "memory");

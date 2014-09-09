@@ -12,3 +12,4 @@ LDFLAGS=-lkernel32 --subsystem=console
 INCLUDEDIR=-Isrc/internal -Isrc/internal/headers -Iinclude
 BINDIR=bin$(ARCHBITS)
 LIBDIR=lib$(ARCHBITS)
+ENTRY_POINT_SUFFIX=

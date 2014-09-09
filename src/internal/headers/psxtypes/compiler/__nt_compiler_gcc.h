@@ -110,13 +110,13 @@
 #if     defined(__X86_MODEL)
 /****/
 #undef  __cdecl
-#define __cdecl		__attribute__((__cdecl))
+#define __cdecl		__attribute__((cdecl))
 
 #undef  __fastcall
-#define	__fastcall	__attribute__((__fastcall))
+#define	__fastcall	__attribute__((fastcall))
 
 #undef  __stdcall
-#define __stdcall	__attribute__((__stdcall))
+#define __stdcall	__attribute__((stdcall))
 /****/
 #elif   defined (__X86_64_MODEL)
 /****/

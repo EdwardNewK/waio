@@ -16,7 +16,7 @@ lib-shared:
 	sh ./makeldpath.sh $(CC)
 	sh ./makeapp.sh  $(LD) -o $(LIBDIR)/libwaio.dll \
 		-shared \
-		--entry $(DEFAULT_UNDERSCORE)waio_lib_entry_point \
+		--entry $(DEFAULT_UNDERSCORE)waio_lib_entry_point$(ENTRY_POINT_SUFFIX) \
 		--output-def $(LIBDIR)/libwaio.def \
 		--out-implib $(LIBDIR)/libwaio.dll.a
 
