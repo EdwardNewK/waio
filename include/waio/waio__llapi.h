@@ -116,7 +116,7 @@ typedef struct waio_interface {
 	waio_request *	queue;			/* request serialization */
 	waio_request *	qtail;			/* request serialization */
 	waio_request *	qfree;			/* request serialization */
-	waio_slot **	slots;			/* request serialization */
+	waio_slot *	slots;			/* request serialization */
 	signed int	cpu_count;		/* serialization helper  */
 	signed int	favorite_slot_index;	/* serialization helper  */
 } waio;

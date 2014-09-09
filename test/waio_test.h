@@ -32,6 +32,7 @@
 /* testing options */
 #define WAIO_POOL_SIZE		256
 #define WAIO_READ_BUFFER_SIZE	4096
+#define WAIO_TEST_MSG_COUNT	1024
 
 /* .rdata */
 extern waio_xvtbls	xvtbls;
@@ -45,6 +46,7 @@ int __cdecl waio_main_utf8(int argc, char ** argv, char ** envp);
 int __cdecl waio_test_pipe(waio *);
 int __cdecl waio_test_pipes(unsigned int, uint32_t, void *);
 int __cdecl waio_test_alloc_free(void);
+int __cdecl waio_test_read_write_suspend(void);
 waio_hook waio_test_default_hook;
 
 uint32_t __cdecl waio_test_output(

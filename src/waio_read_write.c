@@ -39,6 +39,9 @@ static int waio_read_write(
 	/* internal notification */
 	opaque = (waio_aiocb_opaque *)aiocb->__opaque;
 
+	opaque->hlistio = 0;
+	opaque->hcancel = 0;
+
 	status = __ntapi->tt_create_private_event(
 			&opaque->hpending,
 			NT_NOTIFICATION_EVENT,

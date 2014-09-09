@@ -43,9 +43,13 @@ int32_t __stdcall waio_dequeue(waio * paio)
 		req->next    = paio->qfree;
 		paio->qfree  = req;
 
+		/* empty queue? */
+		if (!paio->queue)
+			paio->qtail = (waio_request *)0;
+
 		/* submit the next io request */
 		paio->status_loop = __ntapi->zw_reset_event(
-			paio->hevent_io_complete,
+			paio->hevent_io_request,
 			&state);
 
 		if (paio->status_loop)

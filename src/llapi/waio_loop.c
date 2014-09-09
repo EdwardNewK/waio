@@ -104,7 +104,7 @@ int32_t __stdcall waio_loop(waio * paio)
 
 		/* submit the next io request if applicable */
 		waio_dequeue(paio);
-	} while (paio->status_loop == NT_STATUS_SUCCESS);
+	} while (1);
 
 	/* should never get here */
 	return NT_STATUS_INTERNAL_ERROR;

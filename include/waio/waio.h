@@ -41,8 +41,9 @@ extern "C" {
 #endif
 
 /* limits */
-#define WAIO_MAX	0x100	/* per context */
-#define WAIO_LISTIO_MAX	0x40	/* per call    */
+#define WAIO_MAX		0x80	/* per context */
+#define WAIO_LISTIO_MAX		0x40	/* per call    */
+#define WAIO_CX_OPAQUE_POINTERS	16
 
 /* status codes */
 typedef enum waio_status_enum {
@@ -90,7 +91,7 @@ typedef struct waio_aiocb {
 	void *			hsignal;
 	void *			hreserved;
 	size_t			freserved;
-	void *			__opaque[16];
+	void *			__opaque[WAIO_CX_OPAQUE_POINTERS];
 } waio_aiocbs;
 
 /* opaque context handle */

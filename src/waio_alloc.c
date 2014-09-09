@@ -92,6 +92,7 @@ waio_api waio_cx waio_alloc(
 	/* cx_block->cx init */
 	cx_block->cx.self	= &cx_block->cx;
 	cx_block->cx.paio	= &cx_block->cx_waio;
+	cx_block->cx_waio.slots	= &cx_block->cx_slots[0];
 	cx_block->cx.cx_size	= cx_block_size;
 
 	/* cx_block->cx_waio init */
@@ -140,6 +141,9 @@ static signed int __waio_call_conv__hook cx_before_io(
 
 	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
 	opaque->qstatus = NT_STATUS_PENDING;
+
+	/* translation */
+	paio->type = (waio_io_type)opaque->request->slot.aio_lio_opcode;
 
 	/* account for the fallback cancellation method */
 	opaque->fc_after_io = 0;

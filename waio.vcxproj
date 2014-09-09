@@ -48,6 +48,7 @@
     <ClCompile Include="test\waio_test_hooks.c" />
     <ClCompile Include="test\waio_test_output.c" />
     <ClCompile Include="test\waio_test_pipes.c" />
+    <ClCompile Include="test\waio_test_read_write_suspend.c" />
     <ClCompile Include="test\waio_test_wine.c" />
   </ItemGroup>
   <ItemGroup>

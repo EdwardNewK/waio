@@ -40,7 +40,7 @@ int32_t __stdcall waio_enqueue(waio * paio)
 
 	/* check slots and add requests as appropriate */
 	for (i=0; i<WAIO_CX_SLOT_COUNT; i++) {
-		slot = paio->slots[i];
+		slot = &paio->slots[i];
 
 		if (slot->pid) {
 			/* behead and retail */
@@ -84,14 +84,14 @@ int32_t __stdcall waio_enqueue(waio * paio)
 			/* update qfree */
 			paio->qfree = paio->qfree->next;
 
+			/* advance queue request counter */
+			paio->queue_req_counter++;
+
 			/* mark slot as free */
 			slot->pid = 0;
 			slot->tid = 0;
 		}
 	}
-
-	/* reset queue request counter */
-	paio->queue_req_counter = 0;
 
 	/* allow new requests to be placed */
 	return __ntapi->zw_reset_event(

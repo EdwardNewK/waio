@@ -61,7 +61,7 @@ int32_t __stdcall winapi_init(winapi_vtbl * pvtbl)
 		return NT_STATUS_DLL_INIT_FAILED;
 
 	/* imported functions (PE export table is always ansi/ascii) */
-	pvtbl->get_current_thread_id	= (winapi_get_current_thread_id *)GetProcAddress(__hkernel32,"GetCurrentThreadId ");
+	pvtbl->get_current_thread_id	= (winapi_get_current_thread_id *)GetProcAddress(__hkernel32,"GetCurrentThreadId");
 	pvtbl->get_current_process_id	= (winapi_get_current_process_id *)GetProcAddress(__hkernel32,"GetCurrentProcessId");
 	pvtbl->get_module_handle_utf16	= (winapi_get_module_handle_utf16 *)GetProcAddress(__hkernel32,"GetModuleHandleW");
 	pvtbl->get_proc_address		= (winapi_get_proc_address *)GetProcAddress(__hkernel32,"GetProcAddress");

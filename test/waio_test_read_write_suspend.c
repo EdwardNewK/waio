@@ -30,13 +30,25 @@
 #include "waio_cx.h"
 #include "waio_test.h"
 
-int __cdecl waio_test_alloc_free(void)
+int __cdecl waio_test_read_write_suspend(void)
 {
-	int	ret;
-	waio_cx cx_read;
-	waio_cx cx_write;
-	void *	hread;
-	void *	hwrite;
+	int			ret;
+	waio_cx 		cx_read;
+	waio_cx 		cx_write;
+	void *			hread;
+	void *			hwrite;
+	struct waio_aiocb	cb_read  = {0};
+	struct waio_aiocb	cb_write = {0};
+	const struct waio_aiocb*cb[1];
+	ssize_t			bytes;
+	waio_timeout		timeout;
+	char			read_buf[128];
+	char			write_buf[65] = "1234567890abcdef"
+						"1234567890abcdef"
+						"1234567890abcdef"
+						"1234567890abcdef";
+
+	__ntapi->memset(read_buf,0xffffffff,128);
 
 	ret = __winapi->create_pipe(&hread,&hwrite,(nt_sa *)0,0);
 	if (ret == 0) return NT_STATUS_INVALID_PIPE_STATE;
@@ -47,14 +59,39 @@ int __cdecl waio_test_alloc_free(void)
 	cx_write = waio_alloc(hwrite, 0, (void *)0, &ret);
 	if (!cx_write) return ret;
 
+	cb_read.aio_buf		= read_buf;
+	cb_read.aio_nbytes	= 128;
+
+	cb_write.aio_buf	= write_buf;
+	cb_write.aio_nbytes	= 64;
+
+	ret = waio_read(cx_read,&cb_read);
+	if (ret) return -ret;
+
+	timeout.quad = 0;
+	cb[0] = &cb_read;
+	ret = waio_suspend(cx_read,cb,1,&timeout);
+	if (ret != -WAIO_EAGAIN) return NT_STATUS_INTERNAL_ERROR;
+
+	ret = waio_write(cx_write,&cb_write);
+	if (ret) return -ret;
+
+	cb[0] = &cb_write;
+	ret = waio_suspend(cx_write,cb,1,(waio_timeout *)0);
+	if (ret) return -ret;
+
+	cb[0] = &cb_read;
+	ret = waio_suspend(cx_read,cb,1,(waio_timeout *)0);
+	if (ret) return -ret;
+
+	bytes = waio_return(cx_read,&cb_read);
+	if (bytes < 0) return NT_STATUS_INTERNAL_ERROR;
+
 	ret = waio_free(cx_read);
 	if (ret) return -ret;
 
 	ret = waio_free(cx_write);
 	if (ret) return -ret;
-
-	__ntapi->zw_close(hread);
-	__ntapi->zw_close(hwrite);
 
 	return 0;
 }

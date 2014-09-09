@@ -70,7 +70,7 @@ int32_t waio_submit_single_request(
 	hlistio  = opaque->hlistio;
 
 	/* init opaque data */
-	__ntapi->memset(aiocb->__opaque,0,sizeof(*aiocb->__opaque));
+	__ntapi->memset(aiocb->__opaque,0,sizeof(size_t) * WAIO_CX_OPAQUE_POINTERS);
 
 	/* opaque queue status & internal notificaiton */
 	opaque->qstatus  = NT_STATUS_WAIT_1;
@@ -82,6 +82,7 @@ int32_t waio_submit_single_request(
 
 	/* submit request to the loop thread */
 	do {
+		at_locked_inc(&paio->queue_inc_counter);
 		status = __ntapi->zw_set_event(
 				paio->hevent_queue_request,
 				&state);
@@ -104,7 +105,7 @@ static int32_t _get_slot(
 
 	/* attempt to reserve a free slot */
 	while (key && (i<WAIO_CX_SLOT_COUNT)) {
-		*slot = paio->slots[i];
+		*slot = &paio->slots[i];
 		key   = at_locked_cas(
 			(volatile intptr_t *)&((*slot)->tid),
 			0,
