@@ -9,6 +9,7 @@
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 
+typedef nt_timeout	os_large_integer;
 typedef	nt_timeout	os_timeout;
 typedef nt_iosb		os_iosb;
 typedef intptr_t	os_signed_ptr;
@@ -20,13 +21,13 @@ typedef	__waio_intptr	os_iosb_info;
 typedef __waio_intptr	os_signed_ptr;
 typedef __waio_uintptr	os_unsigned_ptr;
 
-typedef union _os_timeout {
+typedef union _os_large_integer {
 	struct {
 		unsigned int	ulow;
 		signed int	ihigh;
 	} __u;
 	long long		quad;
-} os_timeout;
+} os_large_integer, os_timeout;
 
 
 typedef struct _os_iosb {
