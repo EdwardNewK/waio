@@ -141,6 +141,7 @@ static signed int __waio_call_conv__hook cx_before_io(
 
 	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
 	opaque->qstatus = NT_STATUS_PENDING;
+	opaque->status_io   = paio->status_io;
 
 	/* translation */
 	paio->type = (waio_io_type)opaque->request->slot.aio_lio_opcode;
@@ -163,6 +164,7 @@ static signed int __waio_call_conv__hook cx_after_io(
 	if (!paio->packet) return status;
 
 	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
+	opaque->status_io   = paio->status_io;
 
 	/* account for the fallback cancellation method */
 	fc_after_io = at_locked_cas(&opaque->fc_after_io,0,1);

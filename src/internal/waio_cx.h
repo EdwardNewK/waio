@@ -72,6 +72,8 @@ typedef struct waio_aiocb_opaque_interface {
 	intptr_t	fc_before_io_complete;
 	int32_t		status_cancel;
 	int32_t		status_suspend;
+	int32_t		status_loop;
+	int32_t		status_io;
 } waio_aiocb_opaque;
 
 
