@@ -161,8 +161,8 @@ int32_t __stdcall waio_init(waio * paio)
 
 int32_t __stdcall waio_hook_default(
 	_in_		waio *		paio,
-	_in_		waio_hook_type	type,
-	_in_		int32_t			status)
+	_in_		signed int	type,
+	_in_		int32_t		status)
 {
 	return status;
 }

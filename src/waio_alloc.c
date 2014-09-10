@@ -134,7 +134,7 @@ waio_api waio_cx waio_alloc(
 
 static signed int __waio_call_conv__hook cx_before_io(
 	waio *		paio,
-	waio_hook_type	type,
+	signed int	type,
 	signed int	status)
 {
 	waio_aiocb_opaque * opaque;
@@ -149,17 +149,24 @@ static signed int __waio_call_conv__hook cx_before_io(
 	/* account for the fallback cancellation method */
 	opaque->fc_after_io = 0;
 
+	/* hook: on query */
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xAAAA0000 + paio->type,paio->status_io);
+
 	return status;
 }
 
 
 static signed int __waio_call_conv__hook cx_after_io(
 	waio *		paio,
-	waio_hook_type	type,
+	signed int	type,
 	signed int	status)
 {
+	int32_t			scstatus;
 	waio_aiocb_opaque *	opaque;
 	intptr_t		fc_after_io;
+
+	/* hook: on query */
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xBBBB0000 + paio->type,paio->status_io);
 
 	if (!paio->packet) return status;
 
@@ -169,6 +176,9 @@ static signed int __waio_call_conv__hook cx_after_io(
 	/* account for the fallback cancellation method */
 	fc_after_io = at_locked_cas(&opaque->fc_after_io,0,1);
 	if (fc_after_io) return status;
+
+	/* hook: on query */
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xBBBB0001 + paio->type,paio->status_io);
 
 	/* queue status */
 	switch (status) {
@@ -199,14 +209,21 @@ static signed int __waio_call_conv__hook cx_after_io(
 			opaque->hlistio,
 			(int32_t *)0);
 
+	/* hook: on query */
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xBBBB0001 + paio->type,paio->status_io);
+
 	/* waio_suspend notification */
 	if (opaque->hpending) {
-		__ntapi->zw_set_event(
+		scstatus = __ntapi->zw_set_event(
 			opaque->hpending,
 			(int32_t *)0);
 
 		__ntapi->zw_close(opaque->hpending);
-	}
+	} else
+		scstatus = NT_STATUS_INVALID_HANDLE;
+
+	/* hook: on query */
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xBBBB0002 + paio->type,scstatus);
 
 	return status;
 }
@@ -214,7 +231,7 @@ static signed int __waio_call_conv__hook cx_after_io(
 
 static signed int __waio_call_conv__hook cx_cancel_request(
 	waio *		paio,
-	waio_hook_type	type,
+	signed int	type,
 	signed int	status)
 {
 	return waio_cancel_aiocb(paio,(struct waio_aiocb *)paio->context_loop);
@@ -223,7 +240,7 @@ static signed int __waio_call_conv__hook cx_cancel_request(
 
 static signed int __waio_call_conv__hook cx_shutdown_response(
 	waio *		paio,
-	waio_hook_type	type,
+	signed int	type,
 	signed int	status)
 {
 	waio_aiocb_opaque * opaque;

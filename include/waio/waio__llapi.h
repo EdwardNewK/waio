@@ -69,7 +69,7 @@ typedef enum {
 
 typedef signed int __waio_call_conv__hook waio_hook(
 	waio *		paio,
-	waio_hook_type	type,
+	signed int	type,
 	signed int	status);
 
 

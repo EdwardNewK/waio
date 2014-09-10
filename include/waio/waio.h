@@ -36,6 +36,9 @@
 /* error constants */
 #include "waio__errno.h"
 
+/* low-level abstraction */
+#include "waio__fcntl.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -128,6 +131,7 @@ waio_api int		waio_error	(waio_cx, const struct waio_aiocb *);
 waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_listio	(waio_cx, int mode, struct waio_aiocb * const aiocb_list[], int nitems);
 waio_api int		waio_suspend	(waio_cx, const struct waio_aiocb * const aiocb_list[], int nitems, waio_timeout * timeout);
+waio_api int		waio_fcntl	(waio_cx, struct waio_aiocb *,int,size_t,void *,void *);
 
 #ifdef __cplusplus
 }

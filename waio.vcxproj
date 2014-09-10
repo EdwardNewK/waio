@@ -56,6 +56,7 @@
     <ClInclude Include="include\waio\waio__common.h" />
     <ClInclude Include="include\waio\waio__compiler.h" />
     <ClInclude Include="include\waio\waio__errno.h" />
+    <ClInclude Include="include\waio\waio__fcntl.h" />
     <ClInclude Include="include\waio\waio__llapi.h" />
     <ClInclude Include="include\waio\waio__os.h" />
     <ClInclude Include="include\waio\waio__stddef.h" />

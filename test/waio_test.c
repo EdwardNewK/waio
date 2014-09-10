@@ -64,7 +64,7 @@ char * waio_test_hook_strings[WAIO_HOOK_CAP] = {
 
 int32_t __stdcall waio_test_default_hook(
 	_in_		waio *		paio,
-	_in_		waio_hook_type	type,
+	_in_		signed int	type,
 	_in_		int32_t		status)
 {
 	char buffer[32];
