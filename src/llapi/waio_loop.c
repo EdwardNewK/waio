@@ -46,26 +46,27 @@ int32_t __stdcall waio_loop(waio * paio)
 	hwait[4] = paio->hthread_io;
 
 	do {
-		if (!paio->abort_counter \
-				&& !paio->cancel_counter \
-				&& !paio->queue_counter \
-				&& !paio->data_counter) {
-			if (paio->io_request_timeout.quad)
-				timeout = &paio->io_request_timeout;
-			else
-				timeout = (nt_timeout *)0;
+		if (paio->io_request_timeout.quad)
+			timeout = &paio->io_request_timeout;
+		else
+			timeout = (nt_timeout *)0;
 
-			/* wait */
-			paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
-				4,
-				hwait,
-				__ntapi->wait_type_any,
-				NT_SYNC_NON_ALERTABLE,
-				timeout);
-		}
+		/* wait */
+		paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
+			4,
+			hwait,
+			__ntapi->wait_type_any,
+			NT_SYNC_NON_ALERTABLE,
+			timeout);
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66666666,(signed int)paio->queue_counter);
+		/* hook: on query */
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66667777,(signed int)paio->data_counter);
+		/* hook: on query */
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66668888,(signed int)paio->abort_counter);
+		/* hook: on query */
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66669999,(signed int)paio->cancel_counter);
 
 		/* timeout? */
 		if (paio->status_loop == NT_STATUS_TIMEOUT)
@@ -86,6 +87,10 @@ int32_t __stdcall waio_loop(waio * paio)
 
 			/* regress the data counter */
 			at_locked_dec(&paio->data_counter);
+
+			paio->status_loop = __ntapi->zw_reset_event(
+				paio->hevent_io_complete,
+				(int32_t *)0);
 		}
 
 		/* queue request? */

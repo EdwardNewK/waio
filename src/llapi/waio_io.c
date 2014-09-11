@@ -209,12 +209,6 @@ int32_t __stdcall waio_io(waio * paio)
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000D,paio->status_io);
-
-		paio->status_io = __ntapi->zw_reset_event(
-			paio->hevent_io_complete,
-			&state);
-
-		if (paio->status_io) return paio->status_io;
 	} while (1);
 
 	/* should never get here */
