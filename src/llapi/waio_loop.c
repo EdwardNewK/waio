@@ -95,12 +95,13 @@ int32_t __stdcall waio_loop(waio * paio)
 			waio_enqueue(paio);
 		}
 
-		/* io thread died? */
-		/* TODO: ?? */
-		/* 	return NT_STATUS_THREAD_NOT_IN_PROCESS; */
-
 		/* submit the next io request if applicable */
 		waio_dequeue(paio);
+
+		if (!paio->queue_counter)
+			__ntapi->zw_reset_event(
+				paio->hevent_queue_request,
+				(int32_t *)0);
 	} while (1);
 
 	/* should never get here */

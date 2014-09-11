@@ -16,6 +16,8 @@ x64/
 *.gch
 *.project
 *.workspace
+waio10.sln
+waio10.vcxproj
 ldflags.mak
 ldpath.mak
 makeobjs.mak

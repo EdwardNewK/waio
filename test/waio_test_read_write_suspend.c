@@ -29,6 +29,13 @@
 #include "waio_cx.h"
 #include "waio_test.h"
 
+char write_buf[65] = {
+			'1','2','3','4','5','6','7','8','9','a','b','c','d','e','f',
+			'1','2','3','4','5','6','7','8','9','a','b','c','d','e','f',
+			'1','2','3','4','5','6','7','8','9','a','b','c','d','e','f',
+			'1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+
+
 int __cdecl waio_test_read_write_suspend(void)
 {
 	int			ret;
@@ -36,18 +43,16 @@ int __cdecl waio_test_read_write_suspend(void)
 	waio_cx 		cx_write;
 	void *			hread;
 	void *			hwrite;
-	struct waio_aiocb	cb_read  = {0};
-	struct waio_aiocb	cb_write = {0};
+	struct waio_aiocb	cb_read;
+	struct waio_aiocb	cb_write;
 	const struct waio_aiocb*cb[1];
 	ssize_t			bytes;
 	waio_timeout		timeout;
 	char			read_buf[128];
-	char			write_buf[65] = "1234567890abcdef"
-						"1234567890abcdef"
-						"1234567890abcdef"
-						"1234567890abcdef";
 
 	__ntapi->memset(read_buf,0xffffffff,128);
+	__ntapi->memset(&cb_read,0,sizeof(cb_read));
+	__ntapi->memset(&cb_write,0,sizeof(cb_write));
 
 	ret = __winapi->create_pipe(&hread,&hwrite,(nt_sa *)0,0);
 	if (ret == 0) return NT_STATUS_INVALID_PIPE_STATE;

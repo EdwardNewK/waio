@@ -86,36 +86,32 @@ int32_t __stdcall waio_io(waio * paio)
 		else
 			timeout = (nt_timeout *)0;
 
-		if (!paio->io_counter)
-			do {
+		do {
+			if (!paio->io_counter && !paio->abort_counter)
 				paio->status_io = __ntapi->zw_wait_for_multiple_objects(
 					2,
 					hwait,
 					__ntapi->wait_type_any,
 					NT_SYNC_NON_ALERTABLE,
 					timeout);
+			else
+				paio->status_io = NT_STATUS_SUCCESS;
 
-			} while (!paio->status_io && !paio->io_counter);
+			if (paio->status_io == NT_STATUS_TIMEOUT) {
+				/* hook: on query */
+				paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x88888888,paio->status_io);
+
+				paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,0);
+			}
+		} while (!paio->io_counter && !paio->abort_counter);
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340001,paio->status_io);
 
-		/* optionally enforce a longest time interval between requests */
-		while ((paio->status_io == NT_STATUS_TIMEOUT) && !paio->io_counter) {
-			/* hook: on query */
-			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x88888888,paio->status_io);
-
-			paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,0);
-
-			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
-				2,
-				hwait,
-				__ntapi->wait_type_any,
-				NT_SYNC_NON_ALERTABLE,
-				timeout);
-
-			/* hook: on query */
-			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340002,paio->status_io);
+		/* abort request? */
+		if (paio->abort_counter) {
+			__ntapi->zw_close(hpending[0]);
+			waio_thread_shutdown_response(paio);
 		}
 
 		if ((uint32_t)paio->status_io >= NT_STATUS_WAIT_CAP)
@@ -126,13 +122,12 @@ int32_t __stdcall waio_io(waio * paio)
 
 		/* prepare for next io request */
 		at_locked_dec(&paio->io_counter);
-
-		/* abort request? */
-		if (paio->abort_counter) {
-			__ntapi->zw_close(hpending[0]);
-			waio_thread_shutdown_response(paio);
-		}
 	
+		/* prepare for next queue request */
+		paio->status_loop = __ntapi->zw_reset_event(
+			paio->hevent_io_request,
+			(int32_t *)0);
+
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340004,paio->status_io);
 

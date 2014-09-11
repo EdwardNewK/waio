@@ -54,16 +54,13 @@ int32_t __stdcall waio_dequeue(waio * paio)
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x77777777,(signed int)paio->io_counter);
 			
 		paio->status_loop = __ntapi->zw_set_event(
-				paio->hevent_io_request,
-				&state);
+			paio->hevent_io_request,
+			&state);
 
-		/* prepare for next queue request */
 		paio->status_loop = __ntapi->zw_reset_event(
 			paio->hevent_io_request,
-			(int32_t *)0);
+			&state);
 
-		if (paio->status_io) return paio->status_io;
-		
 		if (paio->status_loop)
 			waio_thread_shutdown_request(paio);
 	}
