@@ -57,7 +57,7 @@ int32_t __stdcall waio_loop(waio * paio)
 
 			/* wait */
 			paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
-				5,
+				4,
 				hwait,
 				__ntapi->wait_type_any,
 				NT_SYNC_NON_ALERTABLE,
@@ -101,11 +101,6 @@ int32_t __stdcall waio_loop(waio * paio)
 
 		/* submit the next io request if applicable */
 		waio_dequeue(paio);
-
-		if (!paio->queue_counter)
-			__ntapi->zw_reset_event(
-				paio->hevent_queue_request,
-				(int32_t *)0);
 	} while (1);
 
 	/* should never get here */
