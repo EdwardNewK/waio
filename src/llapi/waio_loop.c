@@ -101,6 +101,11 @@ int32_t __stdcall waio_loop(waio * paio)
 
 		/* submit the next io request if applicable */
 		waio_dequeue(paio);
+
+		if (!paio->queue_counter)
+			__ntapi->zw_reset_event(
+				paio->hevent_queue_request,
+				(int32_t *)0);
 	} while (1);
 
 	/* should never get here */
