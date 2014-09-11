@@ -128,7 +128,7 @@ int32_t __stdcall waio_io(waio * paio)
 		at_locked_dec(&paio->io_counter);
 
 		/* abort request? */
-		if (paio->abort_inc_counter > paio->abort_req_counter) {
+		if (paio->abort_counter) {
 			__ntapi->zw_close(hpending[0]);
 			waio_thread_shutdown_response(paio);
 		}
@@ -182,7 +182,7 @@ int32_t __stdcall waio_io(waio * paio)
 			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340009,paio->status_io);
 
 			/* abort request? */
-			if (paio->abort_inc_counter > paio->abort_req_counter) {
+			if (paio->abort_counter) {
 				__ntapi->zw_close(hpending[0]);
 				waio_thread_shutdown_response(paio);
 			}

@@ -126,7 +126,7 @@ int waio_cancel(
 
 	/* cancellation request */
 	opaque->cx_cancel = cx_cancel;
-	at_locked_inc(&(cx->paio->cancel_inc_counter));
+	at_locked_inc(&cx->paio->cancel_counter);
 
 	status = __ntapi->zw_set_event(
 		cx->paio->hevent_cancel_request,

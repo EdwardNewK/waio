@@ -40,7 +40,7 @@ waio_api int waio_free (waio_cx cx)
 	size_t		region_size;
 
 	/* abort pending io operations */
-	at_locked_inc(&cx->paio->abort_inc_counter);
+	at_locked_inc(&cx->paio->abort_counter);
 	status = __ntapi->zw_set_event(
 		cx->paio->hevent_abort_request,
 		&state);

@@ -46,10 +46,10 @@ int32_t __stdcall waio_loop(waio * paio)
 	hwait[4] = paio->hthread_io;
 
 	do {
-		if ((!paio->abort_inc_counter) \
-				&& (!paio->cancel_inc_counter) \
-				&& (!paio->queue_counter) \
-				&& (!paio->data_counter)) {
+		if (!paio->abort_counter \
+				&& !paio->cancel_counter \
+				&& !paio->queue_counter \
+				&& !paio->data_counter) {
 			if (paio->io_request_timeout.quad)
 				timeout = &paio->io_request_timeout;
 			else
@@ -72,11 +72,11 @@ int32_t __stdcall waio_loop(waio * paio)
 			paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,paio->status_loop);
 
 		/* abort request? */
-		if (paio->abort_inc_counter > paio->abort_req_counter)
+		if (paio->abort_counter)
 			waio_thread_shutdown_request(paio);
 
 		/* cancel request? */
-		if (paio->cancel_inc_counter > paio->cancel_req_counter)
+		if (paio->cancel_counter)
 			paio->hooks[WAIO_HOOK_ON_CANCEL_REQUEST](paio,WAIO_HOOK_ON_CANCEL_REQUEST,paio->status_loop);
 
 		/* io call completed? */

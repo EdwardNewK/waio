@@ -131,7 +131,7 @@ int __cdecl waio_test_pipes(unsigned int pool_size, uint32_t flags, void * optio
 
 	/* ask everyone to abort */
 	for (i=0; i<WAIO_POOL_SIZE; i++)
-		at_locked_inc(&pipe_pool[i].abort_inc_counter);
+		at_locked_inc(&pipe_pool[i].abort_counter);
 
 	__ntapi->zw_set_event(
 		hevent_abort_request,
