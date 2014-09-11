@@ -59,7 +59,7 @@ int32_t __stdcall waio_dequeue(waio * paio)
 
 		/* prepare for next queue request */
 		paio->status_loop = __ntapi->zw_reset_event(
-			paio->hevent_io_complete,
+			paio->hevent_io_request,
 			(int32_t *)0);
 
 		if (paio->status_io) return paio->status_io;

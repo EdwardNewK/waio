@@ -93,13 +93,6 @@ int32_t __stdcall waio_loop(waio * paio)
 			/* process current request */
 			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x55555555,++a);
 			waio_enqueue(paio);
-
-			/* prepare for next queue request */
-			paio->status_loop = __ntapi->zw_reset_event(
-				paio->hevent_queue_request,
-				(int32_t *)0);
-
-			if (paio->status_loop) return paio->status_loop;
 		}
 
 		/* io thread died? */

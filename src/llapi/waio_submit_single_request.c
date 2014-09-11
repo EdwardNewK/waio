@@ -87,6 +87,10 @@ int32_t waio_submit_single_request(
 		status = __ntapi->zw_set_event(
 				paio->hevent_queue_request,
 				&state);
+
+		status = __ntapi->zw_reset_event(
+				paio->hevent_queue_request,
+				(int32_t *)0);
 	} while (!status && state && (slot->tid == tid));
 
 	return status;

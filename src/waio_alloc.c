@@ -139,6 +139,8 @@ static signed int __waio_call_conv__hook cx_before_io(
 {
 	waio_aiocb_opaque * opaque;
 
+	if (!paio->packet) return status;
+
 	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
 	opaque->qstatus = NT_STATUS_PENDING;
 	opaque->status_io   = paio->status_io;
