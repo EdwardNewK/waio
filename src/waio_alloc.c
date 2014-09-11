@@ -164,6 +164,7 @@ static signed int __waio_call_conv__hook cx_after_io(
 	int32_t			scstatus;
 	waio_aiocb_opaque *	opaque;
 	intptr_t		fc_after_io;
+	intptr_t		lock;
 
 	/* hook: on query */
 	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xBBBB0000 + paio->type,paio->status_io);
@@ -172,6 +173,12 @@ static signed int __waio_call_conv__hook cx_after_io(
 
 	opaque = ((waio_aiocb_opaque *)(paio->packet->aiocb->__opaque));
 	opaque->status_io   = paio->status_io;
+
+	/* hpending */
+	lock = at_locked_cas(
+		(intptr_t *)&opaque->hpending,
+			0,
+			-1);
 
 	/* account for the fallback cancellation method */
 	fc_after_io = at_locked_cas(&opaque->fc_after_io,0,1);
@@ -213,14 +220,13 @@ static signed int __waio_call_conv__hook cx_after_io(
 	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xBBBB0001 + paio->type,paio->status_io);
 
 	/* waio_suspend notification */
-	if (opaque->hpending) {
+	lock = (intptr_t)opaque->hpending;
+
+	if (lock > 0) {
 		scstatus = __ntapi->zw_set_event(
 			opaque->hpending,
 			(int32_t *)0);
-
-		__ntapi->zw_close(opaque->hpending);
-	} else
-		scstatus = NT_STATUS_INVALID_HANDLE;
+	}
 
 	/* hook: on query */
 	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0xBBBB0002 + paio->type,scstatus);

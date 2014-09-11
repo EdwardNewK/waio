@@ -19,19 +19,10 @@
 /*                                                                           */
 /*****************************************************************************/
 
-
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 #include <waio/waio__llapi.h>
 #include "waio_impl.h"
-
-/**
- *  the parent waits (also) on the child; if the child
- *  terminates (normally or not) due to an error, then
- *  the parent (and app) can use the status_io member
- *  to determine the reason.
-**/
-
 
 static int32_t	__stdcall __io_nop(
 	_in_	void *			hfile,
@@ -95,18 +86,22 @@ int32_t __stdcall waio_io(waio * paio)
 		else
 			timeout = (nt_timeout *)0;
 
-		paio->status_io = __ntapi->zw_wait_for_multiple_objects(
-			2,
-			hwait,
-			__ntapi->wait_type_any,
-			NT_SYNC_NON_ALERTABLE,
-			timeout);
+		if (!paio->io_counter)
+			do {
+				paio->status_io = __ntapi->zw_wait_for_multiple_objects(
+					2,
+					hwait,
+					__ntapi->wait_type_any,
+					NT_SYNC_NON_ALERTABLE,
+					timeout);
+
+			} while (!paio->status_io && !paio->io_counter);
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340001,paio->status_io);
 
 		/* optionally enforce a longest time interval between requests */
-		while (paio->status_io == NT_STATUS_TIMEOUT) {
+		while ((paio->status_io == NT_STATUS_TIMEOUT) && !paio->io_counter) {
 			/* hook: on query */
 			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x88888888,paio->status_io);
 
@@ -130,9 +125,11 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340003,paio->status_io);
 
 		/* abort request? */
-		if (paio->abort_inc_counter > paio->abort_req_counter)
+		if (paio->abort_inc_counter > paio->abort_req_counter) {
+			__ntapi->zw_close(hpending[0]);
 			waio_thread_shutdown_response(paio);
-
+		}
+	
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340004,paio->status_io);
 
@@ -149,35 +146,40 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340006,paio->status_io);
 
 		/* io system call */
-		if (paio->packet) {
-			paio->status_io = io_routine[paio->type](
-				paio->hfile,
-				hpending[0],
-				(void *)0,
-				(void *)0,
-				&paio->packet->iosb,
-				paio->packet->data,
-				(uint32_t)paio->packet->buffer_size,
-				&paio->packet->offset,
-				(uint32_t *)0);
+		paio->status_io = io_routine[paio->type](
+			paio->hfile,
+			hpending[0],
+			(void *)0,
+			(void *)0,
+			&paio->packet->iosb,
+			paio->packet->data,
+			(uint32_t)paio->packet->buffer_size,
+			&paio->packet->offset,
+			(uint32_t *)0);
+
+		/* hook: on query */
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340007,paio->status_io);
+
+		/* hfile may be non-blocking */
+		if (paio->status_io == NT_STATUS_PENDING) {
+			/* hook: on query */
+			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340008,paio->status_io);
+
+			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
+				2,
+				hpending,
+				__ntapi->wait_type_any,
+				NT_SYNC_NON_ALERTABLE,
+				(nt_timeout *)0);
 
 			/* hook: on query */
-			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340007,paio->status_io);
+			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340009,paio->status_io);
 
-			/* hfile may be non-blocking */
-			if (paio->status_io == NT_STATUS_PENDING)
-				/* hook: on query */
-				paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340008,paio->status_io);
-
-				paio->status_io = __ntapi->zw_wait_for_multiple_objects(
-					2,
-					hpending,
-					__ntapi->wait_type_any,
-					NT_SYNC_NON_ALERTABLE,
-					(nt_timeout *)0);
-
-				/* hook: on query */
-				paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340009,paio->status_io);
+			/* abort request? */
+			if (paio->abort_inc_counter > paio->abort_req_counter) {
+				__ntapi->zw_close(hpending[0]);
+				waio_thread_shutdown_response(paio);
+			}
 		}
 
 		/* hook: on query */
@@ -189,17 +191,11 @@ int32_t __stdcall waio_io(waio * paio)
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000B,paio->status_io);
 
-		/* advance the io counter and notify the loop thread */
-		at_locked_inc(&paio->io_counter);
-
-		paio->status_io = __ntapi->zw_reset_event(
-			paio->hevent_io_request,
-			&state);
+		/* advance the data counter and notify the loop thread */
+		at_locked_inc(&paio->data_counter);
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000C,paio->status_io);
-
-		if (paio->status_io) return paio->status_io;
 
 		/* hook: before io complete */
 		paio->hooks[WAIO_HOOK_BEFORE_IO_COMPLETE](paio,WAIO_HOOK_BEFORE_IO_COMPLETE,paio->status_io);
@@ -208,8 +204,17 @@ int32_t __stdcall waio_io(waio * paio)
 			paio->hevent_io_complete,
 			&state);
 
+		if (paio->status_io) return paio->status_io;
+
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000D,paio->status_io);
+
+		/* prepare for next io request */
+		at_locked_dec(&paio->io_counter);
+
+		paio->status_io = __ntapi->zw_reset_event(
+			paio->hevent_io_request,
+			&state);
 
 		if (paio->status_io) return paio->status_io;
 	} while (1);

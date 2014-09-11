@@ -7,12 +7,15 @@ lib64/
 Debug/
 Release/
 x64/
+.codelite/
 *.vcxproj.user
 *.suo
 *.layout
 *.sdf
 *.opensdf
 *.gch
+*.project
+*.workspace
 ldflags.mak
 ldpath.mak
 makeobjs.mak

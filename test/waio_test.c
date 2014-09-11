@@ -100,6 +100,48 @@ int32_t __stdcall waio_test_default_hook(
 }
 
 
+int32_t __stdcall waio_test_query_hook(
+	_in_		waio *		paio,
+	_in_		signed int	type,
+	_in_		int32_t		status)
+{
+	char buffer[0x30];
+
+	__ntapi->memset(buffer,0,0x30);
+
+	if (!hstdout)
+		hstdout = __ntcon->get_std_handle(NT_STD_OUTPUT_HANDLE);
+
+	buffer[0x10]  = '0';
+	buffer[0x11]  = 'x';
+	buffer[0x1a]  = ' ';
+	buffer[0x1b]  = ' ';
+	buffer[0x1c]  = ' ';
+	buffer[0x1d]  = ' ';
+	buffer[0x1e]  = ' ';
+	buffer[0x1f]  = ' ';
+
+	__ntapi->tt_uint32_to_hex_utf8(
+		type,
+		&buffer[0x12]);
+
+	buffer[0x20]  = '0';
+	buffer[0x21]  = 'x';
+	buffer[0x2a]  = '\n';
+
+	__ntapi->tt_uint32_to_hex_utf8(
+		status,
+		&buffer[0x22]);
+
+	waio_test_output(
+		hstdout,
+		&buffer[0x10],
+		0x1b);
+
+	return status;
+}
+
+
 /* main */
 int __cdecl waio_main_utf8(int argc, char ** argv, char ** envp)
 {
@@ -122,7 +164,7 @@ int waio_tu_entry_point(void)
 	waio_alloc((void *)0,0,(void *)0,&status);
 
 	/* high-level api */
-	status = waio_test_alloc_free();
+	//status = waio_test_alloc_free();
 
 	status = waio_test_read_write_suspend();
 

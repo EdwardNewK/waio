@@ -52,9 +52,6 @@ int32_t __stdcall waio_cancel_current_request(waio * paio)
 			/* hook: after io */
 			paio->hooks[WAIO_HOOK_AFTER_IO](paio,WAIO_HOOK_AFTER_IO,0);
 
-			/* advance the io counter */
-			at_locked_inc(&paio->io_counter);
-
 			/* hook: before io complete */
 			paio->hooks[WAIO_HOOK_BEFORE_IO_COMPLETE](paio,WAIO_HOOK_BEFORE_IO_COMPLETE,0);
 		}

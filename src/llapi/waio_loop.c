@@ -19,7 +19,6 @@
 /*                                                                           */
 /*****************************************************************************/
 
-
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 #include <waio/waio__llapi.h>
@@ -28,12 +27,9 @@
 waio_api
 int32_t __stdcall waio_loop(waio * paio)
 {
-	intptr_t	io_counter;
 	void *		hwait[5];
 	nt_timeout *	timeout;
-
-	/* init local io counter */
-	io_counter = paio->io_counter;
+	int a = 0;
 
 	/* notify the init routine that the loop is ready */
 	paio->status_loop = __ntapi->zw_set_event(
@@ -50,25 +46,26 @@ int32_t __stdcall waio_loop(waio * paio)
 	hwait[4] = paio->hthread_io;
 
 	do {
-		/* wait for an abort request to arrive;	*/
-		/* or for a cancel request to arrive;	*/
-		/* or for a queue request to arrive;	*/
-		/* or for io operation to complete;	*/
-		/* or for the io thread to die.		*/
-		if (paio->io_request_timeout.quad)
-			timeout = &paio->io_request_timeout;
-		else
-			timeout = (nt_timeout *)0;
+		if ((!paio->abort_inc_counter) \
+				&& (!paio->cancel_inc_counter) \
+				&& (!paio->queue_counter) \
+				&& (!paio->data_counter)) {
+			if (paio->io_request_timeout.quad)
+				timeout = &paio->io_request_timeout;
+			else
+				timeout = (nt_timeout *)0;
 
-		paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
-			5,
-			hwait,
-			__ntapi->wait_type_any,
-			NT_SYNC_NON_ALERTABLE,
-			timeout);
+			/* wait */
+			paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
+				5,
+				hwait,
+				__ntapi->wait_type_any,
+				NT_SYNC_NON_ALERTABLE,
+				timeout);
+		}
 
 		/* hook: on query */
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,paio->status_loop);
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66666666,(signed int)paio->queue_counter);
 
 		/* timeout? */
 		if (paio->status_loop == NT_STATUS_TIMEOUT)
@@ -82,25 +79,32 @@ int32_t __stdcall waio_loop(waio * paio)
 		if (paio->cancel_inc_counter > paio->cancel_req_counter)
 			paio->hooks[WAIO_HOOK_ON_CANCEL_REQUEST](paio,WAIO_HOOK_ON_CANCEL_REQUEST,paio->status_loop);
 
-		/* queue request? */
-		if (paio->queue_inc_counter > paio->queue_req_counter)
-			waio_enqueue(paio);
-
-		/* io thread died? */
-		else if (paio->io_counter == io_counter)
-			return NT_STATUS_THREAD_NOT_IN_PROCESS;
-
 		/* io call completed? */
-		if (paio->io_counter > io_counter) {
+		if (paio->data_counter) {
 			/* hook: after io complete */
 			paio->hooks[WAIO_HOOK_AFTER_IO_COMPLETE](paio,WAIO_HOOK_AFTER_IO_COMPLETE,0);
 
-			/* update the local io counter */
-			io_counter = paio->io_counter;
-
-			/* allow the next request to be processed */
-			paio->packet    = (waio_packet *)0;
+			/* regress the data counter */
+			at_locked_dec(&paio->data_counter);
 		}
+
+		/* queue request? */
+		if (paio->queue_counter) {
+			/* process current request */
+			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x55555555,++a);
+			waio_enqueue(paio);
+
+			/* prepare for next queue request */
+			paio->status_loop = __ntapi->zw_reset_event(
+				paio->hevent_queue_request,
+				(int32_t *)0);
+
+			if (paio->status_loop) return paio->status_loop;
+		}
+
+		/* io thread died? */
+		/* TODO: ?? */
+		/* 	return NT_STATUS_THREAD_NOT_IN_PROCESS; */
 
 		/* submit the next io request if applicable */
 		waio_dequeue(paio);

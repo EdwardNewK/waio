@@ -45,7 +45,6 @@ int32_t waio_submit_single_request(
 	int32_t			state;
 	waio_slot *		slot;
 	waio_aiocb_opaque *	opaque;
-	void *			hpending;
 	void *			hlistio;
 
 	/* lio_opcode */
@@ -66,7 +65,6 @@ int32_t waio_submit_single_request(
 
 	/* internal notification */
 	opaque   = ((waio_aiocb_opaque *)(aiocb->__opaque));
-	hpending = opaque->hpending;
 	hlistio  = opaque->hlistio;
 
 	/* init opaque data */
@@ -74,15 +72,18 @@ int32_t waio_submit_single_request(
 
 	/* opaque queue status & internal notificaiton */
 	opaque->qstatus  = NT_STATUS_WAIT_1;
-	opaque->hpending = hpending;
 	opaque->hlistio  = hlistio;
 
 	/* mark slot for queueing */
 	slot->pid = pid;
 
 	/* submit request to the loop thread */
+	at_locked_inc(&paio->queue_counter);
+
 	do {
-		at_locked_inc(&paio->queue_inc_counter);
+		/* hook: on query */
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22222222,(signed int)paio->queue_counter);
+		
 		status = __ntapi->zw_set_event(
 				paio->hevent_queue_request,
 				&state);

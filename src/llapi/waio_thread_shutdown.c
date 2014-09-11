@@ -61,10 +61,13 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);
 
 	/* cancel io request */
-	status = __ntapi->zw_cancel_io_file_ex(
-		paio->hfile,
-		&paio->packet->iosb,
-		&paio->packet->iosb);
+	if (paio->packet)
+		status = __ntapi->zw_cancel_io_file_ex(
+			paio->hfile,
+			&paio->packet->iosb,
+			&paio->packet->iosb);
+	else
+		status = 0;
 
 	/* hook: before shutdown_request */
 	paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,status);

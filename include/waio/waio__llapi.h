@@ -94,9 +94,9 @@ typedef struct waio_interface {
 	intptr_t	abort_inc_counter;	/* optimization */
 	intptr_t	cancel_req_counter;	/* optimization */
 	intptr_t	cancel_inc_counter;	/* optimization */
-	intptr_t	queue_req_counter;	/* optimization */
-	intptr_t	queue_inc_counter;	/* optimization */
+	intptr_t	queue_counter;		/* optimization */
 	intptr_t	io_counter;		/* optimization */
+	intptr_t	data_counter;		/* optimization */
 	void *		hthread_io;		/* the blocking thread */
 	void *		hthread_loop;		/* (app) */
 	void *		hevent_info;		/* (app, optional) */

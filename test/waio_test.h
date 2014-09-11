@@ -47,7 +47,9 @@ int __cdecl waio_test_pipe(waio *);
 int __cdecl waio_test_pipes(unsigned int, uint32_t, void *);
 int __cdecl waio_test_alloc_free(void);
 int __cdecl waio_test_read_write_suspend(void);
+
 waio_hook waio_test_default_hook;
+waio_hook waio_test_query_hook;
 
 uint32_t __cdecl waio_test_output(
 	_in_	void *	hconsole,

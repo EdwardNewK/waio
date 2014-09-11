@@ -19,7 +19,6 @@
 /*                                                                           */
 /*****************************************************************************/
 
-
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 #include <ntcon/ntcon.h>
@@ -59,8 +58,11 @@ int __cdecl waio_test_read_write_suspend(void)
 	cx_write = waio_alloc(hwrite, 0, (void *)0, &ret);
 	if (!cx_write) return ret;
 
+	waio_fcntl(cx_read,(struct waio_aiocb *)0,WAIO_OPCODE_QUERY_SET_HOOK,0,waio_test_query_hook,(void *)0);
+	waio_fcntl(cx_read,(struct waio_aiocb *)0,WAIO_OPCODE_QUERY_SET_HOOK,0,waio_test_query_hook,(void *)0);
+
 	cb_read.aio_buf		= read_buf;
-	cb_read.aio_nbytes	= 128;
+	cb_read.aio_nbytes	= 8;
 
 	cb_write.aio_buf	= write_buf;
 	cb_write.aio_nbytes	= 64;
@@ -81,11 +83,17 @@ int __cdecl waio_test_read_write_suspend(void)
 	if (ret) return -ret;
 
 	cb[0] = &cb_read;
-	ret = waio_suspend(cx_read,cb,1,(waio_timeout *)0);
-	if (ret) return -ret;
 
-	bytes = waio_return(cx_read,&cb_read);
-	if (bytes < 0) return NT_STATUS_INTERNAL_ERROR;
+	while (1) {
+		ret = waio_suspend(cx_read,cb,1,(waio_timeout *)0);
+		if (ret) return -ret;
+
+		bytes = waio_return(cx_read,&cb_read);
+		if (bytes < 0) return NT_STATUS_INTERNAL_ERROR;
+
+		ret = waio_read(cx_read,&cb_read);
+		if (ret) return -ret;
+	}
 
 	ret = waio_free(cx_read);
 	if (ret) return -ret;

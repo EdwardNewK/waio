@@ -38,6 +38,8 @@ int waio_suspend(
 	int32_t			status;
 	waio_aiocb_opaque *	opaque;
 	void *			hwait[WAIO_LISTIO_MAX];
+	intptr_t		lock;
+	void *			hpending;
 	void *			hsignal;
 	int			events;
 	nt_ebi			ebi;
@@ -52,8 +54,32 @@ int waio_suspend(
 		switch (opaque->qstatus) {
 			case NT_STATUS_WAIT_1:
 			case NT_STATUS_PENDING:
-				hwait[events] = opaque->hpending;
-				events++;
+				/* hepnding */
+				status = __ntapi->tt_create_private_event(
+						&hpending,
+						NT_NOTIFICATION_EVENT,
+						NT_EVENT_NOT_SIGNALED);
+
+				if (status) {
+					for (i=0; i<events; i++)
+						__ntapi->zw_close(hwait[i]);
+
+					return -WAIO_EAGAIN;
+				}
+
+				/* add wait if still pending */
+				lock = at_locked_cas(
+					(intptr_t *)&opaque->hpending,
+					0,
+					(intptr_t)hpending);
+
+				if (lock)
+					__ntapi->zw_close(hpending);
+				else {
+					hwait[events] = opaque->hpending;
+					events++;
+				}
+
 				break;
 		}
 
@@ -74,6 +100,19 @@ int waio_suspend(
 			__ntapi->wait_type_any,
 			NT_SYNC_NON_ALERTABLE,
 			(nt_timeout *)timeout);
+
+	/* clean-up: close events */
+	if (hsignal)
+		events--;
+
+	for (i=0; i<events; i++)
+		__ntapi->zw_close(hwait[i]);
+
+	/* clean-up: hpending */
+	for (i=0; i<nent; i++) {
+		opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
+		opaque->hpending = (void *)0;
+	}
 
 	/* signal? */
 	if (hsignal) {

@@ -19,13 +19,11 @@
 /*                                                                           */
 /*****************************************************************************/
 
-
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
 #include <waio/waio__llapi.h>
 #include "waio_impl.h"
 #include "waio_cx.h"
-
 
 waio_api
 int32_t __stdcall waio_dequeue(waio * paio)
@@ -34,7 +32,7 @@ int32_t __stdcall waio_dequeue(waio * paio)
 	int32_t		state;
 
 	/* check for non-empty queue and no pending (blocking) io */
-	if (paio->queue && !paio->packet) {
+	if (paio->queue && !paio->io_counter) {
 		req          = paio->queue;
 		paio->packet = &req->rpacket;
 
@@ -47,21 +45,25 @@ int32_t __stdcall waio_dequeue(waio * paio)
 		if (!paio->queue)
 			paio->qtail = (waio_request *)0;
 
-		/* submit the next io request */
-		paio->status_loop = __ntapi->zw_reset_event(
-			paio->hevent_io_request,
-			&state);
-
-		if (paio->status_loop)
-			waio_thread_shutdown_request(paio);
-
 		/* hook: before io request */
 		paio->hooks[WAIO_HOOK_BEFORE_IO_REQUEST](paio,WAIO_HOOK_BEFORE_IO_REQUEST,0);
 
-		paio->status_loop = __ntapi->zw_set_event(
-			paio->hevent_io_request,
-			&state);
+		at_locked_inc(&paio->io_counter);
 
+		/* hook: on query */
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x77777777,(signed int)paio->io_counter);
+			
+		paio->status_loop = __ntapi->zw_set_event(
+				paio->hevent_io_request,
+				&state);
+
+		/* prepare for next queue request */
+		paio->status_loop = __ntapi->zw_reset_event(
+			paio->hevent_io_complete,
+			(int32_t *)0);
+
+		if (paio->status_io) return paio->status_io;
+		
 		if (paio->status_loop)
 			waio_thread_shutdown_request(paio);
 	}
