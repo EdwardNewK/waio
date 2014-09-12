@@ -119,9 +119,6 @@ int32_t __stdcall waio_io(waio * paio)
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340003,paio->status_io);
 
-		/* prepare for next io request */
-		at_locked_dec(&paio->io_counter);
-	
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340004,paio->status_io);
 
@@ -138,7 +135,7 @@ int32_t __stdcall waio_io(waio * paio)
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x12340006,paio->status_io);
 
 		/* io system call */
-		if (paio->packet)
+		if (paio->packet && paio->io_counter)
 			paio->status_io = io_routine[paio->type](
 				paio->hfile,
 				hpending[0],
@@ -186,6 +183,9 @@ int32_t __stdcall waio_io(waio * paio)
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000B,paio->status_io);
 
+		/* prepare for next io request */
+		at_locked_dec(&paio->io_counter);
+
 		/* advance the data counter and notify the loop thread */
 		at_locked_inc(&paio->data_counter);
 
@@ -199,7 +199,9 @@ int32_t __stdcall waio_io(waio * paio)
 			paio->hevent_io_complete,
 			&state);
 
-		if (paio->status_io) return paio->status_io;
+		__ntapi->zw_reset_event(
+			paio->hevent_io_complete,
+			(int32_t *)0);
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000D,paio->status_io);
