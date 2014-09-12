@@ -89,7 +89,7 @@ int32_t __stdcall waio_io(waio * paio)
 		do {
 			if (!paio->io_counter && !paio->abort_counter)
 				paio->status_io = __ntapi->zw_wait_for_multiple_objects(
-					2,
+					1,
 					hwait,
 					__ntapi->wait_type_any,
 					NT_SYNC_NON_ALERTABLE,
