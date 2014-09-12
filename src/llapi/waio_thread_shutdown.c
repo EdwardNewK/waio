@@ -54,8 +54,14 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);
 
 	/* use fallback method if not supported */
-	if (!__ntapi->zw_cancel_io_file_ex || __ntapi->wine_get_version)
-		return waio_thread_shutdown_fallback(paio);
+	if (!__ntapi->zw_cancel_io_file_ex || __ntapi->wine_get_version) {
+		waio_thread_shutdown_fallback(paio);
+
+		/* terminate this thread cleanly */
+		__ntapi->zw_terminate_thread(
+			NT_CURRENT_THREAD_HANDLE,
+			NT_STATUS_REQUEST_ABORTED);
+	}
 
 	/* hook: before shutdown_request */
 	paio->hooks[WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST](paio,WAIO_HOOK_BEFORE_SHUTDOWN_REQUEST,0);

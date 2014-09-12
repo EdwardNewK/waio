@@ -166,7 +166,9 @@ int waio_tu_entry_point(void)
 	/* high-level api */
 	//status = waio_test_alloc_free();
 
-	status = waio_test_read_write_suspend();
+	//status = waio_test_read_write_suspend();
+
+	status = waio_test_read_suspend_return();
 
 	__ntapi->zw_terminate_process(
 		NT_CURRENT_PROCESS_HANDLE,

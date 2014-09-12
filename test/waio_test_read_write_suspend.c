@@ -64,7 +64,7 @@ int __cdecl waio_test_read_write_suspend(void)
 	if (!cx_write) return ret;
 
 	waio_fcntl(cx_read,(struct waio_aiocb *)0,WAIO_OPCODE_QUERY_SET_HOOK,0,waio_test_query_hook,(void *)0);
-	waio_fcntl(cx_read,(struct waio_aiocb *)0,WAIO_OPCODE_QUERY_SET_HOOK,0,waio_test_query_hook,(void *)0);
+	waio_fcntl(cx_write,(struct waio_aiocb *)0,WAIO_OPCODE_QUERY_SET_HOOK,0,waio_test_query_hook,(void *)0);
 
 	cb_read.aio_buf		= read_buf;
 	cb_read.aio_nbytes	= 8;
