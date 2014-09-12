@@ -48,7 +48,7 @@ int32_t __stdcall waio_enqueue(waio * paio)
 		slot = &paio->slots[i];
 
 		if (slot->pid) {
-			/* revert the queue request counter */
+			/* regress the queue request counter */
 			at_locked_dec((intptr_t *)&paio->queue_counter);
 
 			/* behead and retail */
@@ -79,7 +79,7 @@ int32_t __stdcall waio_enqueue(waio * paio)
 			/* fake memset and default status */
 			req->rpacket.iosb.info	  = 0;
 			req->rpacket.iosb.pointer = (void *)0;
-			req->rpacket.iosb.status	  = NT_STATUS_PENDING;
+			req->rpacket.iosb.status  = NT_STATUS_PENDING;
 
 			/* add request to queue */
 			if (paio->qtail) {

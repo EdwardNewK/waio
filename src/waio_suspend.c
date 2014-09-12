@@ -48,6 +48,8 @@ int waio_suspend(
 	events  = 0;
 	hsignal = (void *)0;
 
+	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x51515151,0);
+
 	for (i=0; i<nent; i++) {
 		opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
 
@@ -92,6 +94,22 @@ int waio_suspend(
 		events++;
 	}
 
+	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x13131313,opaque->qstatus);
+
+	/* check & return without a wait */
+	for (i=0; i<nent; i++) {
+		opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
+
+		switch (opaque->qstatus) {
+			case NT_STATUS_SUCCESS:
+			case NT_STATUS_CANCELLED:
+			case NT_STATUS_GENERIC_COMMAND_FAILED:
+				/* above i/o operation has completed */
+				return 0;
+				break;
+		}
+	}
+
 	/* conditional wait */
 	if (events)
 		__ntapi->zw_wait_for_multiple_objects(
@@ -126,6 +144,8 @@ int waio_suspend(
 		if ((status == NT_STATUS_SUCCESS) && ebi.signal_state)
 			return -WAIO_EINTR;
 	}
+
+	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x52525252,status);
 
 	/* check & return */
 	for (i=0; i<nent; i++) {

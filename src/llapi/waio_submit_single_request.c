@@ -59,8 +59,8 @@ int32_t waio_submit_single_request(
 	slot->aio_lio_opcode	= lio_opcode;
 	slot->aio_reqprio	= aiocb->aio_reqprio;
 	slot->aio_buf		= aiocb->aio_buf;
-	slot->aio_nbytes		= aiocb->aio_nbytes;
-	slot->aio_offset		= aiocb->aio_offset;
+	slot->aio_nbytes	= aiocb->aio_nbytes;
+	slot->aio_offset	= aiocb->aio_offset;
 	slot->aiocb		= aiocb;
 
 	/* internal notification */
@@ -83,21 +83,17 @@ int32_t waio_submit_single_request(
 	do {
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22222222,(signed int)paio->queue_counter);
-		
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22220000,slot->tid);
+
 		status = __ntapi->zw_set_event(
 				paio->hevent_queue_request,
 				&state);
 
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22223333,status);
+	} while (!status && state && (slot->tid == tid));
 
-		status = __ntapi->zw_reset_event(
-				paio->hevent_queue_request,
-				(int32_t *)0);
-
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22224444,status);
-	} while (!status && (slot->tid == tid));
-
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22225555,status);
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22226666,status);
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22227777,slot->tid);
 
 	return status;
 }

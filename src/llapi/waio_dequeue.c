@@ -35,7 +35,7 @@ int32_t __stdcall waio_dequeue(waio * paio)
 	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x77773333,paio->data_counter);
 
 	/* check for non-empty queue and no pending (blocking) io */
-	if (paio->queue && !paio->io_counter) {
+	if (paio->queue) {
 		req          = paio->queue;
 		paio->packet = &req->rpacket;
 

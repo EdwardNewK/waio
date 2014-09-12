@@ -91,12 +91,13 @@ int32_t __stdcall waio_io(waio * paio)
 		else
 			timeout = (nt_timeout *)0;
 
-		paio->status_io = __ntapi->zw_wait_for_multiple_objects(
-			2,
-			hwait,
-			__ntapi->wait_type_any,
-			NT_SYNC_NON_ALERTABLE,
-			timeout);
+		if (!paio->io_counter)
+			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
+				2,
+				hwait,
+				__ntapi->wait_type_any,
+				NT_SYNC_NON_ALERTABLE,
+				timeout);
 
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000F,paio->status_io);
 
@@ -218,10 +219,6 @@ int32_t __stdcall waio_io(waio * paio)
 
 		/* hook: on query */
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x1234000D,paio->status_io);
-
-		paio->status_io = __ntapi->zw_set_event(
-						paio->hevent_queue_request,
-						&state);
 		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x123400DD,state);
 	} while (1);
 

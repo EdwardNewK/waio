@@ -40,12 +40,16 @@ static int waio_read_write(
 	opaque = (waio_aiocb_opaque *)aiocb->__opaque;
 	opaque->hlistio = 0;
 
+	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x41414141,0);
+
 	status = waio_submit_single_request(
 		cx->paio,
 		aiocb,
 		lio_opcode,
 		__winapi->get_current_process_id(),
 		__winapi->get_current_thread_id());
+
+	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x42424242,status);
 
 	if (status == NT_STATUS_INVALID_HANDLE)
 		return -WAIO_EBADF;
