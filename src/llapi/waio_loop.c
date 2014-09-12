@@ -38,6 +38,14 @@ int32_t __stdcall waio_loop(waio * paio)
 
 	if (paio->status_loop) return paio->status_loop;
 
+	/* wait for the i/o thread to be ready */
+	paio->status_loop = __ntapi->zw_wait_for_single_object(
+		paio->hevent_io_ready,
+		NT_SYNC_NON_ALERTABLE,
+		(nt_timeout *)0);
+
+	if (paio->status_loop) return paio->status_loop;
+
 	/* prepare for the waits */
 	hwait[0] = paio->hevent_abort_request;
 	hwait[1] = paio->hevent_cancel_request;
@@ -88,7 +96,7 @@ int32_t __stdcall waio_loop(waio * paio)
 			/* regress the data counter */
 			at_locked_dec(&paio->data_counter);
 
-			paio->status_loop = __ntapi->zw_reset_event(
+			__ntapi->zw_reset_event(
 				paio->hevent_io_complete,
 				(int32_t *)0);
 		}

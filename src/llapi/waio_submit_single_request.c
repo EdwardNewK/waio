@@ -88,10 +88,16 @@ int32_t waio_submit_single_request(
 				paio->hevent_queue_request,
 				&state);
 
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22223333,status);
+
 		status = __ntapi->zw_reset_event(
 				paio->hevent_queue_request,
 				(int32_t *)0);
-	} while (!status && state && (slot->tid == tid));
+
+		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22224444,status);
+	} while (!status && (slot->tid == tid));
+
+	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22225555,status);
 
 	return status;
 }

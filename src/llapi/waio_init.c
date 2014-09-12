@@ -121,6 +121,14 @@ int32_t __stdcall waio_init(waio * paio)
 
 	if (!paio->hthread_io) return NT_STATUS_INVALID_THREAD;
 
+	/* wait for the io thread to be ready */
+	status = __ntapi->zw_wait_for_single_object(
+		paio->hevent_io_ready,
+		NT_SYNC_NON_ALERTABLE,
+		(nt_large_integer *)0);
+
+	if (status) return status;
+
 	/* create loop thread */
 	paio->status_loop = NT_STATUS_THREAD_NOT_IN_PROCESS;
 
@@ -134,17 +142,9 @@ int32_t __stdcall waio_init(waio * paio)
 
 	if (!paio->hthread_loop) return NT_STATUS_INVALID_THREAD;
 
-	/* wait for the io thread to be ready */
-	status = __ntapi->zw_wait_for_single_object(
-		paio->hevent_io_ready,
-		NT_SYNC_NON_ALERTABLE,
-		(nt_large_integer *)0);
-
-	if (status) return status;
-
 	/* wait for the loop thread to be ready */
 	status = __ntapi->zw_wait_for_single_object(
-		paio->hevent_io_ready,
+		paio->hevent_loop_ready,
 		NT_SYNC_NON_ALERTABLE,
 		(nt_large_integer *)0);
 
