@@ -63,7 +63,7 @@ int32_t __stdcall waio_loop(waio * paio)
 		if (!paio->queue_counter && !paio->data_counter) {
 			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66661111,(signed int)paio->queue_counter);
 			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66662222,(signed int)paio->data_counter);
-			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66663333,(signed int)paio->queue);
+			paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x66663333,(signed int)(intptr_t)paio->queue);
 
 			paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
 				3,

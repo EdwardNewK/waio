@@ -105,6 +105,13 @@ int waio_suspend(
 			case NT_STATUS_CANCELLED:
 			case NT_STATUS_GENERIC_COMMAND_FAILED:
 				/* above i/o operation has completed */
+				/* clean-up: hpending */
+				for (i=0; i<nent; i++) {
+					opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
+					__ntapi->zw_close(opaque->hpending);
+					opaque->hpending = (void *)0;
+				}
+
 				return 0;
 				break;
 		}
@@ -129,6 +136,7 @@ int waio_suspend(
 	/* clean-up: hpending */
 	for (i=0; i<nent; i++) {
 		opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
+		__ntapi->zw_close(opaque->hpending);
 		opaque->hpending = (void *)0;
 	}
 
