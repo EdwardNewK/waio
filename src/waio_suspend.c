@@ -104,7 +104,10 @@ int waio_suspend(
 				/* clean-up: hpending */
 				for (i=0; i<nent; i++) {
 					opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
-					__ntapi->zw_close(opaque->hpending);
+
+					if ((intptr_t)opaque->hpending > 0)
+						__ntapi->zw_close(opaque->hpending);
+
 					opaque->hpending = (void *)0;
 				}
 
@@ -132,7 +135,6 @@ int waio_suspend(
 	/* clean-up: hpending */
 	for (i=0; i<nent; i++) {
 		opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
-		__ntapi->zw_close(opaque->hpending);
 		opaque->hpending = (void *)0;
 	}
 
