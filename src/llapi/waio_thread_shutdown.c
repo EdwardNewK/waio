@@ -47,7 +47,6 @@ waio_api
 int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 {
 	int32_t				status;
-	int32_t				status_cancel_io_ex;
 	nt_timeout			timeout;
 
 	/* hook: before shutdown_request */
@@ -75,14 +74,8 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 	else
 		status = 0;
 
-	/* hook: before shutdown_request */
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,status);
-
 	/* NOT_FOUND means the io thread was not blocking, slight chance of race */
 	if (status == NT_STATUS_NOT_FOUND) {
-		/* hook: before shutdown_request */
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,status);
-
 		timeout.quad = (-1) * 10 * 1000;
 		do {
 			/* wait for the thread for one millisecond */
@@ -92,12 +85,10 @@ int32_t __stdcall waio_thread_shutdown_request(waio * paio)
 				&timeout);
 
 			/* cancel io request */
-			status_cancel_io_ex = __ntapi->zw_cancel_io_file_ex(
+			__ntapi->zw_cancel_io_file_ex(
 				paio->hfile,
 				&paio->packet->iosb,
 				&paio->packet->iosb);
-
-			paio->hooks[WAIO_HOOK_ON_QUERY](paio,WAIO_HOOK_ON_QUERY,status_cancel_io_ex);
 		} while (status);
 	} else if (status == 0) {
 		paio->hooks[WAIO_HOOK_ON_CANCEL](paio,WAIO_HOOK_ON_CANCEL,0);

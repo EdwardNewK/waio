@@ -48,8 +48,6 @@ int waio_suspend(
 	events  = 0;
 	hsignal = (void *)0;
 
-	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x51515151,0);
-
 	for (i=0; i<nent; i++) {
 		opaque = (waio_aiocb_opaque *)aiocb_list[i]->__opaque;
 
@@ -93,8 +91,6 @@ int waio_suspend(
 		hwait[events] = hsignal;
 		events++;
 	}
-
-	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x13131313,opaque->qstatus);
 
 	/* check & return without a wait */
 	for (i=0; i<nent; i++) {
@@ -152,8 +148,6 @@ int waio_suspend(
 		if ((status == NT_STATUS_SUCCESS) && ebi.signal_state)
 			return -WAIO_EINTR;
 	}
-
-	cx->paio->hooks[WAIO_HOOK_ON_QUERY](cx->paio,0x52525252,status);
 
 	/* check & return */
 	for (i=0; i<nent; i++) {

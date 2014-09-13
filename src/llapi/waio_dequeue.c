@@ -31,9 +31,6 @@ int32_t __stdcall waio_dequeue(waio * paio)
 	waio_request *	req;
 	int32_t		state;
 
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x77772222,paio->io_counter);
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x77773333,paio->data_counter);
-
 	/* check for non-empty queue and no pending (blocking) io */
 	if (paio->queue) {
 		req          = paio->queue;
@@ -53,14 +50,9 @@ int32_t __stdcall waio_dequeue(waio * paio)
 
 		at_locked_inc(&paio->io_counter);
 
-		/* hook: on query */
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x77777777,(signed int)paio->io_counter);
-
 		paio->status_loop = __ntapi->zw_set_event(
 			paio->hevent_io_request,
 			&state);
-
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x77778888,paio->status_loop);
 
 		if (paio->status_loop)
 			waio_thread_shutdown_request(paio);

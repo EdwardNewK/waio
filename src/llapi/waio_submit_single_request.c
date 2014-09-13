@@ -81,19 +81,10 @@ int32_t waio_submit_single_request(
 	at_locked_inc(&paio->queue_counter);
 
 	do {
-		/* hook: on query */
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22222222,(signed int)paio->queue_counter);
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22220000,slot->tid);
-
 		status = __ntapi->zw_set_event(
 				paio->hevent_queue_request,
 				&state);
-
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22223333,status);
 	} while (!status && state && (slot->tid == tid));
-
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22226666,status);
-	paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x22227777,slot->tid);
 
 	return status;
 }

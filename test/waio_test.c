@@ -164,9 +164,9 @@ int waio_tu_entry_point(void)
 	waio_alloc((void *)0,0,(void *)0,&status);
 
 	/* high-level api */
-	//status = waio_test_alloc_free();
+	status = waio_test_alloc_free();
 
-	//status = waio_test_read_write_suspend();
+	status = waio_test_read_write_suspend();
 
 	status = waio_test_read_suspend_return();
 

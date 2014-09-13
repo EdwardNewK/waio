@@ -61,12 +61,15 @@ int __cdecl waio_test_read_suspend_return(void)
 
 	while (1) {
 		ret = waio_read(cx_read,&cb_read);
+		waio_test_query_hook((waio *)0, 0x11111111,ret);
 		if (ret) return -ret;
 
 		ret = waio_suspend(cx_read,cb,1,(waio_timeout *)0);
+		waio_test_query_hook((waio *)0, 0x22222222,ret);
 		if (ret) break;
 
 		bytes = waio_return(cx_read,&cb_read);
+		waio_test_query_hook((waio *)0, 0x33333333,(signed int)bytes);
 		if (bytes < 0) return NT_STATUS_INTERNAL_ERROR;
 
 		if (read_buf[0] == 'q')

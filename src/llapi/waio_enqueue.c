@@ -39,10 +39,8 @@ int32_t __stdcall waio_enqueue(waio * paio)
 	/* waio_enqueue: executes in the loop thread */
 
 	/* check slots and add requests as appropriate */
-	if (!paio->qfree) {
-		paio->hooks[WAIO_HOOK_ON_QUERY](paio,0x11111111,NT_STATUS_DEVICE_BUSY);
+	if (!paio->qfree)
 		return NT_STATUS_DEVICE_BUSY;
-	}
 
 	for (i=0; i<WAIO_CX_SLOT_COUNT; i++) {
 		slot = &paio->slots[i];

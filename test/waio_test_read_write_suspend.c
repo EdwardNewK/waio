@@ -88,15 +88,19 @@ int __cdecl waio_test_read_write_suspend(void)
 	if (ret) return -ret;
 
 	cb[0] = &cb_read;
+	timeout.quad = -1 * 10 * 1000 * 1000 * 5;
 
 	while (1) {
-		ret = waio_suspend(cx_read,cb,1,(waio_timeout *)0);
+		ret = waio_suspend(cx_read,cb,1,&timeout);
+		waio_test_query_hook((waio *)0, 0x22222222,ret);
 		if (ret) return -ret;
 
 		bytes = waio_return(cx_read,&cb_read);
+		waio_test_query_hook((waio *)0, 0x33333333,(signed int)bytes);
 		if (bytes < 0) return NT_STATUS_INTERNAL_ERROR;
 
 		ret = waio_read(cx_read,&cb_read);
+		waio_test_query_hook((waio *)0, 0x11111111,ret);
 		if (ret) return -ret;
 	}
 
