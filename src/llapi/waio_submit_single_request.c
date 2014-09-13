@@ -52,6 +52,7 @@ int32_t waio_submit_single_request(
 		return NT_STATUS_INVALID_PARAMETER_3;
 
 	/* get free slot */
+	slot = (waio_slot *)0;
 	status = __get_slot(paio,&slot,tid);
 	if (status) return status;
 
