@@ -52,7 +52,7 @@ int __cdecl waio_test_read_suspend_return(void)
 		NT_NOTIFICATION_EVENT,
 		NT_EVENT_NOT_SIGNALED);
 
-	waio_fcntl(cx_read,(struct waio_aiocb *)0,WAIO_OPCODE_QUERY_SET_HOOK,0,waio_test_query_hook,(void *)0);
+	waio_fcntl(cx_read,(struct waio_aiocb *)0,WAIO_FCNTL_QUERY_SET_HOOK,0,waio_test_query_hook,(void *)0);
 
 	cb_read.hsignal		= hsignal;
 	cb_read.aio_buf		= read_buf;

@@ -38,6 +38,7 @@
 
 /* low-level abstraction */
 #include "waio__fcntl.h"
+#include "waio__ioctl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,6 +133,8 @@ waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_listio	(waio_cx, int mode, struct waio_aiocb * const aiocb_list[], int nitems);
 waio_api int		waio_suspend	(waio_cx, const struct waio_aiocb * const aiocb_list[], int nitems, waio_timeout * timeout);
 waio_api int		waio_fcntl	(waio_cx, struct waio_aiocb *,int,size_t,void *,void *);
+waio_api int		waio_ioctl	(waio_cx, struct waio_aiocb *,int,size_t,void *,void *);
+waio_api int		waio_fsync	(waio_cx, int, struct waio_aiocb *);
 
 #ifdef __cplusplus
 }

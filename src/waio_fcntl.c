@@ -39,7 +39,7 @@ typedef int waio_fcntl_fn (
 
 static waio_fcntl_fn	waio_fcntl_query_set_hook;
 
-static waio_fcntl_fn *	fcntl_vtbl[WAIO_OPCODE_CAP - WAIO_OPCODE_BASE + 1] = {
+static waio_fcntl_fn *	fcntl_vtbl[WAIO_FCNTL_OPCODE_CAP - WAIO_FCNTL_OPCODE_BASE + 1] = {
 			waio_fcntl_query_set_hook};
 
 waio_api
@@ -51,8 +51,8 @@ int waio_fcntl (
 	_in_	void *			pin,
 	_out_	void *			pout)
 {
-	if ((cmd >= WAIO_OPCODE_BASE) && (cmd < WAIO_OPCODE_CAP))
-		return fcntl_vtbl[cmd - WAIO_OPCODE_BASE](
+	if ((cmd >= WAIO_FCNTL_OPCODE_BASE) && (cmd < WAIO_FCNTL_OPCODE_CAP))
+		return fcntl_vtbl[cmd - WAIO_FCNTL_OPCODE_BASE](
 			cx,
 			aiocb,
 			cmd,
@@ -75,3 +75,4 @@ static int waio_fcntl_query_set_hook (
 	cx->paio->hooks[WAIO_HOOK_ON_QUERY] = (waio_hook *)pin;
 	return 0;
 }
+
