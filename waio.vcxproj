@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\internal\waio_wxvtbls.c" />
     <ClCompile Include="src\llapi\waio_cancel_current_request.c" />
     <ClCompile Include="src\llapi\waio_dequeue.c" />
     <ClCompile Include="src\llapi\waio_enqueue.c" />
@@ -42,7 +43,6 @@
     <ClCompile Include="src\llapi\waio_loop.c" />
     <ClCompile Include="src\llapi\waio_thread_shutdown.c" />
     <ClCompile Include="src\llapi\waio_thread_shutdown_fallback.c" />
-    <ClCompile Include="src\internal\waio_xvtbls.c" />
     <ClCompile Include="test\waio_test.c" />
     <ClCompile Include="test\waio_test_alloc_free.c" />
     <ClCompile Include="test\waio_test_hooks.c" />
@@ -58,6 +58,7 @@
     <ClInclude Include="include\waio\waio__compiler.h" />
     <ClInclude Include="include\waio\waio__errno.h" />
     <ClInclude Include="include\waio\waio__fcntl.h" />
+    <ClInclude Include="include\waio\waio__ioctl.h" />
     <ClInclude Include="include\waio\waio__llapi.h" />
     <ClInclude Include="include\waio\waio__os.h" />
     <ClInclude Include="include\waio\waio__stddef.h" />
@@ -89,6 +90,7 @@
     <ClInclude Include="src\internal\headers\winapi\winapi.h" />
     <ClInclude Include="src\internal\waio_cx.h" />
     <ClInclude Include="src\internal\waio_impl.h" />
+    <ClInclude Include="src\internal\waio_wxvtbls.h" />
     <ClInclude Include="src\internal\waio_xvtbls.h" />
     <ClInclude Include="test\waio_test.h" />
   </ItemGroup>

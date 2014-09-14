@@ -338,4 +338,3 @@ int __stdcall waio_lib_entry_point(void * hinstance, uint32_t reason, void * res
 }
 
 #endif
-

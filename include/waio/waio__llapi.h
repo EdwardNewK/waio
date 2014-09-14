@@ -153,4 +153,3 @@ waio_api signed int waio_submit_single_request(
 #endif
 
 #endif /* _WAIO__LLAPI_H_ */
-

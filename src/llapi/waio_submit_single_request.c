@@ -34,12 +34,12 @@ static int32_t __get_slot(
 	_in_	uint32_t	tid);
 
 waio_api
-int32_t waio_submit_single_request(
+signed int waio_submit_single_request(
 	_in_	waio *			paio,
 	_in_	struct waio_aiocb *	aiocb,
-	_in_	int			lio_opcode,
-	_in_	uint32_t		pid,
-	_in_	uint32_t		tid)
+	_in_	signed int		lio_opcode,
+	_in_	unsigned int		pid,
+	_in_	unsigned int		tid)
 {
 	int32_t			status;
 	int32_t			state;

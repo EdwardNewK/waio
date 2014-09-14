@@ -37,7 +37,7 @@ typedef int waio_ioctl_fn (
 	_in_	void *			pin,
 	_out_	void *			pout);
 
-static waio_ioctl_fn *	ioctl_vtbl[WAIO_IOCTL_OPCODE_CAP - WAIO_IOCTL_OPCODE_BASE + 1] = {};
+static waio_ioctl_fn *	ioctl_vtbl[WAIO_IOCTL_OPCODE_CAP - WAIO_IOCTL_OPCODE_BASE + 1] = {(waio_ioctl_fn *)0};
 
 waio_api
 int waio_ioctl (
