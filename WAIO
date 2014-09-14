@@ -1,1 +1,10 @@
 WAIO: Wild & Asynchronous I/O Library
+-------------------------------------
+RATIONALE:      see <waio/waio.h>
+USAGE:          see <waio/waio.h>
+LICENSE:        see COPYING
+AUTHOR:         Zvi Gilboa
+
+Please contact writeonce at midipix dot org
+with any bugs, questions, or requests
+pertaining to this library.
