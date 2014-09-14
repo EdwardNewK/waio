@@ -69,20 +69,6 @@ typedef enum waio_wait_mode_enum {
 	WAIO_NOWAIT
 } waio_wait_mode;
 
-/* context poll flags */
-#define WAIO_POLLIN		0x0001
-#define WAIO_POLLPRI		0x0002
-#define WAIO_POLLOUT		0x0004
-#define WAIO_POLLERR		0x0008
-#define WAIO_POLLHUP		0x0010
-#define WAIO_POLLNVAL		0x0020
-#define WAIO_POLLRDNORM		0x0040
-#define WAIO_POLLRDBAND		0x0080
-#define WAIO_POLLWRNORM		0x0100
-#define WAIO_POLLWRBAND		0x0200
-#define WAIO_POLLMSG		0x0400
-#define WAIO_POLLRDHUP		0x2000
-
 /* request */
 typedef struct waio_aiocb {
 	int			aio_fildes;
