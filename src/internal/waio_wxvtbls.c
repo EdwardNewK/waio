@@ -19,6 +19,9 @@
 /*                                                                           */
 /*****************************************************************************/
 
+typedef int dummy_translation_unit;
+
+#if !defined (__MIDIPIX_INTERNAL) && !defined (MIDIPIX_STANDALONE)
 
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
@@ -333,3 +336,6 @@ int __stdcall waio_lib_entry_point(void * hinstance, uint32_t reason, void * res
 {
 	return 1;
 }
+
+#endif
+

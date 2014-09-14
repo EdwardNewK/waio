@@ -20,8 +20,8 @@
 /*****************************************************************************/
 
 
-#ifndef _WAIO_XVTBLS_H_
-#define _WAIO_XVTBLS_H_
+#ifndef _WAIO_WXVTBLS_H_
+#define _WAIO_WXVTBLS_H_
 
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>
@@ -95,4 +95,4 @@ typedef struct _ntcon_vtbl {
 } ntcon_vtbl;
 
 
-#endif /* _WAIO_XVTBLS_H_ */
+#endif /* _WAIO_WXVTBLS_H_ */

@@ -23,3 +23,7 @@ ldflags.mak
 ldpath.mak
 makeobjs.mak
 backtrace.txt
+makeldpath.alt
+makeldpath.pub
+ldalt
+ldpub
