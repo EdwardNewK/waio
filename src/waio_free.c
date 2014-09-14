@@ -39,6 +39,9 @@ waio_api int waio_free (waio_cx cx)
 	void *		region_addr;
 	size_t		region_size;
 
+	/* validate cx */
+	if (!cx) return -WAIO_EINVAL;
+
 	/* abort pending io operations */
 	at_locked_inc(&cx->paio->abort_counter);
 	status = __ntapi->zw_set_event(
