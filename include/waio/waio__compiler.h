@@ -3,11 +3,22 @@
 
 /* gcc */
 #ifdef	__GNUC__
+#define __attr_export__				__attribute__((dllexport))
+#define __attr_import__				__attribute__((dllimport))
+
+#if defined(__amd64)
+
+#define	__waio_call_conv__thread_entry_point
+#define	__waio_call_conv__hook
+#define	__waio_call_conv__api
+
+#else
+
 #define	__waio_call_conv__thread_entry_point	__attribute__((__stdcall__))
 #define	__waio_call_conv__hook			__attribute__((__stdcall__))
 #define	__waio_call_conv__api			__attribute__((__stdcall__))
-#define __attr_export__				__attribute__((dllexport))
-#define __attr_import__				__attribute__((dllimport))
+
+#endif
 
 typedef	__INTPTR_TYPE__				__waio_intptr;
 typedef	__UINTPTR_TYPE__			__waio_uintptr;

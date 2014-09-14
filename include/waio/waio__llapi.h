@@ -90,11 +90,11 @@ typedef struct waio_interface {
 	void *		hevent_abort_request;	/* notification */
 	void *		hevent_cancel_request;	/* notification */
 	void *		hevent_queue_request;	/* notification */
-	intptr_t	abort_counter;		/* optimization */
-	intptr_t	cancel_counter;		/* optimization */
-	intptr_t	queue_counter;		/* optimization */
-	intptr_t	io_counter;		/* optimization */
-	intptr_t	data_counter;		/* optimization */
+	os_signed_ptr	abort_counter;		/* optimization */
+	os_signed_ptr	cancel_counter;		/* optimization */
+	os_signed_ptr	queue_counter;		/* optimization */
+	os_signed_ptr	io_counter;		/* optimization */
+	os_signed_ptr	data_counter;		/* optimization */
 	void *		hthread_io;		/* the blocking thread */
 	void *		hthread_loop;		/* (app) */
 	void *		hevent_info;		/* (app, optional) */
@@ -140,12 +140,12 @@ waio_api waio_fn waio_io;
 waio_hook waio_hook_default;
 
 /* client */
-waio_api int32_t waio_submit_single_request(
-	_in_	waio *			paio,
-	_in_	struct waio_aiocb *	aiocb,
-	_in_	int			lio_opcode,
-	_in_	uint32_t		pid,
-	_in_	uint32_t		tid);
+waio_api signed int waio_submit_single_request(
+	waio *			paio,
+	struct waio_aiocb *	aiocb,
+	signed int		lio_opcode,
+	unsigned int		pid,
+	unsigned int		tid);
 
 
 #ifdef __cplusplus
@@ -153,3 +153,4 @@ waio_api int32_t waio_submit_single_request(
 #endif
 
 #endif /* _WAIO__LLAPI_H_ */
+
