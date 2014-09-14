@@ -27,7 +27,7 @@
 waio_api
 int32_t __stdcall waio_loop(waio * paio)
 {
-	void *		hwait[5];
+	void *		hwait[3];
 	nt_timeout *	timeout;
 
 	/* notify the init routine that the loop is ready */
@@ -49,8 +49,6 @@ int32_t __stdcall waio_loop(waio * paio)
 	hwait[0] = paio->hevent_abort_request;
 	hwait[1] = paio->hevent_cancel_request;
 	hwait[2] = paio->hevent_queue_request;
-	hwait[3] = paio->hevent_io_complete;
-	hwait[4] = paio->hthread_io;
 
 	do {
 		if (paio->io_request_timeout.quad)
