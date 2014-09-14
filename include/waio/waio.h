@@ -98,19 +98,23 @@ typedef union waio_timeout_union {
 
 
 /* function prototypes: library-specific interfaces */
-/* waio_alloc(): associate a native file handle with an opaque waio context */
+/* ------------------------------------------------ */
+/* waio_alloc():
+/* associate a native file handle with an opaque waio context */
 waio_api waio_cx waio_alloc(
 		void * 		handle,	  /* in            */
-		unsigned int	flags,	  /* in,  ignored  */
-		void * 		options,  /* in,  ignores  */
+		unsigned int	flags,	  /* in,  reserved */
+		void * 		options,  /* in,  reserved */
 		signed int *	status);  /* out, optional */
 
 
-/* waio_free(): free a waio context after cancelling all pending i/o operations */
+/* waio_free():
+/* free a waio context after cancelling all pending i/o operations */
 waio_api int waio_free (waio_cx);
 
 
 /* function prototypes: aio-like interfaces */
+/* ---------------------------------------- */
 waio_api int		waio_read	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_write	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_cancel	(waio_cx, struct waio_aiocb *);
