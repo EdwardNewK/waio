@@ -117,11 +117,11 @@ waio_api int waio_free (waio_cx);
 /* ---------------------------------------- */
 waio_api int		waio_read	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_write	(waio_cx, struct waio_aiocb *);
+waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_cancel	(waio_cx, struct waio_aiocb *);
 waio_api int		waio_error	(waio_cx, const struct waio_aiocb *);
-waio_api ssize_t	waio_return	(waio_cx, struct waio_aiocb *);
-waio_api int		waio_listio	(waio_cx, int mode, struct waio_aiocb * const aiocb_list[], int nitems);
 waio_api int		waio_suspend	(waio_cx, const struct waio_aiocb * const aiocb_list[], int nitems, waio_timeout * timeout);
+waio_api int		waio_listio	(waio_cx, int mode, struct waio_aiocb * const aiocb_list[], int nitems);
 waio_api int		waio_fcntl	(waio_cx, struct waio_aiocb *,int,size_t,void *,void *);
 waio_api int		waio_ioctl	(waio_cx, struct waio_aiocb *,int,size_t,void *,void *);
 waio_api int		waio_fsync	(waio_cx, int, struct waio_aiocb *);
