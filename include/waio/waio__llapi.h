@@ -140,7 +140,7 @@ waio_api waio_fn waio_io;
 waio_hook waio_hook_default;
 
 /* client */
-waio_api signed int waio_submit_single_request(
+waio_api signed int __waio_call_conv__api waio_submit_single_request(
 	waio *			paio,
 	struct waio_aiocb *	aiocb,
 	signed int		lio_opcode,
