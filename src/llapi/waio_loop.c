@@ -57,7 +57,7 @@ int32_t __stdcall waio_loop(waio * paio)
 			timeout = (nt_timeout *)0;
 
 		/* wait */
-		if (!paio->queue_counter && !paio->data_counter) {
+		if (!paio->queue_counter && !paio->data_counter && !paio->cancel_counter) {
 			paio->status_loop = __ntapi->zw_wait_for_multiple_objects(
 				3,
 				hwait,
@@ -71,12 +71,23 @@ int32_t __stdcall waio_loop(waio * paio)
 			paio->hooks[WAIO_HOOK_ON_TIMEOUT](paio,WAIO_HOOK_ON_TIMEOUT,paio->status_loop);
 
 		/* abort request? */
-		if (paio->abort_counter)
+		if (paio->abort_counter) {
+			at_locked_dec(&paio->abort_counter);
 			waio_thread_shutdown_request(paio);
+		}
 
 		/* cancel request? */
-		if (paio->cancel_counter)
+		if (paio->cancel_counter) {
+			at_locked_dec(&paio->cancel_counter);
 			paio->hooks[WAIO_HOOK_ON_CANCEL_REQUEST](paio,WAIO_HOOK_ON_CANCEL_REQUEST,paio->status_loop);
+
+			__ntapi->zw_reset_event(
+				paio->hevent_cancel_request,
+				(int32_t *)0);
+
+			/* release lock */
+			paio->context_loop = (void *)0;
+		}
 
 		/* io call completed? */
 		if (paio->data_counter) {

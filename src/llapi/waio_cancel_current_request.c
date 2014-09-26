@@ -74,9 +74,7 @@ int32_t __stdcall waio_cancel_current_request(waio * paio)
 			paio->hevent_io_ready,
 			NT_SYNC_NON_ALERTABLE,
 			(nt_large_integer *)0);
-
-		if (status) return status;
 	}
 
-	return NT_STATUS_SUCCESS;
+	return status;
 }

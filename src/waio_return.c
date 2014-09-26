@@ -49,7 +49,7 @@ ssize_t waio_return(
 			break;
 
 		case NT_STATUS_CANCELLED:
-			return -WAIO_EINTR;
+			return -WAIO_ECANCELED;
 			break;
 	}
 

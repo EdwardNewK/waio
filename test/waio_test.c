@@ -170,6 +170,8 @@ int waio_tu_entry_point(void)
 
 	status = waio_test_read_suspend_return();
 
+	status = waio_test_read_suspend_cancel();
+
 	__ntapi->zw_terminate_process(
 		NT_CURRENT_PROCESS_HANDLE,
 		status);

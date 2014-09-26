@@ -109,7 +109,8 @@ int waio_cancel(
 		if (hwait) {
 			/* save two system calls */
 			opaque->hcancel = hwait;
-			hwait = (void *)0;
+			hwait  = (void *)0;
+			status = NT_STATUS_SUCCESS;
 		} else {
 			status = __ntapi->tt_create_private_event(
 				&opaque->hcancel,
@@ -128,31 +129,39 @@ int waio_cancel(
 	opaque->cx_cancel = cx_cancel;
 	at_locked_inc(&cx->paio->cancel_counter);
 
-	status = __ntapi->zw_set_event(
+	__ntapi->zw_set_event(
 		cx->paio->hevent_cancel_request,
 		(int32_t *)0);
 
-	if (status) return -WAIO_EAGAIN; 
-
 	/* wait for waio_cancel_aiocb (loop thread) to complete */
-	status = __ntapi->zw_wait_for_single_object(
-		aiocb->hsignal,
+	__ntapi->zw_wait_for_single_object(
+		opaque->hcancel,
 		NT_SYNC_NON_ALERTABLE,
 		(nt_timeout *)0);
-
-	if (status) return -WAIO_EAGAIN;
 
 	/* copy result */
 	status = opaque->status_cancel;
 
-	/* release lock */
-	__ntapi->zw_reset_event(
-		cx->paio->hevent_cancel_request,
-		(int32_t *)0);
-
-	cx->paio->context_loop = (void *)0;
-
 	/* and voila */
+	return status;
+}
+
+
+waio_internal_api
+int waio_cancel_current_aiocb(
+	_in_	waio *			paio,
+	_in_	struct waio_aiocb *	aiocb)
+{
+	int32_t			status;
+	waio_aiocb_opaque *	opaque;
+	const struct waio_aiocb*cb[1];
+
+	status = waio_cancel_current_request(paio);
+	opaque = (waio_aiocb_opaque *)aiocb->__opaque;
+	cb[0]  = aiocb;
+
+	waio_suspend(opaque->cx,cb,1,(waio_timeout *)0);
+
 	return status;
 }
 
@@ -177,7 +186,7 @@ int waio_cancel_aiocb(
 	opaque = (waio_aiocb_opaque *)aiocb->__opaque;
 
 	if (opaque->cx_cancel) {
-		waio_cancel_current_request(paio);
+		waio_cancel_current_aiocb(paio,aiocb);
 
 		for (req=paio->queue; req; req=next) {
 			opaque = (waio_aiocb_opaque *)req->rpacket.aiocb->__opaque;
@@ -213,8 +222,8 @@ int waio_cancel_aiocb(
 	}
 
 	/* cancel current request? */
-	if (paio->packet->aiocb == aiocb)
-		waio_cancel_current_request(paio);
+	if ((paio->packet) && (paio->packet->aiocb == aiocb))
+		waio_cancel_current_aiocb(paio,aiocb);
 
 	/* remove from queue */
 	req = paio->queue;
@@ -224,7 +233,7 @@ int waio_cancel_aiocb(
 	else
 		next = (waio_request *)0;
 
-	if (req->rpacket.aiocb == aiocb) {
+	if (req && (req->rpacket.aiocb == aiocb)) {
 		paio->queue	= req->next;
 		req->next	= paio->qfree;
 		paio->qfree	= req;
@@ -234,14 +243,14 @@ int waio_cancel_aiocb(
 			next = next->next;
 		}
 
-		if (next->rpacket.aiocb == aiocb) {
+		if (next && (next->rpacket.aiocb == aiocb)) {
 			req->next	= next->next;
 			next->next	= paio->qfree;
 			paio->qfree	= next;
 		}
 	}
 
-	/* check status, clean-up, and return */
+	/* check/set status, clean-up, and return */
 	opaque = (waio_aiocb_opaque *)aiocb->__opaque;
 
 	if (opaque->hpending)

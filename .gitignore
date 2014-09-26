@@ -17,6 +17,8 @@ log/
 *.gch
 *.project
 *.workspace
+*.json
+*.diff
 waio10.sln
 waio10.vcxproj
 ldflags.mak

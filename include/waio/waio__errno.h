@@ -40,5 +40,6 @@
 #define WAIO_EADDRINUSE       98
 #define WAIO_EADDRNOTAVAIL    99
 #define WAIO_EINPROGRESS     115
+#define WAIO_ECANCELED       125
 
 #endif /* _WAIO__ERRNO_H_ */

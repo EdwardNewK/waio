@@ -46,6 +46,7 @@ signed int __waio_call_conv__api waio_submit_single_request(
 	waio_slot *		slot;
 	waio_aiocb_opaque *	opaque;
 	void *			hlistio;
+	waio_cx_struct *	cx;
 
 	/* lio_opcode */
 	if ((lio_opcode < 0) || (lio_opcode > WAIO_NOP))
@@ -65,15 +66,17 @@ signed int __waio_call_conv__api waio_submit_single_request(
 	slot->aiocb		= aiocb;
 
 	/* internal notification */
-	opaque   = ((waio_aiocb_opaque *)(aiocb->__opaque));
-	hlistio  = opaque->hlistio;
+	opaque	= ((waio_aiocb_opaque *)(aiocb->__opaque));
+	cx	= opaque->cx;
+	hlistio	= opaque->hlistio;
 
 	/* init opaque data */
 	__ntapi->memset(aiocb->__opaque,0,sizeof(size_t) * WAIO_CX_OPAQUE_POINTERS);
 
 	/* opaque queue status & internal notificaiton */
-	opaque->qstatus  = NT_STATUS_WAIT_1;
-	opaque->hlistio  = hlistio;
+	opaque->qstatus	= NT_STATUS_WAIT_1;
+	opaque->cx	= cx;
+	opaque->hlistio	= hlistio;
 
 	/* mark slot for queueing */
 	slot->pid = pid;

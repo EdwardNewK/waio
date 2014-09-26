@@ -57,10 +57,11 @@ typedef struct waio_cx_interface {
 	struct waio_cx_interface *	self;
 	struct waio_interface *		paio;
 	size_t				cx_size;
-} waio_opaque_cx;
+} waio_cx_struct;
 
 
 typedef struct waio_aiocb_opaque_interface {
+	waio_cx_struct *cx;
 	nt_iosb		iosb;
 	void *          hpending;
 	void *          hlistio;

@@ -38,6 +38,7 @@ static int waio_read_write(
 
 	/* internal notification */
 	opaque = (waio_aiocb_opaque *)aiocb->__opaque;
+	opaque->cx = cx;
 	opaque->hlistio = 0;
 
 	status = waio_submit_single_request(

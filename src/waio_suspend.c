@@ -83,6 +83,7 @@ int waio_suspend(
 				break;
 		}
 
+		/* hsignal (optional) */
 		if (aiocb_list[i]->hsignal)
 			hsignal = aiocb_list[i]->hsignal;
 	}
