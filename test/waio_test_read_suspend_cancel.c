@@ -59,6 +59,8 @@ int __cdecl waio_test_read_suspend_cancel(void)
 	cb_read.aio_nbytes	= 8;
 	cb[0] = &cb_read;
 
+	waio_test_query_hook((waio *)0, 0x01234567,0x89abcdef);
+
 	while (1) {
 		ret = waio_read(cx_read,&cb_read);
 		waio_test_query_hook((waio *)0, 0x11111111,ret);
@@ -85,6 +87,7 @@ int __cdecl waio_test_read_suspend_cancel(void)
 				(int32_t *)0);
 	}
 
+	waio_test_query_hook((waio *)0, 0x69696969,ret);
 	ret = waio_free(cx_read);
 	if (ret) return -ret;
 

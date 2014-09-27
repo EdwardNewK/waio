@@ -43,6 +43,7 @@ waio_api
 int32_t __stdcall waio_io(waio * paio)
 {
 	int32_t			state;
+	void *			hio;
 	void *			hpending[2];
 	void *			hwait[2];
 	ntapi_zw_read_file *	io_routine[3];
@@ -53,7 +54,7 @@ int32_t __stdcall waio_io(waio * paio)
 
 	/* hfile may be non-blocking */
 	paio->status_io = __ntapi->tt_create_private_event(
-		&hpending[0],
+		&hio,
 		NT_NOTIFICATION_EVENT,
 		NT_EVENT_NOT_SIGNALED);
 
@@ -95,7 +96,7 @@ int32_t __stdcall waio_io(waio * paio)
 
 		/* abort request? */
 		if (paio->abort_counter) {
-			__ntapi->zw_close(hpending[0]);
+			__ntapi->zw_close(hio);
 			waio_thread_shutdown_response(paio);
 		}
 
@@ -112,7 +113,7 @@ int32_t __stdcall waio_io(waio * paio)
 		if (paio->packet)
 			paio->status_io = io_routine[paio->type](
 				paio->hfile,
-				hpending[0],
+				hio,
 				(void *)0,
 				(void *)0,
 				&paio->packet->iosb,
@@ -125,6 +126,7 @@ int32_t __stdcall waio_io(waio * paio)
 
 		/* hfile may be non-blocking */
 		if (paio->status_io == NT_STATUS_PENDING) {
+			hpending[0] = hio;
 			paio->status_io = __ntapi->zw_wait_for_multiple_objects(
 				2,
 				hpending,
@@ -137,6 +139,12 @@ int32_t __stdcall waio_io(waio * paio)
 				__ntapi->zw_close(hpending[0]);
 				waio_thread_shutdown_response(paio);
 			}
+		}
+
+		/* abort request? */
+		if (paio->abort_counter) {
+			__ntapi->zw_close(hio);
+			waio_thread_shutdown_response(paio);
 		}
 
 		/* hook: after io */
@@ -154,10 +162,19 @@ int32_t __stdcall waio_io(waio * paio)
 
 		if (paio->status_io) return paio->status_io;
 
-		paio->status_io = __ntapi->zw_wait_for_single_object(
-			paio->hevent_io_complete,
-			NT_SYNC_NON_ALERTABLE,
-			(nt_timeout *)0);
+		hpending[0] = paio->hevent_io_complete;
+		paio->status_io = __ntapi->zw_wait_for_multiple_objects(
+				2,
+				hpending,
+				__ntapi->wait_type_any,
+				NT_SYNC_NON_ALERTABLE,
+				(nt_timeout *)0);
+
+		/* abort request? */
+		if (paio->abort_counter) {
+			__ntapi->zw_close(hio);
+			waio_thread_shutdown_response(paio);
+		}
 
 		if (paio->status_io) return paio->status_io;
 
