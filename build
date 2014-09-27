@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # there are four possibilities, and hence four pre-defined config files;
 # $1 should provide the name of that file.

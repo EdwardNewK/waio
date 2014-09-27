@@ -1,2 +1,2 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 ./build config-midipix-nt64 $1 $2 $3 $4 $5 $6 $7 $8 $9
