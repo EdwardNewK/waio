@@ -130,5 +130,6 @@
 #define CALLBACK	__stdcall
 #define NTAPI		__stdcall
 #define WINAPI		__stdcall
+#define __tep		__stdcall
 
 #endif /* _PSXTYPES_NT_COMPILER_MSVC_H_ */

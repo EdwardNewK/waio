@@ -107,5 +107,6 @@
 #define CALLBACK
 #define NTAPI
 #define WINAPI
+#define __tep
 
 #endif /* _PSXTYPES_PSX_COMPILER_GCC_H_ */

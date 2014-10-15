@@ -130,16 +130,6 @@
 #define __stdcall
 #endif
 
-#undef APIENTRY
-#undef CALLBACK
-#undef NTAPI
-#undef WINAPI
-
-#define APIENTRY	__stdcall
-#define CALLBACK	__stdcall
-#define NTAPI		__stdcall
-#define WINAPI		__stdcall
-
 
 /**
  *  architecture-specific calling conventions
@@ -151,5 +141,17 @@
 	#undef  __stdcall
 	#define __stdcall
 #endif
+
+
+#undef APIENTRY
+#undef CALLBACK
+#undef NTAPI
+#undef WINAPI
+
+#define APIENTRY	__stdcall
+#define CALLBACK	__stdcall
+#define NTAPI		__stdcall
+#define WINAPI		__stdcall
+#define __tep		__stdcall
 
 #endif /* _PSXTYPES_NT_COMPILER_GCC_H_ */
