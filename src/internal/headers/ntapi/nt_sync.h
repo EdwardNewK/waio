@@ -38,7 +38,7 @@ typedef enum _nt_event_info_class {
 
 
 typedef struct _nt_event_basic_information {
-	nt_event_type		event_time;
+	nt_event_type		event_type;
 	int32_t			signal_state;
 } nt_event_basic_information, nt_ebi;
 
