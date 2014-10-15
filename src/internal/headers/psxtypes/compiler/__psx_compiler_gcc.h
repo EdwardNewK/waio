@@ -1,5 +1,5 @@
-#ifndef _PSXTYPES_NT_COMPILER_GCC_H_
-#define _PSXTYPES_NT_COMPILER_GCC_H_
+#ifndef _PSXTYPES_PSX_COMPILER_GCC_H_
+#define _PSXTYPES_PSX_COMPILER_GCC_H_
 
 
 /**
@@ -108,4 +108,4 @@
 #define NTAPI
 #define WINAPI
 
-#endif /* _PSXTYPES_NT_COMPILER_GCC_H_ */
+#endif /* _PSXTYPES_PSX_COMPILER_GCC_H_ */
