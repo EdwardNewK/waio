@@ -26,7 +26,7 @@
 #if defined (__MIDIPIX_INTERNAL)
 #include "waio_mxvtbls.h"
 
-#elif defined (MIDIPIX_STANDALONE)
+#elif defined (MIDIPIX_FREESTANDING)
 #include "waio_mxvtbls.h"
 
 #else

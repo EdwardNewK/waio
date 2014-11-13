@@ -4,7 +4,7 @@
 /* low-level interfaces */
 #if !defined(__WAIO_INTERNAL) \
 	&& !defined(__MIDIPIX_INTERNAL) \
-	&& !defined(MIDIPIX_STANDALONE) \
+	&& !defined(MIDIPIX_FREESTANDING) \
 	&& !defined(MIDIPIX_WIN32) \
 	&& !defined(MIDIPIX_WIN64)
 	/* framework mismatch */

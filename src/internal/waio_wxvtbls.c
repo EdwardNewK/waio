@@ -21,7 +21,7 @@
 
 typedef int dummy_translation_unit;
 
-#if !defined (__MIDIPIX_INTERNAL) && !defined (MIDIPIX_STANDALONE)
+#if !defined (__MIDIPIX_INTERNAL) && !defined (MIDIPIX_FREESTANDING)
 
 #include <psxtypes/psxtypes.h>
 #include <ntapi/ntapi.h>

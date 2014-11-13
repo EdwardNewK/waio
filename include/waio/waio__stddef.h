@@ -7,7 +7,7 @@
 #elif defined (__MIDIPIX_INTERNAL)
 #include <psxtypes/psxtypes.h>
 
-#elif defined (MIDIPIX_STANDALONE)
+#elif defined (MIDIPIX_FREESTANDING)
 #include <psxtypes/psxtypes.h>
 
 #else
