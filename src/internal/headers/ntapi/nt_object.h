@@ -173,7 +173,7 @@ typedef struct _nt_guid {
 
 typedef struct _nt_uuid_vector {
 	uint32_t	count;
-	nt_uuid *	uuid[1];
+	nt_uuid *	uuid[];
 } nt_uuid_vector;
 
 
