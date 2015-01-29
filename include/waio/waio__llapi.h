@@ -108,7 +108,7 @@ typedef struct waio_interface {
 	void *		context_loop;		/* internal use */
 	void *		context_io;		/* internal use */
 	waio_packet	lpacket;		/* internal request info        */
-	waio_packet	lcancel_io;		/* internal cencellation status */
+	waio_packet	lcancel_io;		/* internal cancellation status */
 	waio_packet *	packet;			/* aio single request        */
 	waio_packet *	cancel_io;		/* aio cancellation request  */
 	waio_request *	queue;			/* request serialization */
