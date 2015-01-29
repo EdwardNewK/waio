@@ -7,7 +7,7 @@
 /* handle in general, and a pipe handle in particular, had been opened.      */
 /*                                                                           */
 /* the high-level waio interfaces follow the semantics of posix aio as       */
-/* closely as possible with respect to behaviour and return values, yet      */
+/* closely as possible with respect to behavior and return values, yet       */
 /* cannot adhere to them completely due to the differences between file      */
 /* descriptors and file or socket handles, as well as the lack of support    */
 /* of signals within the current library.  in this last respect, however,    */
@@ -21,9 +21,9 @@
 
 /* waio_api */
 #if   defined (__WAIO_BUILD__)
-#define	waio_api	__attr_export__
+#define	waio_api __attr_export__
 #elif defined (__WAIO_SHARED__)
-#define	waio_api	__attr_import__
+#define	waio_api __attr_import__
 #elif defined (__WAIO_STATIC__)
 #define	waio_api
 #else
@@ -109,7 +109,7 @@ waio_api waio_cx waio_alloc(
 
 
 /* waio_free(): */
-/* free a waio context after cancelling all pending i/o operations */
+/* free a waio context after canceling all pending i/o operations */
 waio_api int waio_free (waio_cx);
 
 
